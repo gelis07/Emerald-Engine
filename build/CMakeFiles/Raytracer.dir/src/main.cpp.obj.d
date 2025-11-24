@@ -183,4 +183,98 @@ CMakeFiles/Raytracer.dir/src/main.cpp.obj: \
  D:/msys64/mingw64/include/c++/14.2.0/bits/stl_uninitialized.h \
  D:/msys64/mingw64/include/c++/14.2.0/bits/stl_vector.h \
  D:/msys64/mingw64/include/c++/14.2.0/bits/stl_bvector.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/vector.tcc
+ D:/msys64/mingw64/include/c++/14.2.0/bits/vector.tcc D:/sdk/GLM/glm.hpp \
+ D:/sdk/GLM/detail/_fixes.hpp D:/sdk/GLM/detail/setup.hpp \
+ D:/msys64/mingw64/include/c++/14.2.0/cassert \
+ D:/msys64/mingw64/include/assert.h D:/sdk/GLM/simd/platform.h \
+ D:/msys64/mingw64/include/c++/14.2.0/cfloat \
+ D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/float.h \
+ D:/msys64/mingw64/include/float.h D:/sdk/GLM/fwd.hpp \
+ D:/sdk/GLM/detail/qualifier.hpp D:/sdk/GLM/detail/setup.hpp \
+ D:/sdk/GLM/vec2.hpp D:/sdk/GLM/ext/vector_bool2.hpp \
+ D:/sdk/GLM/detail/type_vec2.hpp D:/sdk/GLM/detail/type_vec2.inl \
+ D:/sdk/GLM/detail/compute_vector_relational.hpp \
+ D:/sdk/GLM/ext/vector_bool2_precision.hpp \
+ D:/sdk/GLM/ext/vector_float2.hpp \
+ D:/sdk/GLM/ext/vector_float2_precision.hpp \
+ D:/sdk/GLM/ext/vector_double2.hpp \
+ D:/sdk/GLM/ext/vector_double2_precision.hpp \
+ D:/sdk/GLM/ext/vector_int2.hpp D:/sdk/GLM/ext/vector_int2_sized.hpp \
+ D:/sdk/GLM/ext/scalar_int_sized.hpp D:/sdk/GLM/detail/setup.hpp \
+ D:/sdk/GLM/ext/vector_uint2.hpp D:/sdk/GLM/ext/vector_uint2_sized.hpp \
+ D:/sdk/GLM/ext/scalar_uint_sized.hpp D:/sdk/GLM/vec3.hpp \
+ D:/sdk/GLM/ext/vector_bool3.hpp D:/sdk/GLM/detail/type_vec3.hpp \
+ D:/sdk/GLM/detail/type_vec3.inl \
+ D:/sdk/GLM/ext/vector_bool3_precision.hpp \
+ D:/sdk/GLM/ext/vector_float3.hpp \
+ D:/sdk/GLM/ext/vector_float3_precision.hpp \
+ D:/sdk/GLM/ext/vector_double3.hpp \
+ D:/sdk/GLM/ext/vector_double3_precision.hpp \
+ D:/sdk/GLM/ext/vector_int3.hpp D:/sdk/GLM/ext/vector_int3_sized.hpp \
+ D:/sdk/GLM/ext/vector_uint3.hpp D:/sdk/GLM/ext/vector_uint3_sized.hpp \
+ D:/sdk/GLM/vec4.hpp D:/sdk/GLM/ext/vector_bool4.hpp \
+ D:/sdk/GLM/detail/type_vec4.hpp D:/sdk/GLM/detail/type_vec4.inl \
+ D:/sdk/GLM/ext/vector_bool4_precision.hpp \
+ D:/sdk/GLM/ext/vector_float4.hpp \
+ D:/sdk/GLM/ext/vector_float4_precision.hpp \
+ D:/sdk/GLM/ext/vector_double4.hpp \
+ D:/sdk/GLM/ext/vector_double4_precision.hpp \
+ D:/sdk/GLM/ext/vector_int4.hpp D:/sdk/GLM/ext/vector_int4_sized.hpp \
+ D:/sdk/GLM/ext/vector_uint4.hpp D:/sdk/GLM/ext/vector_uint4_sized.hpp \
+ D:/sdk/GLM/mat2x2.hpp D:/sdk/GLM/ext/matrix_double2x2.hpp \
+ D:/sdk/GLM/detail/type_mat2x2.hpp D:/sdk/GLM/detail/type_mat2x2.inl \
+ D:/sdk/GLM/matrix.hpp D:/sdk/GLM/mat2x3.hpp \
+ D:/sdk/GLM/ext/matrix_double2x3.hpp D:/sdk/GLM/detail/type_mat2x3.hpp \
+ D:/sdk/GLM/detail/type_mat2x3.inl \
+ D:/sdk/GLM/ext/matrix_double2x3_precision.hpp \
+ D:/sdk/GLM/ext/matrix_float2x3.hpp \
+ D:/sdk/GLM/ext/matrix_float2x3_precision.hpp D:/sdk/GLM/mat2x4.hpp \
+ D:/sdk/GLM/ext/matrix_double2x4.hpp D:/sdk/GLM/detail/type_mat2x4.hpp \
+ D:/sdk/GLM/detail/type_mat2x4.inl \
+ D:/sdk/GLM/ext/matrix_double2x4_precision.hpp \
+ D:/sdk/GLM/ext/matrix_float2x4.hpp \
+ D:/sdk/GLM/ext/matrix_float2x4_precision.hpp D:/sdk/GLM/mat3x2.hpp \
+ D:/sdk/GLM/ext/matrix_double3x2.hpp D:/sdk/GLM/detail/type_mat3x2.hpp \
+ D:/sdk/GLM/detail/type_mat3x2.inl \
+ D:/sdk/GLM/ext/matrix_double3x2_precision.hpp \
+ D:/sdk/GLM/ext/matrix_float3x2.hpp \
+ D:/sdk/GLM/ext/matrix_float3x2_precision.hpp D:/sdk/GLM/mat3x3.hpp \
+ D:/sdk/GLM/ext/matrix_double3x3.hpp D:/sdk/GLM/detail/type_mat3x3.hpp \
+ D:/sdk/GLM/detail/type_mat3x3.inl \
+ D:/sdk/GLM/ext/matrix_double3x3_precision.hpp \
+ D:/sdk/GLM/ext/matrix_float3x3.hpp \
+ D:/sdk/GLM/ext/matrix_float3x3_precision.hpp D:/sdk/GLM/mat3x4.hpp \
+ D:/sdk/GLM/ext/matrix_double3x4.hpp D:/sdk/GLM/detail/type_mat3x4.hpp \
+ D:/sdk/GLM/detail/type_mat3x4.inl \
+ D:/sdk/GLM/ext/matrix_double3x4_precision.hpp \
+ D:/sdk/GLM/ext/matrix_float3x4.hpp \
+ D:/sdk/GLM/ext/matrix_float3x4_precision.hpp D:/sdk/GLM/mat4x2.hpp \
+ D:/sdk/GLM/ext/matrix_double4x2.hpp D:/sdk/GLM/detail/type_mat4x2.hpp \
+ D:/sdk/GLM/detail/type_mat4x2.inl \
+ D:/sdk/GLM/ext/matrix_double4x2_precision.hpp \
+ D:/sdk/GLM/ext/matrix_float4x2.hpp \
+ D:/sdk/GLM/ext/matrix_float4x2_precision.hpp D:/sdk/GLM/mat4x3.hpp \
+ D:/sdk/GLM/ext/matrix_double4x3.hpp D:/sdk/GLM/detail/type_mat4x3.hpp \
+ D:/sdk/GLM/detail/type_mat4x3.inl \
+ D:/sdk/GLM/ext/matrix_double4x3_precision.hpp \
+ D:/sdk/GLM/ext/matrix_float4x3.hpp \
+ D:/sdk/GLM/ext/matrix_float4x3_precision.hpp D:/sdk/GLM/mat4x4.hpp \
+ D:/sdk/GLM/ext/matrix_double4x4.hpp D:/sdk/GLM/detail/type_mat4x4.hpp \
+ D:/sdk/GLM/detail/type_mat4x4.inl \
+ D:/sdk/GLM/ext/matrix_double4x4_precision.hpp \
+ D:/sdk/GLM/ext/matrix_float4x4.hpp \
+ D:/sdk/GLM/ext/matrix_float4x4_precision.hpp \
+ D:/sdk/GLM/detail/func_matrix.inl D:/sdk/GLM/geometric.hpp \
+ D:/sdk/GLM/detail/func_geometric.inl D:/sdk/GLM/exponential.hpp \
+ D:/sdk/GLM/detail/type_vec1.hpp D:/sdk/GLM/detail/type_vec1.inl \
+ D:/sdk/GLM/detail/func_exponential.inl D:/sdk/GLM/vector_relational.hpp \
+ D:/sdk/GLM/detail/func_vector_relational.inl \
+ D:/sdk/GLM/detail/_vectorize.hpp D:/sdk/GLM/common.hpp \
+ D:/sdk/GLM/detail/func_common.inl D:/sdk/GLM/detail/compute_common.hpp \
+ D:/sdk/GLM/ext/matrix_double2x2_precision.hpp \
+ D:/sdk/GLM/ext/matrix_float2x2.hpp \
+ D:/sdk/GLM/ext/matrix_float2x2_precision.hpp \
+ D:/sdk/GLM/trigonometric.hpp D:/sdk/GLM/detail/func_trigonometric.inl \
+ D:/sdk/GLM/packing.hpp D:/sdk/GLM/detail/func_packing.inl \
+ D:/sdk/GLM/detail/type_half.hpp D:/sdk/GLM/detail/type_half.inl \
+ D:/sdk/GLM/integer.hpp D:/sdk/GLM/detail/func_integer.inl

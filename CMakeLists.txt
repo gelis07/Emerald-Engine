@@ -15,8 +15,6 @@ include_directories(D:/sdk/ImGuiDocking/backends/)
 include_directories(D:/sdk/ImGuiDocking/)
 include_directories(D:/sdk/GLM)
 include_directories(D:/sdk/fmt/include)
-include_directories(D:/sdk/nlhjson/single_include/nlohmann)
-include_directories(D:/sdk/Lua)
 
 
 link_directories(${CMAKE_SOURCE_DIR}/lib)

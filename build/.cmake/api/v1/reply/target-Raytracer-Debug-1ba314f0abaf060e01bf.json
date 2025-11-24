@@ -30,19 +30,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 24,
+				"line" : 22,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 22,
+				"line" : 20,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 29,
+				"line" : 27,
 				"parent" : 0
 			},
 			{
@@ -79,18 +79,6 @@
 				"command" : 3,
 				"file" : 0,
 				"line" : 17,
-				"parent" : 0
-			},
-			{
-				"command" : 3,
-				"file" : 0,
-				"line" : 18,
-				"parent" : 0
-			},
-			{
-				"command" : 3,
-				"file" : 0,
-				"line" : 19,
 				"parent" : 0
 			}
 		]
@@ -129,14 +117,6 @@
 				{
 					"backtrace" : 9,
 					"path" : "D:/sdk/fmt/include"
-				},
-				{
-					"backtrace" : 10,
-					"path" : "D:/sdk/nlhjson/single_include/nlohmann"
-				},
-				{
-					"backtrace" : 11,
-					"path" : "D:/sdk/Lua"
 				}
 			],
 			"language" : "CXX",
@@ -177,14 +157,6 @@
 				{
 					"backtrace" : 9,
 					"path" : "D:/sdk/fmt/include"
-				},
-				{
-					"backtrace" : 10,
-					"path" : "D:/sdk/nlhjson/single_include/nlohmann"
-				},
-				{
-					"backtrace" : 11,
-					"path" : "D:/sdk/Lua"
 				}
 			],
 			"language" : "C",
