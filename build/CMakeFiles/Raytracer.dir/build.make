@@ -98,21 +98,123 @@ CMakeFiles/Raytracer.dir/D_/sdk/glad/src/glad.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/Raytracer.dir/D_/sdk/glad/src/glad.c.s"
 	D:\msys64\mingw64\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S D:\sdk\glad\src\glad.c -o CMakeFiles\Raytracer.dir\D_\sdk\glad\src\glad.c.s
 
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj: CMakeFiles/Raytracer.dir/flags.make
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj: CMakeFiles/Raytracer.dir/includes_CXX.rsp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj: D:/sdk/ImGuiDocking/imgui.cpp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj: CMakeFiles/Raytracer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Gelis\OpenGL\Raytracing\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj -MF CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui.cpp.obj.d -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui.cpp.obj -c D:\sdk\ImGuiDocking\imgui.cpp
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.i"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\sdk\ImGuiDocking\imgui.cpp > CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui.cpp.i
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.s"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\sdk\ImGuiDocking\imgui.cpp -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui.cpp.s
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj: CMakeFiles/Raytracer.dir/flags.make
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj: CMakeFiles/Raytracer.dir/includes_CXX.rsp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj: D:/sdk/ImGuiDocking/imgui_draw.cpp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj: CMakeFiles/Raytracer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Gelis\OpenGL\Raytracing\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj -MF CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_draw.cpp.obj.d -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_draw.cpp.obj -c D:\sdk\ImGuiDocking\imgui_draw.cpp
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.i"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\sdk\ImGuiDocking\imgui_draw.cpp > CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_draw.cpp.i
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.s"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\sdk\ImGuiDocking\imgui_draw.cpp -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_draw.cpp.s
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj: CMakeFiles/Raytracer.dir/flags.make
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj: CMakeFiles/Raytracer.dir/includes_CXX.rsp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj: D:/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj: CMakeFiles/Raytracer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Gelis\OpenGL\Raytracing\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj -MF CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\backends\imgui_impl_glfw.cpp.obj.d -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\backends\imgui_impl_glfw.cpp.obj -c D:\sdk\ImGuiDocking\backends\imgui_impl_glfw.cpp
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.i"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\sdk\ImGuiDocking\backends\imgui_impl_glfw.cpp > CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\backends\imgui_impl_glfw.cpp.i
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.s"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\sdk\ImGuiDocking\backends\imgui_impl_glfw.cpp -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\backends\imgui_impl_glfw.cpp.s
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj: CMakeFiles/Raytracer.dir/flags.make
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj: CMakeFiles/Raytracer.dir/includes_CXX.rsp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj: D:/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj: CMakeFiles/Raytracer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Gelis\OpenGL\Raytracing\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj -MF CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\backends\imgui_impl_opengl3.cpp.obj.d -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\backends\imgui_impl_opengl3.cpp.obj -c D:\sdk\ImGuiDocking\backends\imgui_impl_opengl3.cpp
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.i"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\sdk\ImGuiDocking\backends\imgui_impl_opengl3.cpp > CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\backends\imgui_impl_opengl3.cpp.i
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.s"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\sdk\ImGuiDocking\backends\imgui_impl_opengl3.cpp -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\backends\imgui_impl_opengl3.cpp.s
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj: CMakeFiles/Raytracer.dir/flags.make
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj: CMakeFiles/Raytracer.dir/includes_CXX.rsp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj: D:/sdk/ImGuiDocking/imgui_tables.cpp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj: CMakeFiles/Raytracer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Gelis\OpenGL\Raytracing\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj -MF CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_tables.cpp.obj.d -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_tables.cpp.obj -c D:\sdk\ImGuiDocking\imgui_tables.cpp
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.i"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\sdk\ImGuiDocking\imgui_tables.cpp > CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_tables.cpp.i
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.s"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\sdk\ImGuiDocking\imgui_tables.cpp -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_tables.cpp.s
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj: CMakeFiles/Raytracer.dir/flags.make
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj: CMakeFiles/Raytracer.dir/includes_CXX.rsp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj: D:/sdk/ImGuiDocking/imgui_widgets.cpp
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj: CMakeFiles/Raytracer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Gelis\OpenGL\Raytracing\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj -MF CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_widgets.cpp.obj.d -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_widgets.cpp.obj -c D:\sdk\ImGuiDocking\imgui_widgets.cpp
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.i"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\sdk\ImGuiDocking\imgui_widgets.cpp > CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_widgets.cpp.i
+
+CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.s"
+	D:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\sdk\ImGuiDocking\imgui_widgets.cpp -o CMakeFiles\Raytracer.dir\D_\sdk\ImGuiDocking\imgui_widgets.cpp.s
+
 # Object files for target Raytracer
 Raytracer_OBJECTS = \
 "CMakeFiles/Raytracer.dir/src/main.cpp.obj" \
-"CMakeFiles/Raytracer.dir/D_/sdk/glad/src/glad.c.obj"
+"CMakeFiles/Raytracer.dir/D_/sdk/glad/src/glad.c.obj" \
+"CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj" \
+"CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj" \
+"CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj" \
+"CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj" \
+"CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj" \
+"CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj"
 
 # External object files for target Raytracer
 Raytracer_EXTERNAL_OBJECTS =
 
 Raytracer.exe: CMakeFiles/Raytracer.dir/src/main.cpp.obj
 Raytracer.exe: CMakeFiles/Raytracer.dir/D_/sdk/glad/src/glad.c.obj
+Raytracer.exe: CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj
+Raytracer.exe: CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj
+Raytracer.exe: CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj
+Raytracer.exe: CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj
+Raytracer.exe: CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj
+Raytracer.exe: CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj
 Raytracer.exe: CMakeFiles/Raytracer.dir/build.make
 Raytracer.exe: CMakeFiles/Raytracer.dir/linkLibs.rsp
 Raytracer.exe: CMakeFiles/Raytracer.dir/objects1.rsp
 Raytracer.exe: CMakeFiles/Raytracer.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=D:\Gelis\OpenGL\Raytracing\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable Raytracer.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=D:\Gelis\OpenGL\Raytracing\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable Raytracer.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\Raytracer.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

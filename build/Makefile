@@ -128,6 +128,150 @@ Raytracer/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/build
 .PHONY : Raytracer/fast
 
+D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.obj: D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.obj
+
+# target to build an object file
+D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj
+
+D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.i: D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.i
+
+# target to preprocess a source file
+D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.i
+
+D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.s: D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.s
+
+# target to generate assembly for a file
+D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.s
+
+D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.obj: D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.obj
+
+# target to build an object file
+D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj
+
+D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.i: D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.i
+
+# target to preprocess a source file
+D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.i
+
+D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.s: D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.s
+
+# target to generate assembly for a file
+D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.s
+
+D_/sdk/ImGuiDocking/imgui.obj: D_/sdk/ImGuiDocking/imgui.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/imgui.obj
+
+# target to build an object file
+D_/sdk/ImGuiDocking/imgui.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/imgui.cpp.obj
+
+D_/sdk/ImGuiDocking/imgui.i: D_/sdk/ImGuiDocking/imgui.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/imgui.i
+
+# target to preprocess a source file
+D_/sdk/ImGuiDocking/imgui.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/imgui.cpp.i
+
+D_/sdk/ImGuiDocking/imgui.s: D_/sdk/ImGuiDocking/imgui.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/imgui.s
+
+# target to generate assembly for a file
+D_/sdk/ImGuiDocking/imgui.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/imgui.cpp.s
+
+D_/sdk/ImGuiDocking/imgui_draw.obj: D_/sdk/ImGuiDocking/imgui_draw.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/imgui_draw.obj
+
+# target to build an object file
+D_/sdk/ImGuiDocking/imgui_draw.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/imgui_draw.cpp.obj
+
+D_/sdk/ImGuiDocking/imgui_draw.i: D_/sdk/ImGuiDocking/imgui_draw.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/imgui_draw.i
+
+# target to preprocess a source file
+D_/sdk/ImGuiDocking/imgui_draw.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/imgui_draw.cpp.i
+
+D_/sdk/ImGuiDocking/imgui_draw.s: D_/sdk/ImGuiDocking/imgui_draw.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/imgui_draw.s
+
+# target to generate assembly for a file
+D_/sdk/ImGuiDocking/imgui_draw.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/imgui_draw.cpp.s
+
+D_/sdk/ImGuiDocking/imgui_tables.obj: D_/sdk/ImGuiDocking/imgui_tables.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/imgui_tables.obj
+
+# target to build an object file
+D_/sdk/ImGuiDocking/imgui_tables.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/imgui_tables.cpp.obj
+
+D_/sdk/ImGuiDocking/imgui_tables.i: D_/sdk/ImGuiDocking/imgui_tables.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/imgui_tables.i
+
+# target to preprocess a source file
+D_/sdk/ImGuiDocking/imgui_tables.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/imgui_tables.cpp.i
+
+D_/sdk/ImGuiDocking/imgui_tables.s: D_/sdk/ImGuiDocking/imgui_tables.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/imgui_tables.s
+
+# target to generate assembly for a file
+D_/sdk/ImGuiDocking/imgui_tables.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/imgui_tables.cpp.s
+
+D_/sdk/ImGuiDocking/imgui_widgets.obj: D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/imgui_widgets.obj
+
+# target to build an object file
+D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj
+.PHONY : D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj
+
+D_/sdk/ImGuiDocking/imgui_widgets.i: D_/sdk/ImGuiDocking/imgui_widgets.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/imgui_widgets.i
+
+# target to preprocess a source file
+D_/sdk/ImGuiDocking/imgui_widgets.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.i
+.PHONY : D_/sdk/ImGuiDocking/imgui_widgets.cpp.i
+
+D_/sdk/ImGuiDocking/imgui_widgets.s: D_/sdk/ImGuiDocking/imgui_widgets.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/imgui_widgets.s
+
+# target to generate assembly for a file
+D_/sdk/ImGuiDocking/imgui_widgets.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.s
+.PHONY : D_/sdk/ImGuiDocking/imgui_widgets.cpp.s
+
 D_/sdk/glad/src/glad.obj: D_/sdk/glad/src/glad.c.obj
 .PHONY : D_/sdk/glad/src/glad.obj
 
@@ -185,6 +329,24 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... Raytracer
+	@echo ... D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.obj
+	@echo ... D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.i
+	@echo ... D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.s
+	@echo ... D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.obj
+	@echo ... D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.i
+	@echo ... D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.s
+	@echo ... D_/sdk/ImGuiDocking/imgui.obj
+	@echo ... D_/sdk/ImGuiDocking/imgui.i
+	@echo ... D_/sdk/ImGuiDocking/imgui.s
+	@echo ... D_/sdk/ImGuiDocking/imgui_draw.obj
+	@echo ... D_/sdk/ImGuiDocking/imgui_draw.i
+	@echo ... D_/sdk/ImGuiDocking/imgui_draw.s
+	@echo ... D_/sdk/ImGuiDocking/imgui_tables.obj
+	@echo ... D_/sdk/ImGuiDocking/imgui_tables.i
+	@echo ... D_/sdk/ImGuiDocking/imgui_tables.s
+	@echo ... D_/sdk/ImGuiDocking/imgui_widgets.obj
+	@echo ... D_/sdk/ImGuiDocking/imgui_widgets.i
+	@echo ... D_/sdk/ImGuiDocking/imgui_widgets.s
 	@echo ... D_/sdk/glad/src/glad.obj
 	@echo ... D_/sdk/glad/src/glad.i
 	@echo ... D_/sdk/glad/src/glad.s

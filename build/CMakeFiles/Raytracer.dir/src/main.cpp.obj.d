@@ -277,4 +277,44 @@ CMakeFiles/Raytracer.dir/src/main.cpp.obj: \
  D:/sdk/GLM/trigonometric.hpp D:/sdk/GLM/detail/func_trigonometric.inl \
  D:/sdk/GLM/packing.hpp D:/sdk/GLM/detail/func_packing.inl \
  D:/sdk/GLM/detail/type_half.hpp D:/sdk/GLM/detail/type_half.inl \
- D:/sdk/GLM/integer.hpp D:/sdk/GLM/detail/func_integer.inl
+ D:/sdk/GLM/integer.hpp D:/sdk/GLM/detail/func_integer.inl \
+ D:/sdk/ImGuiDocking/imgui.h D:/sdk/ImGuiDocking/imconfig.h \
+ D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/stdarg.h \
+ D:/msys64/mingw64/include/stdarg.h \
+ D:/msys64/mingw64/include/_mingw_stdarg.h \
+ D:/sdk/ImGuiDocking/backends/imgui_impl_opengl3.h \
+ D:/sdk/GLM/gtc/type_ptr.hpp D:/sdk/GLM/gtc/quaternion.hpp \
+ D:/sdk/GLM/gtc/constants.hpp D:/sdk/GLM/ext/scalar_constants.hpp \
+ D:/sdk/GLM/ext/scalar_constants.inl D:/sdk/GLM/gtc/constants.inl \
+ D:/sdk/GLM/gtc/matrix_transform.hpp D:/sdk/GLM/ext/matrix_projection.hpp \
+ D:/sdk/GLM/ext/matrix_projection.inl \
+ D:/sdk/GLM/ext/matrix_clip_space.hpp \
+ D:/sdk/GLM/ext/matrix_clip_space.inl D:/sdk/GLM/ext/matrix_transform.hpp \
+ D:/sdk/GLM/ext/matrix_transform.inl D:/sdk/GLM/gtc/matrix_transform.inl \
+ D:/sdk/GLM/ext/vector_relational.hpp \
+ D:/sdk/GLM/ext/vector_relational.inl D:/sdk/GLM/detail/type_float.hpp \
+ D:/sdk/GLM/ext/quaternion_common.hpp \
+ D:/sdk/GLM/ext/quaternion_geometric.hpp \
+ D:/sdk/GLM/ext/quaternion_geometric.inl \
+ D:/sdk/GLM/ext/quaternion_common.inl D:/sdk/GLM/ext/quaternion_float.hpp \
+ D:/sdk/GLM/detail/type_quat.hpp D:/sdk/GLM/ext/quaternion_relational.hpp \
+ D:/sdk/GLM/ext/quaternion_relational.inl D:/sdk/GLM/detail/type_quat.inl \
+ D:/sdk/GLM/ext/quaternion_float_precision.hpp \
+ D:/sdk/GLM/ext/quaternion_double.hpp \
+ D:/sdk/GLM/ext/quaternion_double_precision.hpp \
+ D:/sdk/GLM/ext/quaternion_trigonometric.hpp \
+ D:/sdk/GLM/ext/quaternion_trigonometric.inl \
+ D:/sdk/GLM/ext/quaternion_transform.hpp \
+ D:/sdk/GLM/ext/quaternion_transform.inl D:/sdk/GLM/gtc/quaternion.inl \
+ D:/sdk/GLM/gtc/epsilon.hpp D:/sdk/GLM/detail/setup.hpp \
+ D:/sdk/GLM/gtc/epsilon.inl D:/sdk/GLM/gtc/vec1.hpp \
+ D:/sdk/GLM/ext/vector_bool1.hpp \
+ D:/sdk/GLM/ext/vector_bool1_precision.hpp \
+ D:/sdk/GLM/ext/vector_float1.hpp \
+ D:/sdk/GLM/ext/vector_float1_precision.hpp \
+ D:/sdk/GLM/ext/vector_double1.hpp \
+ D:/sdk/GLM/ext/vector_double1_precision.hpp \
+ D:/sdk/GLM/ext/vector_int1.hpp D:/sdk/GLM/ext/vector_int1_sized.hpp \
+ D:/sdk/GLM/ext/vector_uint1.hpp D:/sdk/GLM/ext/vector_uint1_sized.hpp \
+ D:/sdk/GLM/gtc/type_ptr.inl \
+ D:/sdk/ImGuiDocking/backends/imgui_impl_glfw.h
