@@ -22,6 +22,12 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 add_executable(Raytracer
 src/main.cpp
 D:/sdk/glad/src/glad.c
+D:/sdk/ImGuiDocking/imgui.cpp
+D:/sdk/ImGuiDocking/imgui_draw.cpp
+D:/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp
+D:/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp
+D:/sdk/ImGuiDocking/imgui_tables.cpp
+D:/sdk/ImGuiDocking/imgui_widgets.cpp
 )
 
 target_link_libraries(Raytracer PRIVATE libglfw3.a)
