@@ -1,3 +1,3 @@
-D:\msys64\mingw64\bin\cmake.exe -E rm -f CMakeFiles\Raytracer.dir/objects.a
-D:\msys64\mingw64\bin\ar.exe qc CMakeFiles\Raytracer.dir/objects.a @CMakeFiles\Raytracer.dir\objects1.rsp
-D:\msys64\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\Raytracer.dir/objects.a -Wl,--no-whole-archive -o Raytracer.exe -Wl,--out-implib,libRaytracer.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\Raytracer.dir\linkLibs.rsp
+C:\msys64\mingw64\bin\cmake.exe -E rm -f CMakeFiles\Raytracer.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\Raytracer.dir/objects.a @CMakeFiles\Raytracer.dir\objects1.rsp
+C:\msys64\mingw64\bin\clang++.exe -g -Wl,--whole-archive CMakeFiles\Raytracer.dir/objects.a -Wl,--no-whole-archive -o Raytracer.exe -Wl,--out-implib,libRaytracer.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\Raytracer.dir\linkLibs.rsp

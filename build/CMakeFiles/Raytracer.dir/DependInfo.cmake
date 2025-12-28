@@ -8,14 +8,14 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "D:/sdk/glad/src/glad.c" "CMakeFiles/Raytracer.dir/D_/sdk/glad/src/glad.c.obj" "gcc" "CMakeFiles/Raytracer.dir/D_/sdk/glad/src/glad.c.obj.d"
-  "D:/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj.d"
-  "D:/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj.d"
-  "D:/sdk/ImGuiDocking/imgui.cpp" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui.cpp.obj.d"
-  "D:/sdk/ImGuiDocking/imgui_draw.cpp" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_draw.cpp.obj.d"
-  "D:/sdk/ImGuiDocking/imgui_tables.cpp" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_tables.cpp.obj.d"
-  "D:/sdk/ImGuiDocking/imgui_widgets.cpp" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj.d"
-  "D:/Gelis/OpenGL/Raytracing/src/main.cpp" "CMakeFiles/Raytracer.dir/src/main.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/src/main.cpp.obj.d"
+  "C:/sdk/glad/src/glad.c" "CMakeFiles/Raytracer.dir/C_/sdk/glad/src/glad.c.obj" "gcc" "CMakeFiles/Raytracer.dir/C_/sdk/glad/src/glad.c.obj.d"
+  "C:/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj.d"
+  "C:/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj.d"
+  "C:/sdk/ImGuiDocking/imgui.cpp" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui.cpp.obj.d"
+  "C:/sdk/ImGuiDocking/imgui_draw.cpp" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_draw.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_draw.cpp.obj.d"
+  "C:/sdk/ImGuiDocking/imgui_tables.cpp" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_tables.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_tables.cpp.obj.d"
+  "C:/sdk/ImGuiDocking/imgui_widgets.cpp" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_widgets.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_widgets.cpp.obj.d"
+  "C:/Gelis/Raytracer/src/main.cpp" "CMakeFiles/Raytracer.dir/src/main.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/src/main.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

@@ -1,1 +1,1 @@
--ID:/sdk/glad/include -ID:/sdk/GLFW/include -ID:/sdk/ImGuiDocking/backends -ID:/sdk/ImGuiDocking -ID:/sdk/GLM -ID:/sdk/fmt/include
+-IC:/sdk/glad/include -IC:/sdk/GLFW/include -IC:/sdk/ImGuiDocking/backends -IC:/sdk/ImGuiDocking -IC:/sdk/GLM -IC:/sdk/fmt/include

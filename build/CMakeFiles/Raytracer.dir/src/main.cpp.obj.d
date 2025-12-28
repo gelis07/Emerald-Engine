@@ -1,320 +1,483 @@
 CMakeFiles/Raytracer.dir/src/main.cpp.obj: \
- D:\Gelis\OpenGL\Raytracing\src\main.cpp \
- D:/msys64/mingw64/include/c++/14.2.0/iostream \
- D:/msys64/mingw64/include/c++/14.2.0/bits/requires_hosted.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/c++config.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/os_defines.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/cpu_defines.h \
- D:/msys64/mingw64/include/c++/14.2.0/pstl/pstl_config.h \
- D:/msys64/mingw64/include/c++/14.2.0/ostream \
- D:/msys64/mingw64/include/c++/14.2.0/ios \
- D:/msys64/mingw64/include/c++/14.2.0/iosfwd \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stringfwd.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/memoryfwd.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/postypes.h \
- D:/msys64/mingw64/include/c++/14.2.0/cwchar \
- D:/msys64/mingw64/include/wchar.h D:/msys64/mingw64/include/corecrt.h \
- D:/msys64/mingw64/include/_mingw.h \
- D:/msys64/mingw64/include/_mingw_mac.h \
- D:/msys64/mingw64/include/_mingw_secapi.h \
- D:/msys64/mingw64/include/vadefs.h \
- D:/msys64/mingw64/include/sdks/_mingw_ddk.h \
- D:/msys64/mingw64/include/corecrt_stdio_config.h \
- D:/msys64/mingw64/include/corecrt_wstdlib.h \
- D:/msys64/mingw64/include/_mingw_off_t.h \
- D:/msys64/mingw64/include/_mingw_stat64.h \
- D:/msys64/mingw64/include/swprintf.inl \
- D:/msys64/mingw64/include/sec_api/wchar_s.h \
- D:/msys64/mingw64/include/c++/14.2.0/exception \
- D:/msys64/mingw64/include/c++/14.2.0/bits/exception.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/version.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/exception_ptr.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/exception_defines.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/cxxabi_init_exception.h \
- D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/stddef.h \
- D:/msys64/mingw64/include/stddef.h D:/msys64/mingw64/include/crtdefs.h \
- D:/msys64/mingw64/include/c++/14.2.0/typeinfo \
- D:/msys64/mingw64/include/c++/14.2.0/bits/hash_bytes.h \
- D:/msys64/mingw64/include/c++/14.2.0/new \
- D:/msys64/mingw64/include/c++/14.2.0/bits/move.h \
- D:/msys64/mingw64/include/c++/14.2.0/type_traits \
- D:/msys64/mingw64/include/c++/14.2.0/bits/nested_exception.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/char_traits.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/localefwd.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/c++locale.h \
- D:/msys64/mingw64/include/c++/14.2.0/clocale \
- D:/msys64/mingw64/include/locale.h D:/msys64/mingw64/include/stdio.h \
- D:/msys64/mingw64/include/sec_api/stdio_s.h \
- D:/msys64/mingw64/include/c++/14.2.0/cctype \
- D:/msys64/mingw64/include/ctype.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/ios_base.h \
- D:/msys64/mingw64/include/c++/14.2.0/ext/atomicity.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/gthr.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/gthr-default.h \
- D:/msys64/mingw64/include/pthread.h D:/msys64/mingw64/include/errno.h \
- D:/msys64/mingw64/include/sys/types.h \
- D:/msys64/mingw64/include/process.h \
- D:/msys64/mingw64/include/corecrt_startup.h \
- D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/limits.h \
- D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/syslimits.h \
- D:/msys64/mingw64/include/limits.h D:/msys64/mingw64/include/signal.h \
- D:/msys64/mingw64/include/pthread_signal.h \
- D:/msys64/mingw64/include/time.h D:/msys64/mingw64/include/sys/timeb.h \
- D:/msys64/mingw64/include/sec_api/sys/timeb_s.h \
- D:/msys64/mingw64/include/_timeval.h \
- D:/msys64/mingw64/include/pthread_time.h \
- D:/msys64/mingw64/include/pthread_compat.h \
- D:/msys64/mingw64/include/pthread_unistd.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/locale_classes.h \
- D:/msys64/mingw64/include/c++/14.2.0/string \
- D:/msys64/mingw64/include/c++/14.2.0/bits/allocator.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/c++allocator.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/new_allocator.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/functexcept.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/cpp_type_traits.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/ostream_insert.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/cxxabi_forced.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_iterator_base_funcs.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/concept_check.h \
- D:/msys64/mingw64/include/c++/14.2.0/debug/assertions.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_iterator_base_types.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_iterator.h \
- D:/msys64/mingw64/include/c++/14.2.0/ext/type_traits.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/ptr_traits.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_function.h \
- D:/msys64/mingw64/include/c++/14.2.0/backward/binders.h \
- D:/msys64/mingw64/include/c++/14.2.0/ext/numeric_traits.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_algobase.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_pair.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/utility.h \
- D:/msys64/mingw64/include/c++/14.2.0/debug/debug.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/predefined_ops.h \
- D:/msys64/mingw64/include/c++/14.2.0/bit \
- D:/msys64/mingw64/include/c++/14.2.0/concepts \
- D:/msys64/mingw64/include/c++/14.2.0/bits/refwrap.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/invoke.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/range_access.h \
- D:/msys64/mingw64/include/c++/14.2.0/initializer_list \
- D:/msys64/mingw64/include/c++/14.2.0/bits/basic_string.h \
- D:/msys64/mingw64/include/c++/14.2.0/ext/alloc_traits.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/alloc_traits.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_construct.h \
- D:/msys64/mingw64/include/c++/14.2.0/string_view \
- D:/msys64/mingw64/include/c++/14.2.0/bits/functional_hash.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/string_view.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/ext/string_conversions.h \
- D:/msys64/mingw64/include/c++/14.2.0/cstdlib \
- D:/msys64/mingw64/include/stdlib.h \
- D:/msys64/mingw64/include/sec_api/stdlib_s.h \
- D:/msys64/mingw64/include/c++/14.2.0/stdlib.h \
- D:/msys64/mingw64/include/malloc.h \
- D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/mm_malloc.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/std_abs.h \
- D:/msys64/mingw64/include/c++/14.2.0/cstdio \
- D:/msys64/mingw64/include/c++/14.2.0/cerrno \
- D:/msys64/mingw64/include/c++/14.2.0/bits/charconv.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/basic_string.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/bits/memory_resource.h \
- D:/msys64/mingw64/include/c++/14.2.0/cstddef \
- D:/msys64/mingw64/include/c++/14.2.0/bits/uses_allocator.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/uses_allocator_args.h \
- D:/msys64/mingw64/include/c++/14.2.0/tuple \
- D:/msys64/mingw64/include/c++/14.2.0/bits/locale_classes.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/system_error \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/error_constants.h \
- D:/msys64/mingw64/include/c++/14.2.0/stdexcept \
- D:/msys64/mingw64/include/c++/14.2.0/streambuf \
- D:/msys64/mingw64/include/c++/14.2.0/bits/streambuf.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/bits/basic_ios.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/locale_facets.h \
- D:/msys64/mingw64/include/c++/14.2.0/cwctype \
- D:/msys64/mingw64/include/wctype.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/streambuf_iterator.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/locale_facets.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/bits/basic_ios.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/bits/ostream.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/istream \
- D:/msys64/mingw64/include/c++/14.2.0/bits/istream.tcc \
- D:/sdk/fmt/include/fmt/core.h D:/sdk/fmt/include/fmt/format.h \
- D:/sdk/fmt/include/fmt/base.h D:/msys64/mingw64/include/string.h \
- D:/msys64/mingw64/include/sec_api/string_s.h \
- D:/msys64/mingw64/include/c++/14.2.0/cmath \
- D:/msys64/mingw64/include/math.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/specfun.h \
- D:/msys64/mingw64/include/c++/14.2.0/limits \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/gamma.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/special_function_util.h \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/bessel_function.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/beta_function.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/ell_integral.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/exp_integral.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/hypergeometric.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/legendre_function.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/modified_bessel_func.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/poly_hermite.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/poly_laguerre.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/tr1/riemann_zeta.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/cstdint \
- D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/stdint.h \
- D:/msys64/mingw64/include/stdint.h \
- D:/msys64/mingw64/include/c++/14.2.0/cstring \
- D:/sdk/fmt/include/fmt/format-inl.h \
- D:/msys64/mingw64/include/c++/14.2.0/algorithm \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_algo.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/algorithmfwd.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_heap.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/uniform_int_dist.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_tempbuf.h \
- D:/msys64/mingw64/include/c++/14.2.0/pstl/glue_algorithm_defs.h \
- D:/msys64/mingw64/include/c++/14.2.0/pstl/execution_defs.h \
- D:/msys64/mingw64/include/c++/14.2.0/climits \
- D:/msys64/mingw64/include/io.h D:/sdk/fmt/include/fmt/format.h \
- D:/sdk/fmt/include/fmt/color.h D:/sdk/glad/include/glad/glad.h \
- D:/sdk/glad/include/KHR/khrplatform.h D:/sdk/GLFW/include/GLFW/glfw3.h \
- D:/msys64/mingw64/include/c++/14.2.0/fstream \
- D:/msys64/mingw64/include/c++/14.2.0/bits/codecvt.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/basic_file.h \
- D:/msys64/mingw64/include/c++/14.2.0/x86_64-w64-mingw32/bits/c++io.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/fstream.tcc \
- D:/msys64/mingw64/include/c++/14.2.0/vector \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_uninitialized.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_vector.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_bvector.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/vector.tcc D:/sdk/GLM/glm.hpp \
- D:/sdk/GLM/detail/_fixes.hpp D:/sdk/GLM/detail/setup.hpp \
- D:/msys64/mingw64/include/c++/14.2.0/cassert \
- D:/msys64/mingw64/include/assert.h D:/sdk/GLM/simd/platform.h \
- D:/msys64/mingw64/include/c++/14.2.0/cfloat \
- D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/float.h \
- D:/msys64/mingw64/include/float.h D:/sdk/GLM/fwd.hpp \
- D:/sdk/GLM/detail/qualifier.hpp D:/sdk/GLM/detail/setup.hpp \
- D:/sdk/GLM/vec2.hpp D:/sdk/GLM/ext/vector_bool2.hpp \
- D:/sdk/GLM/detail/type_vec2.hpp D:/sdk/GLM/detail/type_vec2.inl \
- D:/sdk/GLM/detail/compute_vector_relational.hpp \
- D:/sdk/GLM/ext/vector_bool2_precision.hpp \
- D:/sdk/GLM/ext/vector_float2.hpp \
- D:/sdk/GLM/ext/vector_float2_precision.hpp \
- D:/sdk/GLM/ext/vector_double2.hpp \
- D:/sdk/GLM/ext/vector_double2_precision.hpp \
- D:/sdk/GLM/ext/vector_int2.hpp D:/sdk/GLM/ext/vector_int2_sized.hpp \
- D:/sdk/GLM/ext/scalar_int_sized.hpp D:/sdk/GLM/detail/setup.hpp \
- D:/sdk/GLM/ext/vector_uint2.hpp D:/sdk/GLM/ext/vector_uint2_sized.hpp \
- D:/sdk/GLM/ext/scalar_uint_sized.hpp D:/sdk/GLM/vec3.hpp \
- D:/sdk/GLM/ext/vector_bool3.hpp D:/sdk/GLM/detail/type_vec3.hpp \
- D:/sdk/GLM/detail/type_vec3.inl \
- D:/sdk/GLM/ext/vector_bool3_precision.hpp \
- D:/sdk/GLM/ext/vector_float3.hpp \
- D:/sdk/GLM/ext/vector_float3_precision.hpp \
- D:/sdk/GLM/ext/vector_double3.hpp \
- D:/sdk/GLM/ext/vector_double3_precision.hpp \
- D:/sdk/GLM/ext/vector_int3.hpp D:/sdk/GLM/ext/vector_int3_sized.hpp \
- D:/sdk/GLM/ext/vector_uint3.hpp D:/sdk/GLM/ext/vector_uint3_sized.hpp \
- D:/sdk/GLM/vec4.hpp D:/sdk/GLM/ext/vector_bool4.hpp \
- D:/sdk/GLM/detail/type_vec4.hpp D:/sdk/GLM/detail/type_vec4.inl \
- D:/sdk/GLM/ext/vector_bool4_precision.hpp \
- D:/sdk/GLM/ext/vector_float4.hpp \
- D:/sdk/GLM/ext/vector_float4_precision.hpp \
- D:/sdk/GLM/ext/vector_double4.hpp \
- D:/sdk/GLM/ext/vector_double4_precision.hpp \
- D:/sdk/GLM/ext/vector_int4.hpp D:/sdk/GLM/ext/vector_int4_sized.hpp \
- D:/sdk/GLM/ext/vector_uint4.hpp D:/sdk/GLM/ext/vector_uint4_sized.hpp \
- D:/sdk/GLM/mat2x2.hpp D:/sdk/GLM/ext/matrix_double2x2.hpp \
- D:/sdk/GLM/detail/type_mat2x2.hpp D:/sdk/GLM/detail/type_mat2x2.inl \
- D:/sdk/GLM/matrix.hpp D:/sdk/GLM/mat2x3.hpp \
- D:/sdk/GLM/ext/matrix_double2x3.hpp D:/sdk/GLM/detail/type_mat2x3.hpp \
- D:/sdk/GLM/detail/type_mat2x3.inl \
- D:/sdk/GLM/ext/matrix_double2x3_precision.hpp \
- D:/sdk/GLM/ext/matrix_float2x3.hpp \
- D:/sdk/GLM/ext/matrix_float2x3_precision.hpp D:/sdk/GLM/mat2x4.hpp \
- D:/sdk/GLM/ext/matrix_double2x4.hpp D:/sdk/GLM/detail/type_mat2x4.hpp \
- D:/sdk/GLM/detail/type_mat2x4.inl \
- D:/sdk/GLM/ext/matrix_double2x4_precision.hpp \
- D:/sdk/GLM/ext/matrix_float2x4.hpp \
- D:/sdk/GLM/ext/matrix_float2x4_precision.hpp D:/sdk/GLM/mat3x2.hpp \
- D:/sdk/GLM/ext/matrix_double3x2.hpp D:/sdk/GLM/detail/type_mat3x2.hpp \
- D:/sdk/GLM/detail/type_mat3x2.inl \
- D:/sdk/GLM/ext/matrix_double3x2_precision.hpp \
- D:/sdk/GLM/ext/matrix_float3x2.hpp \
- D:/sdk/GLM/ext/matrix_float3x2_precision.hpp D:/sdk/GLM/mat3x3.hpp \
- D:/sdk/GLM/ext/matrix_double3x3.hpp D:/sdk/GLM/detail/type_mat3x3.hpp \
- D:/sdk/GLM/detail/type_mat3x3.inl \
- D:/sdk/GLM/ext/matrix_double3x3_precision.hpp \
- D:/sdk/GLM/ext/matrix_float3x3.hpp \
- D:/sdk/GLM/ext/matrix_float3x3_precision.hpp D:/sdk/GLM/mat3x4.hpp \
- D:/sdk/GLM/ext/matrix_double3x4.hpp D:/sdk/GLM/detail/type_mat3x4.hpp \
- D:/sdk/GLM/detail/type_mat3x4.inl \
- D:/sdk/GLM/ext/matrix_double3x4_precision.hpp \
- D:/sdk/GLM/ext/matrix_float3x4.hpp \
- D:/sdk/GLM/ext/matrix_float3x4_precision.hpp D:/sdk/GLM/mat4x2.hpp \
- D:/sdk/GLM/ext/matrix_double4x2.hpp D:/sdk/GLM/detail/type_mat4x2.hpp \
- D:/sdk/GLM/detail/type_mat4x2.inl \
- D:/sdk/GLM/ext/matrix_double4x2_precision.hpp \
- D:/sdk/GLM/ext/matrix_float4x2.hpp \
- D:/sdk/GLM/ext/matrix_float4x2_precision.hpp D:/sdk/GLM/mat4x3.hpp \
- D:/sdk/GLM/ext/matrix_double4x3.hpp D:/sdk/GLM/detail/type_mat4x3.hpp \
- D:/sdk/GLM/detail/type_mat4x3.inl \
- D:/sdk/GLM/ext/matrix_double4x3_precision.hpp \
- D:/sdk/GLM/ext/matrix_float4x3.hpp \
- D:/sdk/GLM/ext/matrix_float4x3_precision.hpp D:/sdk/GLM/mat4x4.hpp \
- D:/sdk/GLM/ext/matrix_double4x4.hpp D:/sdk/GLM/detail/type_mat4x4.hpp \
- D:/sdk/GLM/detail/type_mat4x4.inl \
- D:/sdk/GLM/ext/matrix_double4x4_precision.hpp \
- D:/sdk/GLM/ext/matrix_float4x4.hpp \
- D:/sdk/GLM/ext/matrix_float4x4_precision.hpp \
- D:/sdk/GLM/detail/func_matrix.inl D:/sdk/GLM/geometric.hpp \
- D:/sdk/GLM/detail/func_geometric.inl D:/sdk/GLM/exponential.hpp \
- D:/sdk/GLM/detail/type_vec1.hpp D:/sdk/GLM/detail/type_vec1.inl \
- D:/sdk/GLM/detail/func_exponential.inl D:/sdk/GLM/vector_relational.hpp \
- D:/sdk/GLM/detail/func_vector_relational.inl \
- D:/sdk/GLM/detail/_vectorize.hpp D:/sdk/GLM/common.hpp \
- D:/sdk/GLM/detail/func_common.inl D:/sdk/GLM/detail/compute_common.hpp \
- D:/sdk/GLM/ext/matrix_double2x2_precision.hpp \
- D:/sdk/GLM/ext/matrix_float2x2.hpp \
- D:/sdk/GLM/ext/matrix_float2x2_precision.hpp \
- D:/sdk/GLM/trigonometric.hpp D:/sdk/GLM/detail/func_trigonometric.inl \
- D:/sdk/GLM/packing.hpp D:/sdk/GLM/detail/func_packing.inl \
- D:/sdk/GLM/detail/type_half.hpp D:/sdk/GLM/detail/type_half.inl \
- D:/sdk/GLM/integer.hpp D:/sdk/GLM/detail/func_integer.inl \
- D:/sdk/ImGuiDocking/imgui.h D:/sdk/ImGuiDocking/imconfig.h \
- D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/stdarg.h \
- D:/msys64/mingw64/include/stdarg.h \
- D:/msys64/mingw64/include/_mingw_stdarg.h \
- D:/sdk/ImGuiDocking/backends/imgui_impl_opengl3.h \
- D:/sdk/GLM/gtc/type_ptr.hpp D:/sdk/GLM/gtc/quaternion.hpp \
- D:/sdk/GLM/gtc/constants.hpp D:/sdk/GLM/ext/scalar_constants.hpp \
- D:/sdk/GLM/ext/scalar_constants.inl D:/sdk/GLM/gtc/constants.inl \
- D:/sdk/GLM/gtc/matrix_transform.hpp D:/sdk/GLM/ext/matrix_projection.hpp \
- D:/sdk/GLM/ext/matrix_projection.inl \
- D:/sdk/GLM/ext/matrix_clip_space.hpp \
- D:/sdk/GLM/ext/matrix_clip_space.inl D:/sdk/GLM/ext/matrix_transform.hpp \
- D:/sdk/GLM/ext/matrix_transform.inl D:/sdk/GLM/gtc/matrix_transform.inl \
- D:/sdk/GLM/ext/vector_relational.hpp \
- D:/sdk/GLM/ext/vector_relational.inl D:/sdk/GLM/detail/type_float.hpp \
- D:/sdk/GLM/ext/quaternion_common.hpp \
- D:/sdk/GLM/ext/quaternion_geometric.hpp \
- D:/sdk/GLM/ext/quaternion_geometric.inl \
- D:/sdk/GLM/ext/quaternion_common.inl D:/sdk/GLM/ext/quaternion_float.hpp \
- D:/sdk/GLM/detail/type_quat.hpp D:/sdk/GLM/ext/quaternion_relational.hpp \
- D:/sdk/GLM/ext/quaternion_relational.inl D:/sdk/GLM/detail/type_quat.inl \
- D:/sdk/GLM/ext/quaternion_float_precision.hpp \
- D:/sdk/GLM/ext/quaternion_double.hpp \
- D:/sdk/GLM/ext/quaternion_double_precision.hpp \
- D:/sdk/GLM/ext/quaternion_trigonometric.hpp \
- D:/sdk/GLM/ext/quaternion_trigonometric.inl \
- D:/sdk/GLM/ext/quaternion_transform.hpp \
- D:/sdk/GLM/ext/quaternion_transform.inl D:/sdk/GLM/gtc/quaternion.inl \
- D:/sdk/GLM/gtc/epsilon.hpp D:/sdk/GLM/detail/setup.hpp \
- D:/sdk/GLM/gtc/epsilon.inl D:/sdk/GLM/gtc/vec1.hpp \
- D:/sdk/GLM/ext/vector_bool1.hpp \
- D:/sdk/GLM/ext/vector_bool1_precision.hpp \
- D:/sdk/GLM/ext/vector_float1.hpp \
- D:/sdk/GLM/ext/vector_float1_precision.hpp \
- D:/sdk/GLM/ext/vector_double1.hpp \
- D:/sdk/GLM/ext/vector_double1_precision.hpp \
- D:/sdk/GLM/ext/vector_int1.hpp D:/sdk/GLM/ext/vector_int1_sized.hpp \
- D:/sdk/GLM/ext/vector_uint1.hpp D:/sdk/GLM/ext/vector_uint1_sized.hpp \
- D:/sdk/GLM/gtc/type_ptr.inl \
- D:/sdk/ImGuiDocking/backends/imgui_impl_glfw.h
+  C:/Gelis/Raytracer/src/main.cpp \
+  C:/msys64/mingw64/include/c++/15.2.0/iostream \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/requires_hosted.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++config.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/os_defines.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/cpu_defines.h \
+  C:/msys64/mingw64/include/c++/15.2.0/pstl/pstl_config.h \
+  C:/msys64/mingw64/include/c++/15.2.0/ostream \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/ostream.h \
+  C:/msys64/mingw64/include/c++/15.2.0/ios \
+  C:/msys64/mingw64/include/c++/15.2.0/iosfwd \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stringfwd.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/memoryfwd.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/postypes.h \
+  C:/msys64/mingw64/include/c++/15.2.0/cwchar \
+  C:/msys64/mingw64/include/wchar.h C:/msys64/mingw64/include/corecrt.h \
+  C:/msys64/mingw64/include/_mingw.h \
+  C:/msys64/mingw64/include/_mingw_mac.h \
+  C:/msys64/mingw64/include/_mingw_secapi.h \
+  C:/msys64/mingw64/lib/clang/20/include/vadefs.h \
+  C:/msys64/mingw64/include/vadefs.h \
+  C:/msys64/mingw64/include/sdks/_mingw_ddk.h \
+  C:/msys64/mingw64/include/corecrt_stdio_config.h \
+  C:/msys64/mingw64/include/corecrt_wstdlib.h \
+  C:/msys64/mingw64/include/corecrt_wctype.h \
+  C:/msys64/mingw64/include/_mingw_off_t.h \
+  C:/msys64/mingw64/include/_mingw_stat64.h \
+  C:/msys64/mingw64/include/swprintf.inl \
+  C:/msys64/mingw64/include/sec_api/wchar_s.h \
+  C:/msys64/mingw64/include/c++/15.2.0/exception \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/exception.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/version.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/exception_ptr.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/exception_defines.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_init_exception.h \
+  C:/msys64/mingw64/lib/clang/20/include/stddef.h \
+  C:/msys64/mingw64/include/stddef.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stddef_header_macro.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stddef_ptrdiff_t.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stddef_size_t.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stddef_wchar_t.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stddef_null.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stddef_nullptr_t.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stddef_max_align_t.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stddef_offsetof.h \
+  C:/msys64/mingw64/include/c++/15.2.0/typeinfo \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/hash_bytes.h \
+  C:/msys64/mingw64/include/c++/15.2.0/new \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/move.h \
+  C:/msys64/mingw64/include/c++/15.2.0/type_traits \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/nested_exception.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/char_traits.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/localefwd.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++locale.h \
+  C:/msys64/mingw64/include/c++/15.2.0/clocale \
+  C:/msys64/mingw64/include/locale.h C:/msys64/mingw64/include/crtdefs.h \
+  C:/msys64/mingw64/include/stdio.h \
+  C:/msys64/mingw64/include/sec_api/stdio_s.h \
+  C:/msys64/mingw64/include/c++/15.2.0/cctype \
+  C:/msys64/mingw64/include/ctype.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/ios_base.h \
+  C:/msys64/mingw64/include/c++/15.2.0/ext/atomicity.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/gthr.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/gthr-default.h \
+  C:/msys64/mingw64/include/pthread.h C:/msys64/mingw64/include/errno.h \
+  C:/msys64/mingw64/include/sys/types.h \
+  C:/msys64/mingw64/include/process.h \
+  C:/msys64/mingw64/include/corecrt_startup.h \
+  C:/msys64/mingw64/lib/clang/20/include/limits.h \
+  C:/msys64/mingw64/include/limits.h C:/msys64/mingw64/include/signal.h \
+  C:/msys64/mingw64/include/pthread_signal.h \
+  C:/msys64/mingw64/include/time.h C:/msys64/mingw64/include/sys/timeb.h \
+  C:/msys64/mingw64/include/sec_api/sys/timeb_s.h \
+  C:/msys64/mingw64/include/_timeval.h \
+  C:/msys64/mingw64/include/pthread_time.h \
+  C:/msys64/mingw64/include/pthread_compat.h \
+  C:/msys64/mingw64/include/sched.h \
+  C:/msys64/mingw64/include/pthread_unistd.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/locale_classes.h \
+  C:/msys64/mingw64/include/c++/15.2.0/string \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/allocator.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++allocator.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/new_allocator.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/functexcept.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/cpp_type_traits.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/ostream_insert.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/cxxabi_forced.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator_base_funcs.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/concept_check.h \
+  C:/msys64/mingw64/include/c++/15.2.0/debug/assertions.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator_base_types.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_iterator.h \
+  C:/msys64/mingw64/include/c++/15.2.0/ext/type_traits.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/ptr_traits.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_function.h \
+  C:/msys64/mingw64/include/c++/15.2.0/backward/binders.h \
+  C:/msys64/mingw64/include/c++/15.2.0/ext/numeric_traits.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_algobase.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_pair.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/utility.h \
+  C:/msys64/mingw64/include/c++/15.2.0/debug/debug.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/predefined_ops.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bit \
+  C:/msys64/mingw64/include/c++/15.2.0/concepts \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/refwrap.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/invoke.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/range_access.h \
+  C:/msys64/mingw64/include/c++/15.2.0/initializer_list \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/basic_string.h \
+  C:/msys64/mingw64/include/c++/15.2.0/ext/alloc_traits.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/alloc_traits.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_construct.h \
+  C:/msys64/mingw64/include/c++/15.2.0/string_view \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/functional_hash.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/string_view.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/ext/string_conversions.h \
+  C:/msys64/mingw64/include/c++/15.2.0/cstdlib \
+  C:/msys64/mingw64/include/stdlib.h \
+  C:/msys64/mingw64/include/sec_api/stdlib_s.h \
+  C:/msys64/mingw64/include/c++/15.2.0/stdlib.h \
+  C:/msys64/mingw64/include/malloc.h \
+  C:/msys64/mingw64/lib/clang/20/include/mm_malloc.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/std_abs.h \
+  C:/msys64/mingw64/include/c++/15.2.0/cstdio \
+  C:/msys64/mingw64/include/c++/15.2.0/cerrno \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/charconv.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/basic_string.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/memory_resource.h \
+  C:/msys64/mingw64/include/c++/15.2.0/cstddef \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/uses_allocator.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/uses_allocator_args.h \
+  C:/msys64/mingw64/include/c++/15.2.0/tuple \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/locale_classes.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/system_error \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/error_constants.h \
+  C:/msys64/mingw64/include/c++/15.2.0/stdexcept \
+  C:/msys64/mingw64/include/c++/15.2.0/streambuf \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/streambuf.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/basic_ios.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/locale_facets.h \
+  C:/msys64/mingw64/include/c++/15.2.0/cwctype \
+  C:/msys64/mingw64/include/wctype.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/streambuf_iterator.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/locale_facets.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/basic_ios.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/ostream.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/istream \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/istream.tcc \
+  C:/sdk/fmt/include/fmt/core.h C:/sdk/fmt/include/fmt/format.h \
+  C:/sdk/fmt/include/fmt/base.h C:/msys64/mingw64/include/string.h \
+  C:/msys64/mingw64/include/sec_api/string_s.h \
+  C:/msys64/mingw64/include/c++/15.2.0/cmath \
+  C:/msys64/mingw64/include/math.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/specfun.h \
+  C:/msys64/mingw64/include/c++/15.2.0/limits \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/gamma.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/special_function_util.h \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/bessel_function.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/beta_function.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/ell_integral.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/exp_integral.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/hypergeometric.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/legendre_function.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/modified_bessel_func.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/poly_hermite.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/poly_laguerre.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/tr1/riemann_zeta.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/cstdint \
+  C:/msys64/mingw64/lib/clang/20/include/stdint.h \
+  C:/msys64/mingw64/include/stdint.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stddef_wint_t.h \
+  C:/msys64/mingw64/include/c++/15.2.0/cstring \
+  C:/sdk/fmt/include/fmt/format-inl.h \
+  C:/msys64/mingw64/include/c++/15.2.0/algorithm \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_algo.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/algorithmfwd.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_heap.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/uniform_int_dist.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_tempbuf.h \
+  C:/msys64/mingw64/include/c++/15.2.0/pstl/glue_algorithm_defs.h \
+  C:/msys64/mingw64/include/c++/15.2.0/pstl/execution_defs.h \
+  C:/msys64/mingw64/include/c++/15.2.0/climits \
+  C:/msys64/mingw64/include/io.h C:/sdk/fmt/include/fmt/color.h \
+  C:/sdk/glad/include/glad/glad.h C:/sdk/glad/include/KHR/khrplatform.h \
+  C:/sdk/GLFW/include/GLFW/glfw3.h \
+  C:/msys64/mingw64/include/c++/15.2.0/fstream \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/codecvt.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/basic_file.h \
+  C:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++io.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/fstream.tcc \
+  C:/msys64/mingw64/include/c++/15.2.0/vector \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_uninitialized.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_vector.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/stl_bvector.h \
+  C:/msys64/mingw64/include/c++/15.2.0/bits/vector.tcc \
+  C:/sdk/GLM/glm.hpp C:/sdk/GLM/detail/_fixes.hpp \
+  C:/sdk/GLM/detail/setup.hpp \
+  C:/msys64/mingw64/include/c++/15.2.0/cassert \
+  C:/msys64/mingw64/include/assert.h \
+  C:/sdk/GLM/detail/../simd/platform.h \
+  C:/msys64/mingw64/include/c++/15.2.0/cfloat \
+  C:/msys64/mingw64/lib/clang/20/include/float.h \
+  C:/msys64/mingw64/include/float.h C:/sdk/GLM/fwd.hpp \
+  C:/sdk/GLM/detail/qualifier.hpp C:/sdk/GLM/vec2.hpp \
+  C:/sdk/GLM/./ext/vector_bool2.hpp \
+  C:/sdk/GLM/./ext/../detail/type_vec2.hpp \
+  C:/sdk/GLM/./ext/../detail/qualifier.hpp \
+  C:/sdk/GLM/./ext/../detail/type_vec2.inl \
+  C:/sdk/GLM/./ext/../detail/./compute_vector_relational.hpp \
+  C:/sdk/GLM/./ext/../detail/./setup.hpp \
+  C:/sdk/GLM/./ext/vector_bool2_precision.hpp \
+  C:/sdk/GLM/./ext/vector_float2.hpp \
+  C:/sdk/GLM/./ext/vector_float2_precision.hpp \
+  C:/sdk/GLM/./ext/vector_double2.hpp \
+  C:/sdk/GLM/./ext/vector_double2_precision.hpp \
+  C:/sdk/GLM/./ext/vector_int2.hpp \
+  C:/sdk/GLM/./ext/vector_int2_sized.hpp \
+  C:/sdk/GLM/./ext/../ext/vector_int2.hpp \
+  C:/sdk/GLM/./ext/../ext/scalar_int_sized.hpp \
+  C:/sdk/GLM/./ext/../ext/../detail/setup.hpp \
+  C:/sdk/GLM/./ext/vector_uint2.hpp \
+  C:/sdk/GLM/./ext/vector_uint2_sized.hpp \
+  C:/sdk/GLM/./ext/../ext/vector_uint2.hpp \
+  C:/sdk/GLM/./ext/../ext/scalar_uint_sized.hpp C:/sdk/GLM/vec3.hpp \
+  C:/sdk/GLM/./ext/vector_bool3.hpp \
+  C:/sdk/GLM/./ext/../detail/type_vec3.hpp \
+  C:/sdk/GLM/./ext/../detail/type_vec3.inl \
+  C:/sdk/GLM/./ext/../detail/compute_vector_relational.hpp \
+  C:/sdk/GLM/./ext/vector_bool3_precision.hpp \
+  C:/sdk/GLM/./ext/vector_float3.hpp \
+  C:/sdk/GLM/./ext/vector_float3_precision.hpp \
+  C:/sdk/GLM/./ext/vector_double3.hpp \
+  C:/sdk/GLM/./ext/vector_double3_precision.hpp \
+  C:/sdk/GLM/./ext/vector_int3.hpp \
+  C:/sdk/GLM/./ext/vector_int3_sized.hpp \
+  C:/sdk/GLM/./ext/../ext/vector_int3.hpp \
+  C:/sdk/GLM/./ext/vector_uint3.hpp \
+  C:/sdk/GLM/./ext/vector_uint3_sized.hpp \
+  C:/sdk/GLM/./ext/../ext/vector_uint3.hpp C:/sdk/GLM/vec4.hpp \
+  C:/sdk/GLM/./ext/vector_bool4.hpp \
+  C:/sdk/GLM/./ext/../detail/type_vec4.hpp \
+  C:/sdk/GLM/./ext/../detail/type_vec4.inl \
+  C:/sdk/GLM/./ext/vector_bool4_precision.hpp \
+  C:/sdk/GLM/./ext/vector_float4.hpp \
+  C:/sdk/GLM/./ext/vector_float4_precision.hpp \
+  C:/sdk/GLM/./ext/vector_double4.hpp \
+  C:/sdk/GLM/./ext/vector_double4_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/setup.hpp C:/sdk/GLM/./ext/vector_int4.hpp \
+  C:/sdk/GLM/./ext/vector_int4_sized.hpp \
+  C:/sdk/GLM/./ext/../ext/vector_int4.hpp \
+  C:/sdk/GLM/./ext/vector_uint4.hpp \
+  C:/sdk/GLM/./ext/vector_uint4_sized.hpp \
+  C:/sdk/GLM/./ext/../ext/vector_uint4.hpp C:/sdk/GLM/mat2x2.hpp \
+  C:/sdk/GLM/./ext/matrix_double2x2.hpp \
+  C:/sdk/GLM/./ext/../detail/type_mat2x2.hpp \
+  C:/sdk/GLM/./ext/../detail/type_mat2x2.inl \
+  C:/sdk/GLM/./ext/../detail/../matrix.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/qualifier.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/setup.hpp \
+  C:/sdk/GLM/./ext/../detail/../vec2.hpp \
+  C:/sdk/GLM/./ext/../detail/../vec3.hpp \
+  C:/sdk/GLM/./ext/../detail/../vec4.hpp \
+  C:/sdk/GLM/./ext/../detail/../mat2x2.hpp \
+  C:/sdk/GLM/./ext/../detail/../mat2x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double2x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat2x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_vec2.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_vec3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat2x3.inl \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double2x3_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float2x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float2x3_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/../mat2x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double2x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat2x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_vec4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat2x4.inl \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double2x4_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float2x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float2x4_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/../mat3x2.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double3x2.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat3x2.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat3x2.inl \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double3x2_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float3x2.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float3x2_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/../mat3x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double3x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat3x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat3x3.inl \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/../matrix.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double3x3_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float3x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float3x3_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/../mat3x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double3x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat3x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat3x4.inl \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double3x4_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float3x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float3x4_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/../mat4x2.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double4x2.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat4x2.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat4x2.inl \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double4x2_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float4x2.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float4x2_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat2x2.hpp \
+  C:/sdk/GLM/./ext/../detail/../mat4x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double4x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat4x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat4x3.inl \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double4x3_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float4x3.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float4x3_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/../mat4x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double4x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat4x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/../detail/type_mat4x4.inl \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_double4x4_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float4x4.hpp \
+  C:/sdk/GLM/./ext/../detail/.././ext/matrix_float4x4_precision.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/func_matrix.inl \
+  C:/sdk/GLM/./ext/../detail/../detail/../geometric.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/type_vec3.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/func_geometric.inl \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../exponential.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/type_vec1.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/qualifier.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/type_vec1.inl \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/./compute_vector_relational.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/type_vec2.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/type_vec3.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/type_vec4.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/func_exponential.inl \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/../vector_relational.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/../detail/qualifier.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/../detail/setup.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/../detail/func_vector_relational.inl \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/_vectorize.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../common.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/_fixes.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/func_common.inl \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/compute_common.hpp \
+  C:/sdk/GLM/./ext/../detail/../detail/../detail/../detail/setup.hpp \
+  C:/sdk/GLM/./ext/matrix_double2x2_precision.hpp \
+  C:/sdk/GLM/./ext/matrix_float2x2.hpp \
+  C:/sdk/GLM/./ext/matrix_float2x2_precision.hpp C:/sdk/GLM/mat2x3.hpp \
+  C:/sdk/GLM/mat2x4.hpp C:/sdk/GLM/mat3x2.hpp C:/sdk/GLM/mat3x3.hpp \
+  C:/sdk/GLM/mat3x4.hpp C:/sdk/GLM/mat4x2.hpp C:/sdk/GLM/mat4x3.hpp \
+  C:/sdk/GLM/mat4x4.hpp C:/sdk/GLM/trigonometric.hpp \
+  C:/sdk/GLM/detail/func_trigonometric.inl \
+  C:/sdk/GLM/detail/_vectorize.hpp C:/sdk/GLM/exponential.hpp \
+  C:/sdk/GLM/common.hpp C:/sdk/GLM/packing.hpp \
+  C:/sdk/GLM/detail/func_packing.inl C:/sdk/GLM/detail/../common.hpp \
+  C:/sdk/GLM/detail/type_half.hpp C:/sdk/GLM/detail/type_half.inl \
+  C:/sdk/GLM/geometric.hpp C:/sdk/GLM/matrix.hpp \
+  C:/sdk/GLM/vector_relational.hpp C:/sdk/GLM/integer.hpp \
+  C:/sdk/GLM/detail/func_integer.inl C:/sdk/ImGuiDocking/imgui.h \
+  C:/sdk/ImGuiDocking/imconfig.h \
+  C:/msys64/mingw64/lib/clang/20/include/stdarg.h \
+  C:/msys64/mingw64/include/stdarg.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stdarg_header_macro.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stdarg___gnuc_va_list.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stdarg_va_list.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stdarg_va_arg.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stdarg___va_copy.h \
+  C:/msys64/mingw64/lib/clang/20/include/__stdarg_va_copy.h \
+  C:/sdk/ImGuiDocking/backends/imgui_impl_opengl3.h \
+  C:/sdk/GLM/gtc/type_ptr.hpp C:/sdk/GLM/gtc/../gtc/quaternion.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/constants.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/scalar_constants.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/../detail/setup.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/scalar_constants.inl \
+  C:/sdk/GLM/gtc/../gtc/../gtc/constants.inl \
+  C:/sdk/GLM/gtc/../gtc/../gtc/matrix_transform.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../mat4x4.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../vec2.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../vec3.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../vec4.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/matrix_projection.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/../gtc/constants.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/../geometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/../trigonometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/../matrix.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/matrix_projection.inl \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/matrix_clip_space.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/../ext/scalar_constants.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/matrix_clip_space.inl \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/matrix_transform.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../ext/matrix_transform.inl \
+  C:/sdk/GLM/gtc/../gtc/../gtc/matrix_transform.inl \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../geometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../trigonometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../gtc/../matrix.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_relational.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/qualifier.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_relational.inl \
+  C:/sdk/GLM/gtc/../gtc/../ext/../vector_relational.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../common.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/type_float.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/setup.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_common.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../ext/scalar_constants.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../ext/quaternion_geometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../ext/../geometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../ext/../exponential.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../ext/../ext/vector_relational.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../ext/quaternion_geometric.inl \
+  C:/sdk/GLM/gtc/../gtc/../ext/../trigonometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../exponential.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_common.inl \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_float.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/type_quat.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../detail/type_mat3x3.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../detail/type_mat4x4.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../detail/type_vec3.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../detail/type_vec4.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../ext/vector_relational.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../ext/quaternion_relational.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../ext/../vector_relational.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../ext/quaternion_relational.inl \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../gtc/constants.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../gtc/matrix_transform.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/type_quat.inl \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../trigonometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../exponential.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../ext/quaternion_common.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/../ext/quaternion_geometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_float_precision.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_double.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_double_precision.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_relational.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_geometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_trigonometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/scalar_constants.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_trigonometric.inl \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_transform.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../geometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/quaternion_transform.inl \
+  C:/sdk/GLM/gtc/../gtc/../detail/type_mat3x3.hpp \
+  C:/sdk/GLM/gtc/../gtc/../detail/type_mat4x4.hpp \
+  C:/sdk/GLM/gtc/../gtc/../detail/type_vec3.hpp \
+  C:/sdk/GLM/gtc/../gtc/../detail/type_vec4.hpp \
+  C:/sdk/GLM/gtc/../gtc/quaternion.inl \
+  C:/sdk/GLM/gtc/../gtc/../trigonometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../geometric.hpp \
+  C:/sdk/GLM/gtc/../gtc/../exponential.hpp \
+  C:/sdk/GLM/gtc/../gtc/epsilon.hpp \
+  C:/sdk/GLM/gtc/../gtc/../detail/setup.hpp \
+  C:/sdk/GLM/gtc/../gtc/../detail/qualifier.hpp \
+  C:/sdk/GLM/gtc/../gtc/epsilon.inl \
+  C:/sdk/GLM/gtc/../gtc/../vector_relational.hpp \
+  C:/sdk/GLM/gtc/../gtc/../common.hpp C:/sdk/GLM/gtc/../gtc/vec1.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_bool1.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../detail/type_vec1.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_bool1_precision.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_float1.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_float1_precision.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_double1.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_double1_precision.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_int1.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_int1_sized.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../ext/vector_int1.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../ext/scalar_int_sized.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_uint1.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/vector_uint1_sized.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../ext/vector_uint1.hpp \
+  C:/sdk/GLM/gtc/../gtc/../ext/../ext/scalar_uint_sized.hpp \
+  C:/sdk/GLM/gtc/../vec2.hpp C:/sdk/GLM/gtc/../vec3.hpp \
+  C:/sdk/GLM/gtc/../vec4.hpp C:/sdk/GLM/gtc/../mat2x2.hpp \
+  C:/sdk/GLM/gtc/../mat2x3.hpp C:/sdk/GLM/gtc/../mat2x4.hpp \
+  C:/sdk/GLM/gtc/../mat3x2.hpp C:/sdk/GLM/gtc/../mat3x3.hpp \
+  C:/sdk/GLM/gtc/../mat3x4.hpp C:/sdk/GLM/gtc/../mat4x2.hpp \
+  C:/sdk/GLM/gtc/../mat4x3.hpp C:/sdk/GLM/gtc/../mat4x4.hpp \
+  C:/sdk/GLM/gtc/type_ptr.inl \
+  C:/sdk/ImGuiDocking/backends/imgui_impl_glfw.h
