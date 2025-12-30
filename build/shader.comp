@@ -27,7 +27,6 @@ vec3 RandomInUnitSphere(inout uint seed){
 
 uniform float AR;
 uniform float tfov;
-uniform float angle;
 uniform vec3 CamPos;
 
 //Scene Vars
@@ -51,7 +50,6 @@ void main()
     float v = (pix.y + 0.5) / size.y * 2.0 - 1.0;
 
     vec3 P = vec3(u * tfov * AR, v * tfov, 1.0);
-    P.z *= cos(angle);
     vec3 r = normalize(P);
     vec3 contribution = vec3(1.0);
     vec3 finalColor = vec3(0.0);
@@ -94,15 +92,12 @@ void main()
         finalColor += EmIntensity[hitIndex] * Color[hitIndex] * contribution;
         contribution *= Color[hitIndex];
     }
-    // Compute one sample using your ray tracer
-    vec3 newSample = finalColor;  // whatever your raytracer computed
+    vec3 newSample = finalColor;
 
-    // Only accumulate if turned on and FrameIndex > 1
     if (accumalate == 1 && FrameIndex > 1)
     {
         vec3 oldColor = imageLoad(imgAccum, pix).rgb;
 
-        // Correct progressive accumulation
         newSample = (oldColor * float(FrameIndex - 1) + newSample) 
                     / float(FrameIndex);
     }

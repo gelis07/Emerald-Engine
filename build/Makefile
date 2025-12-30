@@ -296,6 +296,78 @@ D_/sdk/glad/src/glad.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/D_/sdk/glad/src/glad.c.s
 .PHONY : D_/sdk/glad/src/glad.c.s
 
+src/app/Application.obj: src/app/Application.cpp.obj
+.PHONY : src/app/Application.obj
+
+# target to build an object file
+src/app/Application.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/app/Application.cpp.obj
+.PHONY : src/app/Application.cpp.obj
+
+src/app/Application.i: src/app/Application.cpp.i
+.PHONY : src/app/Application.i
+
+# target to preprocess a source file
+src/app/Application.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/app/Application.cpp.i
+.PHONY : src/app/Application.cpp.i
+
+src/app/Application.s: src/app/Application.cpp.s
+.PHONY : src/app/Application.s
+
+# target to generate assembly for a file
+src/app/Application.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/app/Application.cpp.s
+.PHONY : src/app/Application.cpp.s
+
+src/app/GUI.obj: src/app/GUI.cpp.obj
+.PHONY : src/app/GUI.obj
+
+# target to build an object file
+src/app/GUI.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/app/GUI.cpp.obj
+.PHONY : src/app/GUI.cpp.obj
+
+src/app/GUI.i: src/app/GUI.cpp.i
+.PHONY : src/app/GUI.i
+
+# target to preprocess a source file
+src/app/GUI.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/app/GUI.cpp.i
+.PHONY : src/app/GUI.cpp.i
+
+src/app/GUI.s: src/app/GUI.cpp.s
+.PHONY : src/app/GUI.s
+
+# target to generate assembly for a file
+src/app/GUI.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/app/GUI.cpp.s
+.PHONY : src/app/GUI.cpp.s
+
+src/engine/Renderer.obj: src/engine/Renderer.cpp.obj
+.PHONY : src/engine/Renderer.obj
+
+# target to build an object file
+src/engine/Renderer.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/engine/Renderer.cpp.obj
+.PHONY : src/engine/Renderer.cpp.obj
+
+src/engine/Renderer.i: src/engine/Renderer.cpp.i
+.PHONY : src/engine/Renderer.i
+
+# target to preprocess a source file
+src/engine/Renderer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/engine/Renderer.cpp.i
+.PHONY : src/engine/Renderer.cpp.i
+
+src/engine/Renderer.s: src/engine/Renderer.cpp.s
+.PHONY : src/engine/Renderer.s
+
+# target to generate assembly for a file
+src/engine/Renderer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/engine/Renderer.cpp.s
+.PHONY : src/engine/Renderer.cpp.s
+
 src/main.obj: src/main.cpp.obj
 .PHONY : src/main.obj
 
@@ -350,6 +422,15 @@ help:
 	@echo ... D_/sdk/glad/src/glad.obj
 	@echo ... D_/sdk/glad/src/glad.i
 	@echo ... D_/sdk/glad/src/glad.s
+	@echo ... src/app/Application.obj
+	@echo ... src/app/Application.i
+	@echo ... src/app/Application.s
+	@echo ... src/app/GUI.obj
+	@echo ... src/app/GUI.i
+	@echo ... src/app/GUI.s
+	@echo ... src/engine/Renderer.obj
+	@echo ... src/engine/Renderer.i
+	@echo ... src/engine/Renderer.s
 	@echo ... src/main.obj
 	@echo ... src/main.i
 	@echo ... src/main.s

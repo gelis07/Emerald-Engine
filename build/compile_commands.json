@@ -7,6 +7,24 @@
 },
 {
   "directory": "D:/Gelis/OpenGL/Raytracing/build",
+  "command": "D:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/Raytracer.dir/includes_CXX.rsp -g -o CMakeFiles\\Raytracer.dir\\src\\app\\Application.cpp.obj -c D:\\Gelis\\OpenGL\\Raytracing\\src\\app\\Application.cpp",
+  "file": "D:/Gelis/OpenGL/Raytracing/src/app/Application.cpp",
+  "output": "CMakeFiles/Raytracer.dir/src/app/Application.cpp.obj"
+},
+{
+  "directory": "D:/Gelis/OpenGL/Raytracing/build",
+  "command": "D:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/Raytracer.dir/includes_CXX.rsp -g -o CMakeFiles\\Raytracer.dir\\src\\engine\\Renderer.cpp.obj -c D:\\Gelis\\OpenGL\\Raytracing\\src\\engine\\Renderer.cpp",
+  "file": "D:/Gelis/OpenGL/Raytracing/src/engine/Renderer.cpp",
+  "output": "CMakeFiles/Raytracer.dir/src/engine/Renderer.cpp.obj"
+},
+{
+  "directory": "D:/Gelis/OpenGL/Raytracing/build",
+  "command": "D:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/Raytracer.dir/includes_CXX.rsp -g -o CMakeFiles\\Raytracer.dir\\src\\app\\GUI.cpp.obj -c D:\\Gelis\\OpenGL\\Raytracing\\src\\app\\GUI.cpp",
+  "file": "D:/Gelis/OpenGL/Raytracing/src/app/GUI.cpp",
+  "output": "CMakeFiles/Raytracer.dir/src/app/GUI.cpp.obj"
+},
+{
+  "directory": "D:/Gelis/OpenGL/Raytracing/build",
   "command": "D:\\msys64\\mingw64\\bin\\gcc.exe  @CMakeFiles/Raytracer.dir/includes_C.rsp -g -o CMakeFiles\\Raytracer.dir\\D_\\sdk\\glad\\src\\glad.c.obj -c D:\\sdk\\glad\\src\\glad.c",
   "file": "D:/sdk/glad/src/glad.c",
   "output": "CMakeFiles/Raytracer.dir/D_/sdk/glad/src/glad.c.obj"

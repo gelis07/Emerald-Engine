@@ -15,12 +15,16 @@ include_directories(D:/sdk/ImGuiDocking/backends/)
 include_directories(D:/sdk/ImGuiDocking/)
 include_directories(D:/sdk/GLM)
 include_directories(D:/sdk/fmt/include)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 
 link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 add_executable(Raytracer
 src/main.cpp
+src/app/Application.cpp
+src/engine/Renderer.cpp
+src/app/GUI.cpp
 D:/sdk/glad/src/glad.c
 D:/sdk/ImGuiDocking/imgui.cpp
 D:/sdk/ImGuiDocking/imgui_draw.cpp
