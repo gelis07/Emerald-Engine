@@ -1,1 +1,0 @@
--IC:/Gelis/Raytracer/vendor/glad/include -IC:/Gelis/Raytracer/vendor/glfw/include -IC:/Gelis/Raytracer/vendor/imgui/backends -IC:/Gelis/Raytracer/vendor/imgui -IC:/Gelis/Raytracer/vendor/glm -IC:/Gelis/Raytracer/vendor/fmt/include -IC:/Gelis/Raytracer/src
