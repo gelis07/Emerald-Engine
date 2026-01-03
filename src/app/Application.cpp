@@ -1,5 +1,8 @@
 #include "Application.h"
-
+#include <imgui.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_glfw.h>
+#include <iostream>
 
 void Application::InitImGui()
 {
@@ -136,7 +139,7 @@ void Application::Init()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    GLFWwindow* window = glfwCreateWindow(WWIDTH, WHEIGHT, "Raytracer", NULL, NULL);
+    window = glfwCreateWindow(WWIDTH, WHEIGHT, "Raytracer", NULL, NULL);
     if(!window)
     {
         fmt::println("{}", fmt::format(fg(fmt::rgb(0xFF0000)), "Couldn't initialize window"));
@@ -148,6 +151,10 @@ void Application::Init()
     gladLoadGL();
     GLint flags;
     glDebugMessageCallback(GladErrorCallBack, NULL);
+
+    InitImGui();
+
+    rend.Init(WWIDTH, WHEIGHT);
 }
 
 
@@ -160,6 +167,9 @@ void Application::OnUpdate()
         ImGui::NewFrame();
         glClear(GL_COLOR_BUFFER_BIT);
 
+        
+        gui.SceneModifier();
+        rend.OnUpdate(gui.settings);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

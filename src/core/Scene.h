@@ -30,5 +30,12 @@ class HitSphere : public Hittable
 class Scene
 {
     public:
-        std::vector<Hittable> hitObjects;
+        std::vector<Hittable*> hitObjects;
+        inline ~Scene()
+        {
+            for (int i ; i < hitObjects.size(); i++)
+            {
+                delete hitObjects[i];
+            }
+        }
 };

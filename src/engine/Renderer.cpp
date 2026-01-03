@@ -1,57 +1,39 @@
 #include "Renderer.h"
-#include "Utils.h"
+#include "core/Utils.h"
 #include <glm.hpp>
-void Renderer::OnUpdate()
+#include <vector>
+
+void Renderer::OnUpdate(RenderSettings& rs)
 {
-    if(accumulate)
+    if(rs.accumulate)
     {
         frames++;
     }else{
         frames = 1;
     }
-    ImGui::Begin("test");
-    for(int i = 0; i < scene.hitObjects.size(); i++)
-    {
-        ImGui::PushID(i);
-        ImGui::SeparatorText(std::string("Sphere: " + std::to_string(i)).c_str());
-        ImGui::DragFloat3("position", glm::value_ptr(scene.hitObjects[i].point), 0.01f);
-        ImGui::DragFloat3("color", glm::value_ptr(scene.hitObjects[i].mat.Color), 0.01f);
-        ImGui::DragFloat("mult", &scene.hitObjects[i].mat.mult, 0.01f);
-        ImGui::DragFloat("emmision power", &scene.hitObjects[i].mat.EmmisionPower, 0.01f);
-        if(scene.hitObjects[i].type == SPHERE)
-        {
-            ImGui::DragFloat("radius", &static_cast<HitSphere*>(&scene.hitObjects[i])->radius, 0.01f);
-        }
-        ImGui::PopID();
-    }
-    ImGui::Checkbox("accumalate", &accumulate);
-    if(ImGui::Button("add"))
-    {
-        HitSphere newSphere;
-        newSphere.radius = 1.0f;
-        newSphere.point = glm::vec3(0, 0, 0);
-        newSphere.mat.Color = glm::vec3(0, 1, 0);
-        newSphere.mat.EmmisionPower = 0.0f;
-    }
-    ImGui::End();
+
     glUseProgram(ComputeShaderID);
     glUniform1f(glGetUniformLocation(ComputeShaderID,"AR"), AR);
     glUniform1f(glGetUniformLocation(ComputeShaderID,"tfov"), tfov);
     glUniform3fv(glGetUniformLocation(ComputeShaderID,"CamPos"), 1, glm::value_ptr(camPos));
     glUniform1i(glGetUniformLocation(ComputeShaderID, "FrameIndex"), frames);
-    glUniform1i(glGetUniformLocation(ComputeShaderID, "accumalate"), accumulate);
+    glUniform1i(glGetUniformLocation(ComputeShaderID, "accumalate"), false);
 
     
-    glUniform1i(glGetUniformLocation(ComputeShaderID, "SphereCount"), scene.hitObjects.size() + 1);
-    glUniform1i(glGetUniformLocation(ComputeShaderID, "enableEnvironment"), environmentLight);
-    for(int i = 0; i < scene.hitObjects.size(); i++)
+    glUniform1i(glGetUniformLocation(ComputeShaderID, "SphereCount"), rs.scene.hitObjects.size() + 1);
+    glUniform1i(glGetUniformLocation(ComputeShaderID, "enableEnvironment"), rs.EnvLight);
+    for(int i = 0; i < rs.scene.hitObjects.size(); i++)
     {
+        Hittable* HitObj = rs.scene.hitObjects[i];
         std::string indexString = std::to_string(i);
-        glUniform3f(glGetUniformLocation(ComputeShaderID,std::string("SPoint[" + indexString + "]").c_str()), scene.hitObjects[i].point.x, scene.hitObjects[i].point.y, scene.hitObjects[i].point.z);
-        glUniform3f(glGetUniformLocation(ComputeShaderID,std::string("Color[" + indexString + "]").c_str()), colors[i].x, colors[i].y, colors[i].z);
-        glUniform1f(glGetUniformLocation(ComputeShaderID,std::string("SRadius[" + indexString + "]").c_str()), radius[i]);
-        glUniform1f(glGetUniformLocation(ComputeShaderID,std::string("mult[" + indexString + "]").c_str()), mult[i]);
-        glUniform1f(glGetUniformLocation(ComputeShaderID,std::string("EmIntensity[" + indexString + "]").c_str()), emPowers[i]);
+        glUniform3f(glGetUniformLocation(ComputeShaderID,std::string("SPoint[" + indexString + "]").c_str()),HitObj->point.x, HitObj->point.y, HitObj->point.z);
+        glUniform3f(glGetUniformLocation(ComputeShaderID,std::string("Color[" + indexString + "]").c_str()), HitObj->mat.Color.r, HitObj->mat.Color.g, HitObj->mat.Color.b);
+        if(HitObj->type == SPHERE)
+        {
+            glUniform1f(glGetUniformLocation(ComputeShaderID,std::string("SRadius[" + indexString + "]").c_str()), static_cast<HitSphere*>(HitObj)->radius);
+        }
+        glUniform1f(glGetUniformLocation(ComputeShaderID,std::string("mult[" + indexString + "]").c_str()), HitObj->mat.mult);
+        glUniform1f(glGetUniformLocation(ComputeShaderID,std::string("EmIntensity[" + indexString + "]").c_str()), HitObj->mat.EmmisionPower);
     }
 
 
