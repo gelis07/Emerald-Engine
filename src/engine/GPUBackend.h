@@ -1,11 +1,12 @@
 #pragma once
 #include <string>
 #include <glad/glad.h>
-#include <glm.hpp>
+#include <glm/glm.hpp>
 class Shader
 {
     public:
-        Shader(const std::string& path);
+        void Init();
+        void LinkShader(const std::string& path, int type);
         void Bind();
         void RunCompute(unsigned int x,unsigned int y,unsigned int z);
         void Unbind();

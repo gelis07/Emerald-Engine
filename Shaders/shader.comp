@@ -5,26 +5,6 @@ layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D imgAccum;
 
 
-
-
-uint PCGHash(uint InputSeed)
-{
-    uint state = InputSeed * 747796405u+2891336453u;
-    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 2778033737u;
-    return (word >> 22u) ^ word;
-}
-float RandomFloat(inout uint seed){
-    seed = PCGHash(seed);
-    return float(seed) / 4294967295.0;
-}
-
-vec3 RandomInUnitSphere(inout uint seed){
-    return normalize(vec3(
-    RandomFloat(seed) * 2.0 - 1.0, 
-    RandomFloat(seed) * 2.0 - 1.0,
-    RandomFloat(seed) * 2.0 - 1.0));
-}
-
 uniform float AR;
 uniform float tfov;
 uniform vec3 CamPos;
@@ -32,13 +12,41 @@ uniform vec3 CamPos;
 //Scene Vars
 uniform vec3 SPoint[10];
 uniform float SRadius[10];
-uniform float EmIntensity[10];
 uniform vec3 Color[10];
-uniform float mult[10];
 uniform int SphereCount;
-uniform int enableEnvironment;
-uniform int FrameIndex;
-uniform int accumalate;
+
+uint PCGHash(uint seed)
+{
+    uint state = seed * 747796405u + 2891336453u;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (word >> 22u) ^ word;
+}
+
+float RandomFloat(inout uint seed)
+{
+    seed = PCGHash(seed);
+    return float(seed) / 4294967295.0;
+}
+
+vec3 RandomVec3(inout uint seed)
+{
+    return vec3(
+    RandomFloat(seed) * 2.0 - 1.0,
+    RandomFloat(seed) * 2.0 - 1.0,
+    RandomFloat(seed) * 2.0 - 1.0);
+}
+
+vec3 RandomOnHemisphere(uint seed, vec3 normal)
+{
+    vec3 vector = RandomVec3(seed);
+    if(dot(vector, normal) > 0)
+    {
+        return vector;
+    }else
+    {
+        return -vector;
+    }
+}
 void main()
 {
 
@@ -55,9 +63,7 @@ void main()
     vec3 finalColor = vec3(0.0);
     vec3 StartPoint = CamPos;
 
-    uint seed = uint(pix.x + pix.y * gl_NumWorkGroups.x * gl_WorkGroupSize.x);
-    seed *= FrameIndex;
-    for(int iter = 0; iter < 7; iter++)
+    for(int iter = 0; iter < 10; iter++)
     {
         float nearestT = 1e30;
         int hitIndex = -1;
@@ -77,29 +83,20 @@ void main()
             }
 
         }
-        if (hitIndex == -1 && enableEnvironment == 1) {
-            finalColor += contribution * vec3(0.2, 0.2, 0.2);  // environment brightness
+        if (hitIndex == -1) {
+            float a = 0.5*(r.y + 1);  
+            vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
+            finalColor = contribution * sky;  // environment brightness
             break;
         }
         vec3 HitPoint = StartPoint + r * nearestT;
-        vec3 Normal = normalize(HitPoint - SPoint[hitIndex]);
-        StartPoint = HitPoint + Normal * 0.01;
-        vec3 SpecularDir = reflect(r, Normal);
-        StartPoint = StartPoint + Normal * 0.0001;
-        vec3 DiiffuseDir = normalize(Normal + RandomInUnitSphere(seed));
-        r = mix(DiiffuseDir, SpecularDir, mult[hitIndex]);
+        vec3 Normal = normalize(HitPoint - SPoint[hitIndex]) + vec3(0.001);
 
-        finalColor += EmIntensity[hitIndex] * Color[hitIndex] * contribution;
-        contribution *= Color[hitIndex];
+        StartPoint = HitPoint;
+        r = RandomOnHemisphere(uint(pix.x * pix.y), Normal);
+
+        contribution *= 0.5;
     }
-    vec3 newSample = finalColor;
 
-    if (accumalate == 1 && FrameIndex > 1)
-    {
-        vec3 oldColor = imageLoad(imgAccum, pix).rgb;
-
-        newSample = (oldColor * float(FrameIndex - 1) + newSample) 
-                    / float(FrameIndex);
-    }
-    imageStore(imgAccum, pix, vec4(newSample, 1.0));
+    imageStore(imgAccum, pix, vec4(finalColor, 1.0));
 }

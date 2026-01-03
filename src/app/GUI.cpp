@@ -1,6 +1,6 @@
 #include "GUI.h"
-#include "gtc/type_ptr.hpp"
-#include "imgui.h"
+#include <glm/gtc/type_ptr.hpp>
+#include <imgui.h>
 #include <string>
 
 

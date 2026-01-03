@@ -9,12 +9,12 @@ endif()
 # Optional: make choices visible in tools like cmake-gui
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
 
-include_directories(C:/sdk/glad/include)
-include_directories(C:/sdk/GLFW/include)
-include_directories(C:/sdk/ImGuiDocking/backends/)
-include_directories(C:/sdk/ImGuiDocking/)
-include_directories(C:/sdk/GLM)
-include_directories(C:/sdk/fmt/include)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/glad/include)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/glfw/include)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/imgui/backends/)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/imgui/)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/glm)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/fmt/include)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 
@@ -24,14 +24,15 @@ add_executable(Raytracer
 src/main.cpp
 src/app/Application.cpp
 src/engine/Renderer.cpp
+src/engine/GPUBackend.cpp
 src/app/GUI.cpp
-C:/sdk/glad/src/glad.c
-C:/sdk/ImGuiDocking/imgui.cpp
-C:/sdk/ImGuiDocking/imgui_draw.cpp
-C:/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp
-C:/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp
-C:/sdk/ImGuiDocking/imgui_tables.cpp
-C:/sdk/ImGuiDocking/imgui_widgets.cpp
+vendor/glad/src/glad.c
+vendor/imgui/imgui.cpp
+vendor/imgui/imgui_draw.cpp
+vendor/imgui/backends/imgui_impl_glfw.cpp
+vendor/imgui/backends/imgui_impl_opengl3.cpp
+vendor/imgui/imgui_tables.cpp
+vendor/imgui/imgui_widgets.cpp
 )
 
 target_link_libraries(Raytracer PRIVATE libglfw3.a)

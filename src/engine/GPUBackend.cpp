@@ -1,20 +1,23 @@
 #include "GPUBackend.h"
-#include "gtc/type_ptr.hpp"
+#include <glm/gtc/type_ptr.hpp>
 #include <core/Utils.h>
 
-Shader::Shader(const std::string& path)
+void Shader::Init()
 {
-    mShaderID = glCreateShader(GL_COMPUTE_SHADER);
-    const char* shaderCode = Utils::ReadFile("shader.comp");
+    mProgramID = glCreateProgram();
+}
+
+void Shader::LinkShader(const std::string& path, int type)
+{
+    mShaderID = glCreateShader(type);
+    const char* shaderCode = Utils::ReadFile(path.c_str());
     glShaderSource(mShaderID, 1, &shaderCode, NULL);
     glCompileShader(mShaderID);
     Utils::checkCompileErrors(mShaderID, "COMPUTE");
     delete[] shaderCode;
 
-    mProgramID = glCreateProgram();
     glAttachShader(mProgramID, mShaderID);
     glLinkProgram(mProgramID);
-    Utils::checkCompileErrors(mProgramID, "PROGRAM");
 }
 
 

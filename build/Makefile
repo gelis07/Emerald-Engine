@@ -128,174 +128,6 @@ Raytracer/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/build
 .PHONY : Raytracer/fast
 
-C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.obj: C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.obj
-
-# target to build an object file
-C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.obj
-
-C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.i: C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.i
-
-# target to preprocess a source file
-C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.i
-
-C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.s: C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.s
-
-# target to generate assembly for a file
-C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.cpp.s
-
-C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.obj: C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.obj
-
-# target to build an object file
-C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.obj
-
-C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.i: C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.i
-
-# target to preprocess a source file
-C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.i
-
-C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.s: C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.s
-
-# target to generate assembly for a file
-C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.cpp.s
-
-C_/sdk/ImGuiDocking/imgui.obj: C_/sdk/ImGuiDocking/imgui.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/imgui.obj
-
-# target to build an object file
-C_/sdk/ImGuiDocking/imgui.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/imgui.cpp.obj
-
-C_/sdk/ImGuiDocking/imgui.i: C_/sdk/ImGuiDocking/imgui.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/imgui.i
-
-# target to preprocess a source file
-C_/sdk/ImGuiDocking/imgui.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/imgui.cpp.i
-
-C_/sdk/ImGuiDocking/imgui.s: C_/sdk/ImGuiDocking/imgui.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/imgui.s
-
-# target to generate assembly for a file
-C_/sdk/ImGuiDocking/imgui.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/imgui.cpp.s
-
-C_/sdk/ImGuiDocking/imgui_draw.obj: C_/sdk/ImGuiDocking/imgui_draw.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/imgui_draw.obj
-
-# target to build an object file
-C_/sdk/ImGuiDocking/imgui_draw.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_draw.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/imgui_draw.cpp.obj
-
-C_/sdk/ImGuiDocking/imgui_draw.i: C_/sdk/ImGuiDocking/imgui_draw.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/imgui_draw.i
-
-# target to preprocess a source file
-C_/sdk/ImGuiDocking/imgui_draw.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_draw.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/imgui_draw.cpp.i
-
-C_/sdk/ImGuiDocking/imgui_draw.s: C_/sdk/ImGuiDocking/imgui_draw.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/imgui_draw.s
-
-# target to generate assembly for a file
-C_/sdk/ImGuiDocking/imgui_draw.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_draw.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/imgui_draw.cpp.s
-
-C_/sdk/ImGuiDocking/imgui_tables.obj: C_/sdk/ImGuiDocking/imgui_tables.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/imgui_tables.obj
-
-# target to build an object file
-C_/sdk/ImGuiDocking/imgui_tables.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_tables.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/imgui_tables.cpp.obj
-
-C_/sdk/ImGuiDocking/imgui_tables.i: C_/sdk/ImGuiDocking/imgui_tables.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/imgui_tables.i
-
-# target to preprocess a source file
-C_/sdk/ImGuiDocking/imgui_tables.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_tables.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/imgui_tables.cpp.i
-
-C_/sdk/ImGuiDocking/imgui_tables.s: C_/sdk/ImGuiDocking/imgui_tables.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/imgui_tables.s
-
-# target to generate assembly for a file
-C_/sdk/ImGuiDocking/imgui_tables.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_tables.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/imgui_tables.cpp.s
-
-C_/sdk/ImGuiDocking/imgui_widgets.obj: C_/sdk/ImGuiDocking/imgui_widgets.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/imgui_widgets.obj
-
-# target to build an object file
-C_/sdk/ImGuiDocking/imgui_widgets.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_widgets.cpp.obj
-.PHONY : C_/sdk/ImGuiDocking/imgui_widgets.cpp.obj
-
-C_/sdk/ImGuiDocking/imgui_widgets.i: C_/sdk/ImGuiDocking/imgui_widgets.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/imgui_widgets.i
-
-# target to preprocess a source file
-C_/sdk/ImGuiDocking/imgui_widgets.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_widgets.cpp.i
-.PHONY : C_/sdk/ImGuiDocking/imgui_widgets.cpp.i
-
-C_/sdk/ImGuiDocking/imgui_widgets.s: C_/sdk/ImGuiDocking/imgui_widgets.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/imgui_widgets.s
-
-# target to generate assembly for a file
-C_/sdk/ImGuiDocking/imgui_widgets.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/ImGuiDocking/imgui_widgets.cpp.s
-.PHONY : C_/sdk/ImGuiDocking/imgui_widgets.cpp.s
-
-C_/sdk/glad/src/glad.obj: C_/sdk/glad/src/glad.c.obj
-.PHONY : C_/sdk/glad/src/glad.obj
-
-# target to build an object file
-C_/sdk/glad/src/glad.c.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/glad/src/glad.c.obj
-.PHONY : C_/sdk/glad/src/glad.c.obj
-
-C_/sdk/glad/src/glad.i: C_/sdk/glad/src/glad.c.i
-.PHONY : C_/sdk/glad/src/glad.i
-
-# target to preprocess a source file
-C_/sdk/glad/src/glad.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/glad/src/glad.c.i
-.PHONY : C_/sdk/glad/src/glad.c.i
-
-C_/sdk/glad/src/glad.s: C_/sdk/glad/src/glad.c.s
-.PHONY : C_/sdk/glad/src/glad.s
-
-# target to generate assembly for a file
-C_/sdk/glad/src/glad.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/C_/sdk/glad/src/glad.c.s
-.PHONY : C_/sdk/glad/src/glad.c.s
-
 src/app/Application.obj: src/app/Application.cpp.obj
 .PHONY : src/app/Application.obj
 
@@ -343,6 +175,30 @@ src/app/GUI.s: src/app/GUI.cpp.s
 src/app/GUI.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/app/GUI.cpp.s
 .PHONY : src/app/GUI.cpp.s
+
+src/engine/GPUBackend.obj: src/engine/GPUBackend.cpp.obj
+.PHONY : src/engine/GPUBackend.obj
+
+# target to build an object file
+src/engine/GPUBackend.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.obj
+.PHONY : src/engine/GPUBackend.cpp.obj
+
+src/engine/GPUBackend.i: src/engine/GPUBackend.cpp.i
+.PHONY : src/engine/GPUBackend.i
+
+# target to preprocess a source file
+src/engine/GPUBackend.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.i
+.PHONY : src/engine/GPUBackend.cpp.i
+
+src/engine/GPUBackend.s: src/engine/GPUBackend.cpp.s
+.PHONY : src/engine/GPUBackend.s
+
+# target to generate assembly for a file
+src/engine/GPUBackend.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.s
+.PHONY : src/engine/GPUBackend.cpp.s
 
 src/engine/Renderer.obj: src/engine/Renderer.cpp.obj
 .PHONY : src/engine/Renderer.obj
@@ -392,6 +248,174 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+vendor/glad/src/glad.obj: vendor/glad/src/glad.c.obj
+.PHONY : vendor/glad/src/glad.obj
+
+# target to build an object file
+vendor/glad/src/glad.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/glad/src/glad.c.obj
+.PHONY : vendor/glad/src/glad.c.obj
+
+vendor/glad/src/glad.i: vendor/glad/src/glad.c.i
+.PHONY : vendor/glad/src/glad.i
+
+# target to preprocess a source file
+vendor/glad/src/glad.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/glad/src/glad.c.i
+.PHONY : vendor/glad/src/glad.c.i
+
+vendor/glad/src/glad.s: vendor/glad/src/glad.c.s
+.PHONY : vendor/glad/src/glad.s
+
+# target to generate assembly for a file
+vendor/glad/src/glad.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/glad/src/glad.c.s
+.PHONY : vendor/glad/src/glad.c.s
+
+vendor/imgui/backends/imgui_impl_glfw.obj: vendor/imgui/backends/imgui_impl_glfw.cpp.obj
+.PHONY : vendor/imgui/backends/imgui_impl_glfw.obj
+
+# target to build an object file
+vendor/imgui/backends/imgui_impl_glfw.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj
+.PHONY : vendor/imgui/backends/imgui_impl_glfw.cpp.obj
+
+vendor/imgui/backends/imgui_impl_glfw.i: vendor/imgui/backends/imgui_impl_glfw.cpp.i
+.PHONY : vendor/imgui/backends/imgui_impl_glfw.i
+
+# target to preprocess a source file
+vendor/imgui/backends/imgui_impl_glfw.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.i
+.PHONY : vendor/imgui/backends/imgui_impl_glfw.cpp.i
+
+vendor/imgui/backends/imgui_impl_glfw.s: vendor/imgui/backends/imgui_impl_glfw.cpp.s
+.PHONY : vendor/imgui/backends/imgui_impl_glfw.s
+
+# target to generate assembly for a file
+vendor/imgui/backends/imgui_impl_glfw.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.s
+.PHONY : vendor/imgui/backends/imgui_impl_glfw.cpp.s
+
+vendor/imgui/backends/imgui_impl_opengl3.obj: vendor/imgui/backends/imgui_impl_opengl3.cpp.obj
+.PHONY : vendor/imgui/backends/imgui_impl_opengl3.obj
+
+# target to build an object file
+vendor/imgui/backends/imgui_impl_opengl3.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj
+.PHONY : vendor/imgui/backends/imgui_impl_opengl3.cpp.obj
+
+vendor/imgui/backends/imgui_impl_opengl3.i: vendor/imgui/backends/imgui_impl_opengl3.cpp.i
+.PHONY : vendor/imgui/backends/imgui_impl_opengl3.i
+
+# target to preprocess a source file
+vendor/imgui/backends/imgui_impl_opengl3.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.i
+.PHONY : vendor/imgui/backends/imgui_impl_opengl3.cpp.i
+
+vendor/imgui/backends/imgui_impl_opengl3.s: vendor/imgui/backends/imgui_impl_opengl3.cpp.s
+.PHONY : vendor/imgui/backends/imgui_impl_opengl3.s
+
+# target to generate assembly for a file
+vendor/imgui/backends/imgui_impl_opengl3.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.s
+.PHONY : vendor/imgui/backends/imgui_impl_opengl3.cpp.s
+
+vendor/imgui/imgui.obj: vendor/imgui/imgui.cpp.obj
+.PHONY : vendor/imgui/imgui.obj
+
+# target to build an object file
+vendor/imgui/imgui.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui.cpp.obj
+.PHONY : vendor/imgui/imgui.cpp.obj
+
+vendor/imgui/imgui.i: vendor/imgui/imgui.cpp.i
+.PHONY : vendor/imgui/imgui.i
+
+# target to preprocess a source file
+vendor/imgui/imgui.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui.cpp.i
+.PHONY : vendor/imgui/imgui.cpp.i
+
+vendor/imgui/imgui.s: vendor/imgui/imgui.cpp.s
+.PHONY : vendor/imgui/imgui.s
+
+# target to generate assembly for a file
+vendor/imgui/imgui.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui.cpp.s
+.PHONY : vendor/imgui/imgui.cpp.s
+
+vendor/imgui/imgui_draw.obj: vendor/imgui/imgui_draw.cpp.obj
+.PHONY : vendor/imgui/imgui_draw.obj
+
+# target to build an object file
+vendor/imgui/imgui_draw.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui_draw.cpp.obj
+.PHONY : vendor/imgui/imgui_draw.cpp.obj
+
+vendor/imgui/imgui_draw.i: vendor/imgui/imgui_draw.cpp.i
+.PHONY : vendor/imgui/imgui_draw.i
+
+# target to preprocess a source file
+vendor/imgui/imgui_draw.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui_draw.cpp.i
+.PHONY : vendor/imgui/imgui_draw.cpp.i
+
+vendor/imgui/imgui_draw.s: vendor/imgui/imgui_draw.cpp.s
+.PHONY : vendor/imgui/imgui_draw.s
+
+# target to generate assembly for a file
+vendor/imgui/imgui_draw.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui_draw.cpp.s
+.PHONY : vendor/imgui/imgui_draw.cpp.s
+
+vendor/imgui/imgui_tables.obj: vendor/imgui/imgui_tables.cpp.obj
+.PHONY : vendor/imgui/imgui_tables.obj
+
+# target to build an object file
+vendor/imgui/imgui_tables.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui_tables.cpp.obj
+.PHONY : vendor/imgui/imgui_tables.cpp.obj
+
+vendor/imgui/imgui_tables.i: vendor/imgui/imgui_tables.cpp.i
+.PHONY : vendor/imgui/imgui_tables.i
+
+# target to preprocess a source file
+vendor/imgui/imgui_tables.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui_tables.cpp.i
+.PHONY : vendor/imgui/imgui_tables.cpp.i
+
+vendor/imgui/imgui_tables.s: vendor/imgui/imgui_tables.cpp.s
+.PHONY : vendor/imgui/imgui_tables.s
+
+# target to generate assembly for a file
+vendor/imgui/imgui_tables.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui_tables.cpp.s
+.PHONY : vendor/imgui/imgui_tables.cpp.s
+
+vendor/imgui/imgui_widgets.obj: vendor/imgui/imgui_widgets.cpp.obj
+.PHONY : vendor/imgui/imgui_widgets.obj
+
+# target to build an object file
+vendor/imgui/imgui_widgets.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui_widgets.cpp.obj
+.PHONY : vendor/imgui/imgui_widgets.cpp.obj
+
+vendor/imgui/imgui_widgets.i: vendor/imgui/imgui_widgets.cpp.i
+.PHONY : vendor/imgui/imgui_widgets.i
+
+# target to preprocess a source file
+vendor/imgui/imgui_widgets.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui_widgets.cpp.i
+.PHONY : vendor/imgui/imgui_widgets.cpp.i
+
+vendor/imgui/imgui_widgets.s: vendor/imgui/imgui_widgets.cpp.s
+.PHONY : vendor/imgui/imgui_widgets.s
+
+# target to generate assembly for a file
+vendor/imgui/imgui_widgets.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/vendor/imgui/imgui_widgets.cpp.s
+.PHONY : vendor/imgui/imgui_widgets.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -401,39 +425,42 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... Raytracer
-	@echo ... C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.obj
-	@echo ... C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.i
-	@echo ... C_/sdk/ImGuiDocking/backends/imgui_impl_glfw.s
-	@echo ... C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.obj
-	@echo ... C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.i
-	@echo ... C_/sdk/ImGuiDocking/backends/imgui_impl_opengl3.s
-	@echo ... C_/sdk/ImGuiDocking/imgui.obj
-	@echo ... C_/sdk/ImGuiDocking/imgui.i
-	@echo ... C_/sdk/ImGuiDocking/imgui.s
-	@echo ... C_/sdk/ImGuiDocking/imgui_draw.obj
-	@echo ... C_/sdk/ImGuiDocking/imgui_draw.i
-	@echo ... C_/sdk/ImGuiDocking/imgui_draw.s
-	@echo ... C_/sdk/ImGuiDocking/imgui_tables.obj
-	@echo ... C_/sdk/ImGuiDocking/imgui_tables.i
-	@echo ... C_/sdk/ImGuiDocking/imgui_tables.s
-	@echo ... C_/sdk/ImGuiDocking/imgui_widgets.obj
-	@echo ... C_/sdk/ImGuiDocking/imgui_widgets.i
-	@echo ... C_/sdk/ImGuiDocking/imgui_widgets.s
-	@echo ... C_/sdk/glad/src/glad.obj
-	@echo ... C_/sdk/glad/src/glad.i
-	@echo ... C_/sdk/glad/src/glad.s
 	@echo ... src/app/Application.obj
 	@echo ... src/app/Application.i
 	@echo ... src/app/Application.s
 	@echo ... src/app/GUI.obj
 	@echo ... src/app/GUI.i
 	@echo ... src/app/GUI.s
+	@echo ... src/engine/GPUBackend.obj
+	@echo ... src/engine/GPUBackend.i
+	@echo ... src/engine/GPUBackend.s
 	@echo ... src/engine/Renderer.obj
 	@echo ... src/engine/Renderer.i
 	@echo ... src/engine/Renderer.s
 	@echo ... src/main.obj
 	@echo ... src/main.i
 	@echo ... src/main.s
+	@echo ... vendor/glad/src/glad.obj
+	@echo ... vendor/glad/src/glad.i
+	@echo ... vendor/glad/src/glad.s
+	@echo ... vendor/imgui/backends/imgui_impl_glfw.obj
+	@echo ... vendor/imgui/backends/imgui_impl_glfw.i
+	@echo ... vendor/imgui/backends/imgui_impl_glfw.s
+	@echo ... vendor/imgui/backends/imgui_impl_opengl3.obj
+	@echo ... vendor/imgui/backends/imgui_impl_opengl3.i
+	@echo ... vendor/imgui/backends/imgui_impl_opengl3.s
+	@echo ... vendor/imgui/imgui.obj
+	@echo ... vendor/imgui/imgui.i
+	@echo ... vendor/imgui/imgui.s
+	@echo ... vendor/imgui/imgui_draw.obj
+	@echo ... vendor/imgui/imgui_draw.i
+	@echo ... vendor/imgui/imgui_draw.s
+	@echo ... vendor/imgui/imgui_tables.obj
+	@echo ... vendor/imgui/imgui_tables.i
+	@echo ... vendor/imgui/imgui_tables.s
+	@echo ... vendor/imgui/imgui_widgets.obj
+	@echo ... vendor/imgui/imgui_widgets.i
+	@echo ... vendor/imgui/imgui_widgets.s
 .PHONY : help
 
 
