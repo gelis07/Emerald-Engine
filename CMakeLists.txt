@@ -24,6 +24,7 @@ add_executable(Raytracer
 src/main.cpp
 src/app/Application.cpp
 src/engine/Renderer.cpp
+src/engine/GPUBackend.cpp
 src/app/GUI.cpp
 D:/sdk/glad/src/glad.c
 D:/sdk/ImGuiDocking/imgui.cpp

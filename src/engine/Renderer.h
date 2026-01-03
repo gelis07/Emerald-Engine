@@ -1,5 +1,5 @@
 #pragma once
-#include <glad/glad.h>
+#include <engine/GPUBackend.h>
 #include <core/RenderSettings.h>
 #include <gtc/type_ptr.hpp>
 
@@ -7,13 +7,17 @@
 class Renderer
 {
     public:
-        void OnUpdate(RenderSettings rs);
+        void OnUpdate(RenderSettings& rs);
         void Init(int width, int heigth);
     private:
         GLuint VBO, VAO;
-        GLuint BasicProgram;
-        GLuint ComputeShaderID;
+
+        Shader Screen;
+        Shader Raytracer;
+        Shader PostProcessing;
+
         GLuint RenderImage;
+        GLuint PostProcessingImage;
         int frames;
         float tfov;
         float AR;

@@ -344,6 +344,30 @@ src/app/GUI.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/app/GUI.cpp.s
 .PHONY : src/app/GUI.cpp.s
 
+src/engine/GPUBackend.obj: src/engine/GPUBackend.cpp.obj
+.PHONY : src/engine/GPUBackend.obj
+
+# target to build an object file
+src/engine/GPUBackend.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.obj
+.PHONY : src/engine/GPUBackend.cpp.obj
+
+src/engine/GPUBackend.i: src/engine/GPUBackend.cpp.i
+.PHONY : src/engine/GPUBackend.i
+
+# target to preprocess a source file
+src/engine/GPUBackend.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.i
+.PHONY : src/engine/GPUBackend.cpp.i
+
+src/engine/GPUBackend.s: src/engine/GPUBackend.cpp.s
+.PHONY : src/engine/GPUBackend.s
+
+# target to generate assembly for a file
+src/engine/GPUBackend.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Raytracer.dir\build.make CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.s
+.PHONY : src/engine/GPUBackend.cpp.s
+
 src/engine/Renderer.obj: src/engine/Renderer.cpp.obj
 .PHONY : src/engine/Renderer.obj
 
@@ -428,6 +452,9 @@ help:
 	@echo ... src/app/GUI.obj
 	@echo ... src/app/GUI.i
 	@echo ... src/app/GUI.s
+	@echo ... src/engine/GPUBackend.obj
+	@echo ... src/engine/GPUBackend.i
+	@echo ... src/engine/GPUBackend.s
 	@echo ... src/engine/Renderer.obj
 	@echo ... src/engine/Renderer.i
 	@echo ... src/engine/Renderer.s

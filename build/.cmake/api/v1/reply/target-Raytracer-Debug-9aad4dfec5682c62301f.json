@@ -42,7 +42,7 @@
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 37,
+				"line" : 38,
 				"parent" : 0
 			},
 			{
@@ -136,12 +136,13 @@
 				1,
 				2,
 				3,
-				5,
+				4,
 				6,
 				7,
 				8,
 				9,
-				10
+				10,
+				11
 			]
 		},
 		{
@@ -185,7 +186,7 @@
 			"language" : "C",
 			"sourceIndexes" : 
 			[
-				4
+				5
 			]
 		}
 	],
@@ -250,7 +251,8 @@
 				7,
 				8,
 				9,
-				10
+				10,
+				11
 			]
 		}
 	],
@@ -272,6 +274,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/engine/Renderer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/engine/GPUBackend.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

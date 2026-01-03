@@ -19,6 +19,12 @@
 },
 {
   "directory": "D:/Gelis/OpenGL/Raytracing/build",
+  "command": "D:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/Raytracer.dir/includes_CXX.rsp -g -o CMakeFiles\\Raytracer.dir\\src\\engine\\GPUBackend.cpp.obj -c D:\\Gelis\\OpenGL\\Raytracing\\src\\engine\\GPUBackend.cpp",
+  "file": "D:/Gelis/OpenGL/Raytracing/src/engine/GPUBackend.cpp",
+  "output": "CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.obj"
+},
+{
+  "directory": "D:/Gelis/OpenGL/Raytracing/build",
   "command": "D:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/Raytracer.dir/includes_CXX.rsp -g -o CMakeFiles\\Raytracer.dir\\src\\app\\GUI.cpp.obj -c D:\\Gelis\\OpenGL\\Raytracing\\src\\app\\GUI.cpp",
   "file": "D:/Gelis/OpenGL/Raytracing/src/app/GUI.cpp",
   "output": "CMakeFiles/Raytracer.dir/src/app/GUI.cpp.obj"

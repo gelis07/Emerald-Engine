@@ -17,6 +17,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "D:/sdk/ImGuiDocking/imgui_widgets.cpp" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/D_/sdk/ImGuiDocking/imgui_widgets.cpp.obj.d"
   "D:/Gelis/OpenGL/Raytracing/src/app/Application.cpp" "CMakeFiles/Raytracer.dir/src/app/Application.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/src/app/Application.cpp.obj.d"
   "D:/Gelis/OpenGL/Raytracing/src/app/GUI.cpp" "CMakeFiles/Raytracer.dir/src/app/GUI.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/src/app/GUI.cpp.obj.d"
+  "D:/Gelis/OpenGL/Raytracing/src/engine/GPUBackend.cpp" "CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.obj.d"
   "D:/Gelis/OpenGL/Raytracing/src/engine/Renderer.cpp" "CMakeFiles/Raytracer.dir/src/engine/Renderer.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/src/engine/Renderer.cpp.obj.d"
   "D:/Gelis/OpenGL/Raytracing/src/main.cpp" "CMakeFiles/Raytracer.dir/src/main.cpp.obj" "gcc" "CMakeFiles/Raytracer.dir/src/main.cpp.obj.d"
   )

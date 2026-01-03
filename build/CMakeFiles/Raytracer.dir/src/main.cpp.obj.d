@@ -143,13 +143,7 @@ CMakeFiles/Raytracer.dir/src/main.cpp.obj: \
  D:/msys64/mingw64/include/io.h D:/sdk/fmt/include/fmt/format.h \
  D:/sdk/fmt/include/fmt/color.h \
  D:/Gelis/OpenGL/Raytracing/src/engine/Renderer.h \
- D:/Gelis/OpenGL/Raytracing/src/core/RenderSettings.h \
- D:/Gelis/OpenGL/Raytracing/src/core/Scene.h \
- D:/msys64/mingw64/include/c++/14.2.0/vector \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_uninitialized.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_vector.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/stl_bvector.h \
- D:/msys64/mingw64/include/c++/14.2.0/bits/vector.tcc D:/sdk/GLM/glm.hpp \
+ D:/Gelis/OpenGL/Raytracing/src/engine/GPUBackend.h D:/sdk/GLM/glm.hpp \
  D:/sdk/GLM/detail/_fixes.hpp D:/sdk/GLM/detail/setup.hpp \
  D:/msys64/mingw64/include/c++/14.2.0/cassert \
  D:/msys64/mingw64/include/assert.h D:/sdk/GLM/simd/platform.h \
@@ -244,6 +238,13 @@ CMakeFiles/Raytracer.dir/src/main.cpp.obj: \
  D:/sdk/GLM/packing.hpp D:/sdk/GLM/detail/func_packing.inl \
  D:/sdk/GLM/detail/type_half.hpp D:/sdk/GLM/detail/type_half.inl \
  D:/sdk/GLM/integer.hpp D:/sdk/GLM/detail/func_integer.inl \
+ D:/Gelis/OpenGL/Raytracing/src/core/RenderSettings.h \
+ D:/Gelis/OpenGL/Raytracing/src/core/Scene.h \
+ D:/msys64/mingw64/include/c++/14.2.0/vector \
+ D:/msys64/mingw64/include/c++/14.2.0/bits/stl_uninitialized.h \
+ D:/msys64/mingw64/include/c++/14.2.0/bits/stl_vector.h \
+ D:/msys64/mingw64/include/c++/14.2.0/bits/stl_bvector.h \
+ D:/msys64/mingw64/include/c++/14.2.0/bits/vector.tcc \
  D:/sdk/GLM/gtc/type_ptr.hpp D:/sdk/GLM/gtc/quaternion.hpp \
  D:/sdk/GLM/gtc/constants.hpp D:/sdk/GLM/ext/scalar_constants.hpp \
  D:/sdk/GLM/ext/scalar_constants.inl D:/sdk/GLM/gtc/constants.inl \

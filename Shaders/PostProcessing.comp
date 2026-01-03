@@ -1,0 +1,30 @@
+#version 430 core
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout (rgba32f, binding = 0) uniform image2D imageIn;
+layout (rgba32f , binding = 1) uniform image2D imageOut;
+
+const int SampleRange = 1;
+
+void main()
+{
+    ivec2 pix = ivec2(gl_GlobalInvocationID.xy);
+
+    vec3 AccumulatedColor = vec3(0);
+    for(int i = 1; i <= SampleRange; i++)
+    {
+        AccumulatedColor += imageLoad(imageIn, pix).rgb;
+        AccumulatedColor += imageLoad(imageIn, max((pix + i * ivec2( 0,  1)), ivec2(0)) ).rgb;
+        AccumulatedColor += imageLoad(imageIn, max((pix + i * ivec2(-1,  0)), ivec2(0)) ).rgb;
+        AccumulatedColor += imageLoad(imageIn, max((pix + i * ivec2( 0, -1)), ivec2(0)) ).rgb;
+        AccumulatedColor += imageLoad(imageIn, max((pix + i * ivec2( 1,  0)), ivec2(0)) ).rgb;
+
+        AccumulatedColor += imageLoad(imageIn, (pix + i * ivec2( 1,  1))).rgb;
+        AccumulatedColor += imageLoad(imageIn, (pix + i * ivec2(-1, -1))).rgb;
+        AccumulatedColor += imageLoad(imageIn, (pix + i * ivec2( 1, -1))).rgb;
+        AccumulatedColor += imageLoad(imageIn, (pix + i * ivec2(-1,  1))).rgb;
+    }
+
+    AccumulatedColor /= SampleRange * 9;
+    imageStore(imageOut, pix, vec4(AccumulatedColor, 1.0));
+}

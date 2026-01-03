@@ -17,6 +17,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/Raytracer.dir/src/app/Application.cpp.obj.d"
   "CMakeFiles/Raytracer.dir/src/app/GUI.cpp.obj"
   "CMakeFiles/Raytracer.dir/src/app/GUI.cpp.obj.d"
+  "CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.obj"
+  "CMakeFiles/Raytracer.dir/src/engine/GPUBackend.cpp.obj.d"
   "CMakeFiles/Raytracer.dir/src/engine/Renderer.cpp.obj"
   "CMakeFiles/Raytracer.dir/src/engine/Renderer.cpp.obj.d"
   "CMakeFiles/Raytracer.dir/src/main.cpp.obj"
