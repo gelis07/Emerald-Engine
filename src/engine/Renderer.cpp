@@ -16,16 +16,19 @@ void Renderer::OnUpdate(RenderSettings& rs)
     Raytracer.Uniform1f("tfov", tfov);
     Raytracer.Uniform3f("CamPos", camPos);
     Raytracer.Uniform1i("SphereCount", rs.scene.hitObjects.size() + 1);
-
+    Raytracer.Uniform1i("frameIndex", frames);
+    Raytracer.Uniform1i("accumulate", rs.accumulate);
     for(int i = 0; i < rs.scene.hitObjects.size(); i++)
     {
         Hittable* HitObj = rs.scene.hitObjects[i];
         std::string indexString = std::to_string(i);
-        Raytracer.Uniform3f(std::string("SPoint[" + indexString + "]"),HitObj->point);
-        Raytracer.Uniform3f(std::string("Color[" + indexString + "]"), HitObj->mat.Color);
+        Raytracer.Uniform3f(std::string("Spheres[" + indexString + "].point"),HitObj->point);
+        Raytracer.Uniform1i(std::string("Spheres[" + indexString + "].material"),1);
+        Raytracer.Uniform3f(std::string("Spheres[" + indexString + "].albedo"), HitObj->mat.albedo);
+        Raytracer.Uniform1i(std::string("Spheres[" + indexString + "].material"), HitObj->mat.scatter);
         if(HitObj->type == SPHERE)
         {
-            Raytracer.Uniform1f(std::string("SRadius[" + indexString + "]"), static_cast<HitSphere*>(HitObj)->radius);
+            Raytracer.Uniform1f(std::string("Spheres[" + indexString + "].radius"), static_cast<HitSphere*>(HitObj)->radius);
         }
     }
 

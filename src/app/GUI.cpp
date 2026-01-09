@@ -16,9 +16,8 @@ void GUI::SceneModifier()
         ImGui::PushID(i);
         ImGui::SeparatorText(std::string("Sphere: " + std::to_string(i)).c_str());
         ImGui::DragFloat3("position", glm::value_ptr(hitObj->point), 0.01f);
-        ImGui::DragFloat3("color", glm::value_ptr(hitObj->mat.Color), 0.01f);
-        ImGui::DragFloat("mult", &hitObj->mat.mult, 0.01f);
-        ImGui::DragFloat("emmision power", &hitObj->mat.EmmisionPower, 0.01f);
+        ImGui::DragFloat3("albedo", glm::value_ptr(hitObj->mat.albedo), 0.01f);
+        ImGui::DragInt("material Index", &hitObj->mat.scatter, 0.01f);
         if(scene.hitObjects[i]->type == SPHERE)
         {
             ImGui::DragFloat("radius", &static_cast<HitSphere*>(hitObj)->radius, 0.01f);
@@ -32,8 +31,8 @@ void GUI::SceneModifier()
         HitSphere* newSphere = new HitSphere();
         newSphere->radius = 1.0f;
         newSphere->point = glm::vec3(0, 0, 0);
-        newSphere->mat.Color = glm::vec3(0, 1, 0);
-        newSphere->mat.EmmisionPower = 0.0f;
+        newSphere->mat.albedo = glm::vec3(0, 1, 0);
+        newSphere->mat.scatter = 1;
         scene.hitObjects.push_back(newSphere);
     }
     ImGui::End();

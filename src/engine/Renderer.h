@@ -18,7 +18,7 @@ class Renderer
 
         GLuint RenderImage;
         GLuint PostProcessingImage;
-        int frames;
+        int frames = 1;
         float tfov;
         float AR;
         glm::vec3 camPos = glm::vec3(0,0,0);

@@ -4,6 +4,6 @@
 struct RenderSettings
 {
     Scene scene;
-    bool accumulate;
+    bool accumulate = false;
     bool EnvLight;
 };

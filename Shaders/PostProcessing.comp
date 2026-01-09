@@ -26,5 +26,5 @@ void main()
     }
 
     AccumulatedColor /= SampleRange * 9;
-    imageStore(imageOut, pix, vec4(AccumulatedColor, 1.0));
+    imageStore(imageOut, pix, vec4(sqrt(AccumulatedColor), 1.0));
 }

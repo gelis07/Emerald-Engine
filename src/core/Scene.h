@@ -9,9 +9,8 @@ enum HitType
 class Material
 {
     public:
-        glm::vec3 Color;
-        float EmmisionPower;
-        float mult;
+        glm::vec3 albedo;
+        int scatter;
 };
 class Hittable
 {
