@@ -9,6 +9,8 @@ enum HitType
 class Material
 {
     public:
+        float fuzz = 0.0f;
+        float refractionIndex = 0.0f;
         glm::vec3 albedo;
         int scatter;
 };

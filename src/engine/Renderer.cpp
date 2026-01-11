@@ -26,6 +26,8 @@ void Renderer::OnUpdate(RenderSettings& rs)
         Raytracer.Uniform1i(std::string("Spheres[" + indexString + "].material"),1);
         Raytracer.Uniform3f(std::string("Spheres[" + indexString + "].albedo"), HitObj->mat.albedo);
         Raytracer.Uniform1i(std::string("Spheres[" + indexString + "].material"), HitObj->mat.scatter);
+        Raytracer.Uniform1f(std::string("Spheres[" + indexString + "].fuzz"), HitObj->mat.fuzz);
+        Raytracer.Uniform1f(std::string("Spheres[" + indexString + "].refractionIndex"), HitObj->mat.refractionIndex);
         if(HitObj->type == SPHERE)
         {
             Raytracer.Uniform1f(std::string("Spheres[" + indexString + "].radius"), static_cast<HitSphere*>(HitObj)->radius);
