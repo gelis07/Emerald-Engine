@@ -21,6 +21,5 @@ class Renderer
         int frames = 1;
         float tfov;
         float AR;
-        glm::vec3 camPos = glm::vec3(0,0,0);
         const unsigned int TEXTURE_WIDTH = 1000, TEXTURE_HEIGHT = 1000;
 };

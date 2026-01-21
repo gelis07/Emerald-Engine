@@ -26,6 +26,7 @@ src/app/Application.cpp
 src/engine/Renderer.cpp
 src/engine/GPUBackend.cpp
 src/app/GUI.cpp
+src/app/CameraControl.cpp
 vendor/glad/src/glad.c
 vendor/imgui/imgui.cpp
 vendor/imgui/imgui_draw.cpp

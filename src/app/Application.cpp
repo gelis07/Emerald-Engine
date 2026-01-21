@@ -153,7 +153,7 @@ void Application::Init()
     glDebugMessageCallback(GladErrorCallBack, NULL);
 
     InitImGui();
-
+    camControl.Init(45.0f, 0.1f, 1000.0f, WWIDTH, WHEIGHT);
     rend.Init(WWIDTH, WHEIGHT);
 }
 
@@ -166,8 +166,12 @@ void Application::OnUpdate()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         glClear(GL_COLOR_BUFFER_BIT);
-
+        dt = glfwGetTime() - mLastTime;
+        mLastTime = glfwGetTime();
         
+        camControl.OnUpdate(dt);
+
+        gui.settings.scene.camera = camControl.GetCamera();
         gui.SceneModifier();
         rend.OnUpdate(gui.settings);
 

@@ -10,14 +10,20 @@ void Renderer::OnUpdate(RenderSettings& rs)
     }else{
         frames = 1;
     }
-
+    if(rs.scene.camera.moved)
+    {
+        frames = 1;
+        rs.accumulate = false;
+    }
     Raytracer.Bind();
     Raytracer.Uniform1f("AR", AR);
     Raytracer.Uniform1f("tfov", tfov);
-    Raytracer.Uniform3f("CamPos", camPos);
+    Raytracer.Uniform3f("CamPos", rs.scene.camera.GetPos());
     Raytracer.Uniform1i("SphereCount", rs.scene.hitObjects.size() + 1);
     Raytracer.Uniform1i("frameIndex", frames);
     Raytracer.Uniform1i("accumulate", rs.accumulate);
+    Raytracer.UniformMat4("InvProj", rs.scene.camera.GetInvProjection());
+    Raytracer.UniformMat4("InvView", rs.scene.camera.GetInvView());
     for(int i = 0; i < rs.scene.hitObjects.size(); i++)
     {
         Hittable* HitObj = rs.scene.hitObjects[i];
@@ -49,7 +55,6 @@ void Renderer::OnUpdate(RenderSettings& rs)
     glBindTexture(GL_TEXTURE_2D, PostProcessingImage);
     Screen.Uniform1i("RenderImage", 0);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
 }
 
 void Renderer::Init(int width, int heigth)

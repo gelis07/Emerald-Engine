@@ -15,6 +15,7 @@ class Shader
         void Uniform1f(const std::string& name, float value);
         void Uniform1i(const std::string& name, int value);
         void Uniform3f(const std::string& name, const glm::vec3& value);
+        void UniformMat4(const std::string& name, const glm::mat4& mat);
     private:
         GLuint mShaderID;
         GLuint mProgramID;

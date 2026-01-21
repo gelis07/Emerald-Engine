@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <glm/glm.hpp>
-
+#include <core/Camera.h>
 enum HitType
 {
     SPHERE
@@ -31,6 +31,7 @@ class HitSphere : public Hittable
 class Scene
 {
     public:
+        Camera camera;
         std::vector<Hittable*> hitObjects;
         inline ~Scene()
         {

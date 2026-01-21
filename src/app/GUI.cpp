@@ -8,8 +8,14 @@ void GUI::SceneModifier()
 {
 
     Scene& scene = settings.scene;
-
-    ImGui::Begin("test");
+    Camera& camera = scene.camera;
+    ImGui::Begin("Scene modifier");
+    ImGui::SeparatorText("Camera Settings");
+    CameraSettings stg;
+    stg.pos = camera.GetPos();
+    ImGui::DragFloat3("Position", glm::value_ptr(stg.pos));
+    camera.Set(stg);
+    ImGui::SeparatorText("Object Settings");
     for(int i = 0; i < scene.hitObjects.size(); i++)
     {
         Hittable* hitObj = scene.hitObjects[i];
@@ -26,6 +32,7 @@ void GUI::SceneModifier()
         }
         ImGui::PopID();
     }
+    ImGui::SeparatorText("Environment Settings");
     ImGui::Checkbox("accumulate", &settings.accumulate);
     ImGui::Checkbox("EnvLight", &settings.EnvLight);
     if(ImGui::Button("add"))
