@@ -28,7 +28,7 @@ void CameraControl::OnUpdate(float ts)
     glm::vec2 delta = (mousePos - mLastMousePos) * 0.002f;
     mLastMousePos = mousePos;
 
-    if(!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1))
+    if(!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2))
     {
         glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_NORMAL);
         return;

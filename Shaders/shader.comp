@@ -23,6 +23,7 @@ struct sphere
     float refractionIndex;
 };
 
+
 //Scene Vars
 uniform sphere Spheres[10];
 uniform mat4 InvProj;
@@ -110,6 +111,31 @@ vec3 RefractionScatter(vec3 Normal, vec3 IncomingRay, float refractionIndex)
     return refracted; 
 }
 
+
+struct ray
+{
+    vec3 dir;
+    vec3 pos;
+};
+
+void hitSphere(sphere sphere, ray r, int index, inout float nearestT, inout int hitIndex)
+{
+    vec3 Pc = r.pos-sphere.point;
+    float b = dot(Pc, r.dir);
+    float c = dot(Pc, Pc) - sphere.radius*sphere.radius;
+    float Discr = b*b - c;
+    if (Discr >= 0.0) {
+        float s = sqrt(Discr);
+        float t1 = -b - s;
+        float t2 = -b + s;
+
+        float t = (t1 > 0.001) ? t1 : t2;   // if inside, t1 is negative, use t2
+        if (t > 0.001 && t < nearestT) {
+            nearestT = t;
+            hitIndex = index;
+        }
+    }
+}
 void main()
 {
 
@@ -124,13 +150,23 @@ void main()
     v = v * 2.0 - 1.0;
 
     vec4 target = InvProj * vec4(u, v , 1.0, 1.0);
-    vec3 r = vec3(InvView * vec4(normalize(vec3(target) / target.w), 0));
+    ray r;
+    r.dir = vec3(InvView * vec4(normalize(vec3(target) / target.w), 0));
+    r.pos = CamPos;
 
+    //Plane test.
+    const vec3 A = vec3(0, 2, 5);
+    const vec3 B = vec3(9, 3, 5);
+    const vec3 C = vec3(1, 7, 5);
 
+    vec3 rab = B-A;
+    vec3 rbc = C-B;
+
+    vec3 PlaneN = normalize(cross(rab, rbc));
     
+
     vec3 contribution = vec3(1.0);
     vec3 finalColor = vec3(0.0);
-    vec3 StartPoint = CamPos;
     uint seed =
         uint(pix.x) * 1973u +
         uint(pix.y) * 9277u +
@@ -142,54 +178,52 @@ void main()
         int hitIndex = -1;
         for(int i = 0; i < SphereCount; i++)
         {
-            vec3 Pc = StartPoint-Spheres[i].point;
-            float b = dot(Pc, r);
-            float c = dot(Pc, Pc) - Spheres[i].radius*Spheres[i].radius;
-            float Discr = b*b - c;
-            if (Discr >= 0.0) {
-                float s = sqrt(Discr);
-                float t1 = -b - s;
-                float t2 = -b + s;
-
-                float t = (t1 > 0.001) ? t1 : t2;   // if inside, t1 is negative, use t2
-                if (t > 0.001 && t < nearestT) {
-                    nearestT = t;
-                    hitIndex = i;
-                }
-            }
+            hitSphere(Spheres[i],r, i, nearestT, hitIndex);
         }
         if (hitIndex == -1) {
-            float a = 0.5*(r.y + 1);  
+            float a = 0.5*(r.dir.y + 1);  
             vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
             finalColor = contribution * sky;  // environment brightness
             break;
         }
-        vec3 HitPoint = StartPoint + r * nearestT;
+        vec3 HitPoint = r.pos + r.dir * nearestT;
         vec3 outwardN = normalize(HitPoint - Spheres[hitIndex].point);
-        bool frontFace = dot(r, outwardN) < 0.0;
+        bool frontFace = dot(r.dir, outwardN) < 0.0;
         vec3 n = frontFace ? outwardN : -outwardN;
 
-        vec3 rNext = r;
+        vec3 rNext = r.dir;
 
         if (Spheres[hitIndex].material == 1) {
             rNext = LambertianScatter(n, seed);
         } else if (Spheres[hitIndex].material == 2) {
-            rNext = ReflectionScatter(n, r, Spheres[hitIndex].fuzz, seed);
+            rNext = ReflectionScatter(n, r.dir, Spheres[hitIndex].fuzz, seed);
         } else if (Spheres[hitIndex].material == 3) {
-            rNext = RefractionScatter(n, r, Spheres[hitIndex].refractionIndex);
+            rNext = RefractionScatter(n, r.dir, Spheres[hitIndex].refractionIndex);
         }
 
         rNext = normalize(rNext);
-        StartPoint = HitPoint + rNext * 0.001;
-        r = rNext;
+        r.pos = HitPoint + rNext * 0.001;
+        r.dir = rNext;
 
         contribution *= Spheres[hitIndex].albedo;
     }
     vec3 newColor = finalColor;
+
     if(accumulate == 1)
     {
         vec3 oldColor = imageLoad(imgAccum, pix).rgb;
         newColor = (oldColor * float(frameIndex - 1) + finalColor) / float(frameIndex);
+    }
+    if(dot(PlaneN, r.dir) != 0)
+    {
+        float t = -dot(PlaneN, (r.pos - A)) / dot(PlaneN, r.dir);
+        vec3 P = r.pos + t * r.dir;
+        float w1 = (A.x*(C.y-A.y)+(P.y-A.y)*(C.x-A.x)-P.x*(C.y-A.y)) / ((B.y-A.y)*(C.x-A.x) - (B.x - A.x)*(C.y-A.y));
+        float w2 = (P.y - A.y - w1 * (B.y-A.y)) / (C.y - A.y);
+        if(w1 >= 0 && w2 >= 0 && (w1+w2)<=1)
+        {
+            newColor = vec3(1,0,0);
+        }
     }
     imageStore(imgAccum, pix, vec4(newColor, 1.0));
 }
