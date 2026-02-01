@@ -4,7 +4,8 @@
 #include <core/Camera.h>
 enum HitType
 {
-    SPHERE
+    SPHERE,
+    TRIANGLE
 };
 class Material
 {
@@ -17,27 +18,46 @@ class Material
 class Hittable
 {
     public:
-        Material mat;
-        glm::vec3 point;
+        int matIndex;
         HitType type;
 };
-
+class HitTriangle : public Hittable
+{
+    public:
+        HitTriangle() {type = TRIANGLE;}
+        glm::vec3 a,b,c;
+};
 class HitSphere : public Hittable
 {
     public:
         HitSphere() {type = SPHERE;}
         float radius;
+        glm::vec3 point;
 };
 class Scene
 {
     public:
         Camera camera;
+        std::vector<Material*> materials;
         std::vector<Hittable*> hitObjects;
+        inline Scene()
+        {
+            Material* mat = new Material;
+            mat->albedo = glm::vec3(1.0f);
+            mat->fuzz = 0.0f;
+            mat->refractionIndex = 0.0f;
+            mat->scatter = 1;
+            materials.push_back(mat);
+        }
         inline ~Scene()
         {
             for (int i ; i < hitObjects.size(); i++)
             {
                 delete hitObjects[i];
+            }
+            for (int i ; i < materials.size(); i++)
+            {
+                delete materials[i];
             }
         }
 };

@@ -20,6 +20,8 @@ void Renderer::OnUpdate(RenderSettings& rs)
     Raytracer.Uniform1f("tfov", tfov);
     Raytracer.Uniform3f("CamPos", rs.scene.camera.GetPos());
     Raytracer.Uniform1i("SphereCount", rs.scene.hitObjects.size() + 1);
+    Raytracer.Uniform1i("TriCount", rs.scene.hitObjects.size() + 1);
+
     Raytracer.Uniform1i("frameIndex", frames);
     Raytracer.Uniform1i("accumulate", rs.accumulate);
     Raytracer.UniformMat4("InvProj", rs.scene.camera.GetInvProjection());
@@ -28,18 +30,31 @@ void Renderer::OnUpdate(RenderSettings& rs)
     {
         Hittable* HitObj = rs.scene.hitObjects[i];
         std::string indexString = std::to_string(i);
-        Raytracer.Uniform3f(std::string("Spheres[" + indexString + "].point"),HitObj->point);
-        Raytracer.Uniform1i(std::string("Spheres[" + indexString + "].material"),1);
-        Raytracer.Uniform3f(std::string("Spheres[" + indexString + "].albedo"), HitObj->mat.albedo);
-        Raytracer.Uniform1i(std::string("Spheres[" + indexString + "].material"), HitObj->mat.scatter);
-        Raytracer.Uniform1f(std::string("Spheres[" + indexString + "].fuzz"), HitObj->mat.fuzz);
-        Raytracer.Uniform1f(std::string("Spheres[" + indexString + "].refractionIndex"), HitObj->mat.refractionIndex);
+        
         if(HitObj->type == SPHERE)
         {
+            Raytracer.Uniform1i(std::string("Spheres[" + indexString + "].matIndex"), HitObj->matIndex);
             Raytracer.Uniform1f(std::string("Spheres[" + indexString + "].radius"), static_cast<HitSphere*>(HitObj)->radius);
+            Raytracer.Uniform3f(std::string("Spheres[" + indexString + "].point"),static_cast<HitSphere*>(HitObj)->point);
+        }
+        if(HitObj->type == TRIANGLE)
+        {
+            HitTriangle* tri = static_cast<HitTriangle*>(HitObj);
+            Raytracer.Uniform1i(std::string("Triangles[" + indexString + "].matIndex"), HitObj->matIndex);
+            Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].a"),tri->a);
+            Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].b"),tri->b);
+            Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].c"),tri->c);
         }
     }
-
+    for(int i = 0; i < rs.scene.materials.size(); i++)
+    {
+        const Material& mat = (*rs.scene.materials[i]);
+        std::string indexString = std::to_string(i);
+        Raytracer.Uniform3f(std::string("materials[" + indexString + "].albedo"), mat.albedo);
+        Raytracer.Uniform1i(std::string("materials[" + indexString + "].materialType"), mat.scatter);
+        Raytracer.Uniform1f(std::string("materials[" + indexString + "].fuzz"), mat.fuzz);
+        Raytracer.Uniform1f(std::string("materials[" + indexString + "].refractionIndex"), mat.refractionIndex);
+    }
 
     glDispatchCompute((unsigned int)TEXTURE_WIDTH/16, (unsigned int)TEXTURE_HEIGHT/16, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
