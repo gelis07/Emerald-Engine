@@ -2,6 +2,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <core/Camera.h>
+#include <core/Model.h>
 enum HitType
 {
     SPHERE,
@@ -38,6 +39,9 @@ class Scene
 {
     public:
         Camera camera;
+        Model model;
+
+
         std::vector<Material*> materials;
         std::vector<Hittable*> hitObjects;
         inline Scene()

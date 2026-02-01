@@ -9,6 +9,8 @@
 #include <engine/Renderer.h>
 #include <app/GUI.h>
 #include <app/CameraControl.h>
+#include <core/Model.h>
+
 #define WWIDTH 1280
 #define WHEIGHT 920
 
@@ -23,7 +25,6 @@ class Application
         GLFWwindow* window;
         Renderer rend;
         GUI gui;
-
         double mLastTime = 0.0f;
         double dt = 0.0f;
 };

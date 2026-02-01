@@ -35,14 +35,16 @@ struct sphere
 
 struct triangle
 {
-    vec3 a,b,c;
     int matIndex;
+    vec3 a;
+    vec3 b;
+    vec3 c;
 };
 
 //Scene Vars
 uniform material materials[10];
 uniform sphere Spheres[10];
-uniform triangle Triangles[10];
+uniform triangle Triangles[30];
 uniform int TriCount;
 uniform int SphereCount;
 uniform mat4 InvProj;
@@ -167,32 +169,31 @@ void hitSphere(sphere sphere, ray r, int index, inout hitInfo info)
 
 void hitTriangle(triangle tri, ray r, int index, inout hitInfo info)
 {
-    vec3 rab = tri.b-tri.a;
-    vec3 rbc =tri.c-tri.b;
-    vec3 A = tri.a;
-    vec3 B = tri.b;
-    vec3 C = tri.c;
-    vec3 PlaneN = normalize(cross(rab, rbc));
-    if(dot(PlaneN, r.dir) != 0)
-    {
-        float t = -dot(PlaneN, (r.pos - tri.a)) / dot(PlaneN, r.dir);
-        vec3 P = r.pos + t * r.dir;
-        float w1 = (A.x*(C.y-A.y)+(P.y-A.y)*(C.x-A.x)-P.x*(C.y-A.y)) / ((B.y-A.y)*(C.x-A.x) - (B.x - A.x)*(C.y-A.y));
-        float w2 = (P.y - A.y - w1 * (B.y-A.y)) / (C.y - A.y);
-        if(w1 >= 0 && w2 >= 0 && (w1+w2)<=1)
-        {
-            //ray did hit the triangle.
-            if(t > 0.001 && t < info.dist)
-            {
-                info.dist = t;
-                info.normal = PlaneN;
-                info.matIndex = Triangles[index].matIndex;
-            }
-        }
-    }
-    
+    vec3 e1 = tri.b - tri.a;
+    vec3 e2 = tri.c - tri.a;
+    vec3 p = cross(r.dir, e2);
+    float det = dot(e1, p);
 
+    if(abs(det) < 1e-6) return;
+
+    float invDet = 1.0 / det;
+    vec3 t = r.pos - tri.a;
+    float u = dot(t, p) * invDet;
+    if(u < 0 || u > 1) return;
+
+    vec3 q = cross(t, e1);
+    float v = dot(r.dir, q) * invDet;
+    if(v < 0 || u + v > 1) return;
+
+    float dist = dot(e2, q) * invDet;
+    if(dist > 0.001 && dist < info.dist)
+    {
+        info.dist = dist;
+        info.normal = normalize(cross(e1, e2));
+        info.matIndex = tri.matIndex;
+    }
 }
+
 void main()
 {
 

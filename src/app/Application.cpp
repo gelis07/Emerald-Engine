@@ -155,6 +155,10 @@ void Application::Init()
     InitImGui();
     camControl.Init(45.0f, 0.1f, 1000.0f, WWIDTH, WHEIGHT);
     rend.Init(WWIDTH, WHEIGHT);
+
+
+    gui.settings.scene.model.Load("mushroom.obj");
+    fmt::println("finished loading model");
 }
 
 

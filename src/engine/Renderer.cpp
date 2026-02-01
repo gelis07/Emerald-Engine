@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "fmt/base.h"
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -19,8 +20,7 @@ void Renderer::OnUpdate(RenderSettings& rs)
     Raytracer.Uniform1f("AR", AR);
     Raytracer.Uniform1f("tfov", tfov);
     Raytracer.Uniform3f("CamPos", rs.scene.camera.GetPos());
-    Raytracer.Uniform1i("SphereCount", rs.scene.hitObjects.size() + 1);
-    Raytracer.Uniform1i("TriCount", rs.scene.hitObjects.size() + 1);
+    Raytracer.Uniform1i("SphereCount", rs.scene.hitObjects.size());
 
     Raytracer.Uniform1i("frameIndex", frames);
     Raytracer.Uniform1i("accumulate", rs.accumulate);
@@ -37,15 +37,27 @@ void Renderer::OnUpdate(RenderSettings& rs)
             Raytracer.Uniform1f(std::string("Spheres[" + indexString + "].radius"), static_cast<HitSphere*>(HitObj)->radius);
             Raytracer.Uniform3f(std::string("Spheres[" + indexString + "].point"),static_cast<HitSphere*>(HitObj)->point);
         }
-        if(HitObj->type == TRIANGLE)
-        {
-            HitTriangle* tri = static_cast<HitTriangle*>(HitObj);
-            Raytracer.Uniform1i(std::string("Triangles[" + indexString + "].matIndex"), HitObj->matIndex);
-            Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].a"),tri->a);
-            Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].b"),tri->b);
-            Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].c"),tri->c);
-        }
     }
+
+    for(int i =0; i < rs.scene.model.mTriangles.size(); i++)
+    {
+
+        const std::array<int, 3> indices = rs.scene.model.mTriangles[i];
+        std::array<glm::vec3, 3> vertices;
+        vertices[0] = rs.scene.model.mVertices[indices[0] - 1];
+        vertices[1] = rs.scene.model.mVertices[indices[1] - 1];
+        vertices[2] = rs.scene.model.mVertices[indices[2] - 1];
+
+        std::string indexString = std::to_string(i);
+        Raytracer.Uniform1i(std::string("Triangles[" + indexString + "].matIndex"), 0);
+        Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].a"),vertices[0]);
+        Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].b"),vertices[1]);
+        Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].c"),vertices[2]);
+    }
+
+    Raytracer.Uniform1i("TriCount", rs.scene.model.mTriangles.size());
+
+
     for(int i = 0; i < rs.scene.materials.size(); i++)
     {
         const Material& mat = (*rs.scene.materials[i]);
