@@ -4,7 +4,7 @@
 #include <string>
 
 
-void GUI::SceneModifier()
+void GUI::SceneModifier(float dt)
 {
 
     Scene& scene = settings.scene;
@@ -59,15 +59,6 @@ void GUI::SceneModifier()
         newSphere->matIndex = 0;
         scene.hitObjects.push_back(newSphere);
     }
-    // if(ImGui::Button("add triangle"))
-    // {
-    //     HitTriangle* newTriangle = new HitTriangle();
-    //     newTriangle->a = glm::vec3(1.0f);
-    //     newTriangle->b = glm::vec3(0.0f);
-    //     newTriangle->c = glm::vec3(2.0f);
-    //     newTriangle->matIndex = 0;
-    //     scene.hitObjects.push_back(newTriangle);
-    // }
     if(ImGui::Button("add mat"))
     {
         Material* mat = new Material;
@@ -77,7 +68,7 @@ void GUI::SceneModifier()
         mat->scatter = 1;
         scene.materials.push_back(mat);
     }
-
+    ImGui::Text("delta time is %fms", dt * 1000);
 
     ImGui::End();
 }

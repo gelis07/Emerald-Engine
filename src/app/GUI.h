@@ -5,6 +5,6 @@
 class GUI
 {
     public:
-        void SceneModifier();
+        void SceneModifier(float dt);
         RenderSettings settings;
 };

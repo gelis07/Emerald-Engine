@@ -136,7 +136,7 @@ void Application::Init()
         system("pause");
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     window = glfwCreateWindow(WWIDTH, WHEIGHT, "Raytracer", NULL, NULL);
@@ -149,16 +149,17 @@ void Application::Init()
     glfwMakeContextCurrent(window);
     glfwSwapInterval(true);
     gladLoadGL();
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     GLint flags;
     glDebugMessageCallback(GladErrorCallBack, NULL);
 
     InitImGui();
     camControl.Init(45.0f, 0.1f, 1000.0f, WWIDTH, WHEIGHT);
-    rend.Init(WWIDTH, WHEIGHT);
-
-
     gui.settings.scene.model.Load("mushroom.obj");
     fmt::println("finished loading model");
+
+
+    rend.Init(gui.settings, WWIDTH, WHEIGHT);
 }
 
 
@@ -176,7 +177,7 @@ void Application::OnUpdate()
         camControl.OnUpdate(dt);
 
         gui.settings.scene.camera = camControl.GetCamera();
-        gui.SceneModifier();
+        gui.SceneModifier(dt);
         rend.OnUpdate(gui.settings);
 
         ImGui::Render();

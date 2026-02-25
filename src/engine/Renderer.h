@@ -8,14 +8,19 @@ class Renderer
 {
     public:
         void OnUpdate(RenderSettings& rs);
-        void Init(int width, int heigth);
+        void Init(const RenderSettings& rs, int width, int heigth);
     private:
+
+        std::vector<float> BakeModel(const Model& model);
+
         GLuint VBO, VAO;
 
         Shader Screen;
         Shader Raytracer;
         Shader PostProcessing;
 
+        GLuint ITriSSBO;
+        GLuint VerticesSSBO;
         GLuint RenderImage;
         GLuint PostProcessingImage;
         int frames = 1;

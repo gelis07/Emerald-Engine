@@ -1,5 +1,4 @@
 #include "Renderer.h"
-#include "fmt/base.h"
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -39,21 +38,7 @@ void Renderer::OnUpdate(RenderSettings& rs)
         }
     }
 
-    for(int i =0; i < rs.scene.model.mTriangles.size(); i++)
-    {
-
-        const std::array<int, 3> indices = rs.scene.model.mTriangles[i];
-        std::array<glm::vec3, 3> vertices;
-        vertices[0] = rs.scene.model.mVertices[indices[0] - 1];
-        vertices[1] = rs.scene.model.mVertices[indices[1] - 1];
-        vertices[2] = rs.scene.model.mVertices[indices[2] - 1];
-
-        std::string indexString = std::to_string(i);
-        Raytracer.Uniform1i(std::string("Triangles[" + indexString + "].matIndex"), 0);
-        Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].a"),vertices[0]);
-        Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].b"),vertices[1]);
-        Raytracer.Uniform3f(std::string("Triangles[" + indexString + "].c"),vertices[2]);
-    }
+   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, VerticesSSBO);
 
     Raytracer.Uniform1i("TriCount", rs.scene.model.mTriangles.size());
 
@@ -84,7 +69,7 @@ void Renderer::OnUpdate(RenderSettings& rs)
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
-void Renderer::Init(int width, int heigth)
+void Renderer::Init(const RenderSettings& rs, int width, int heigth)
 {
     std::vector<float> QuadVertices = 
     {
@@ -126,6 +111,13 @@ void Renderer::Init(int width, int heigth)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, TEXTURE_WIDTH, TEXTURE_HEIGHT,0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(1, PostProcessingImage, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
 
+    std::vector<float> bake = BakeModel(rs.scene.model);
+
+    glCreateBuffers(1, &VerticesSSBO);
+    glNamedBufferStorage(VerticesSSBO, sizeof(float) * bake.size(), (const void*) bake.data(), 0);
+
+
+
     Raytracer.Init();
     Screen.Init();
     PostProcessing.Init();
@@ -139,4 +131,17 @@ void Renderer::Init(int width, int heigth)
     tfov = glm::tan(3.14159 / 8);
     AR = (double)width / (double)heigth;
 
+}
+
+std::vector<float> Renderer::BakeModel(const Model& model)
+{
+    std::vector<float> vertices;
+    for (int i =0; i<model.mTriangles.size(); i++)
+    {
+        vertices.push_back(model.mVertices[(model.mTriangles[i] - 1) * 3]);
+        vertices.push_back(model.mVertices[(model.mTriangles[i] - 1) * 3 + 1]);
+        vertices.push_back(model.mVertices[(model.mTriangles[i] - 1) * 3 + 2]);
+        vertices.push_back(0.0f);
+    }
+    return vertices;
 }
