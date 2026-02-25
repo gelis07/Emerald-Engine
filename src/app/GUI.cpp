@@ -4,7 +4,7 @@
 #include <string>
 
 
-void GUI::SceneModifier()
+void GUI::SceneModifier(float dt)
 {
 
     Scene& scene = settings.scene;
@@ -78,6 +78,7 @@ void GUI::SceneModifier()
         scene.materials.push_back(mat);
     }
 
-
+    float fps = 1 / dt;
+    ImGui::Text("dt: %.3f", fps);
     ImGui::End();
 }

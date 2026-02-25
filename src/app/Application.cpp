@@ -176,7 +176,7 @@ void Application::OnUpdate()
         camControl.OnUpdate(dt);
 
         gui.settings.scene.camera = camControl.GetCamera();
-        gui.SceneModifier();
+        gui.SceneModifier(dt);
         rend.OnUpdate(gui.settings);
 
         ImGui::Render();
