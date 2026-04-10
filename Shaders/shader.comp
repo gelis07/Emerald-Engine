@@ -4,10 +4,8 @@
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D imgAccum;
 
+float pi = 3.14159265359;
 
-uniform float AR;
-uniform float tfov;
-uniform vec3 CamPos;
 
 
 /*
@@ -16,13 +14,29 @@ uniform vec3 CamPos;
     2 Metal
     3 Dialectric
 */
+//vec4 for good alignment
+struct Triangle
+{
+    vec4 a;
+    vec4 b;
+    vec4 c;
+};
+layout(binding = 1, std430) readonly buffer VerticesSSBO
+{
+    Triangle tris[];
+};
 
-
+struct ModelInfo
+{
+    mat4 matrixModel;
+    int matIndex;
+};
 
 struct material
 {
     int materialType;
     vec3 albedo;
+    vec3 emmColor;
     float fuzz;
     float refractionIndex;
 };
@@ -32,27 +46,38 @@ struct sphere
     float radius;
     int matIndex;
 };
-
-struct triangle
+struct ray
 {
-    int matIndex;
-    vec3 a;
-    vec3 b;
-    vec3 c;
+    vec3 dir;
+    vec3 pos;
 };
 
+struct hitInfo
+{
+    float dist;
+    vec3 normal;
+    int matIndex;
+};
+
+
 //Scene Vars
+uniform ModelInfo modelsInfo[24];
+
+uniform float AR;
+uniform float tfov;
+uniform vec3 CamPos;
 uniform material materials[10];
 uniform sphere Spheres[10];
-uniform triangle Triangles[30];
 uniform int TriCount;
 uniform int SphereCount;
 uniform mat4 InvProj;
 uniform mat4 InvView;
 uniform int frameIndex;
 uniform int accumulate;
-uint PCGHash(uint seed)
-{
+uniform int skyColor;
+
+
+uint PCGHash(uint seed) {
     uint state = seed * 747796405u + 2891336453u;
     uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
     return (word >> 22u) ^ word;
@@ -84,68 +109,30 @@ vec3 RandomOnHemisphere(inout uint seed, vec3 normal)
     }
 }
 
-vec3 LambertianScatter(vec3 Normal, inout uint seed)
-{
-    return Normal + RandomVec3(seed);
-}
 
-vec3 ReflectionScatter(vec3 Normal, vec3 IncomingRay, float fuzz, inout uint seed)
-{
-    vec3 reflected = normalize(reflect(IncomingRay, Normal)) + (fuzz * RandomVec3(seed));
-    return reflected;
-}
-
-vec3 Refract(vec3 uv, vec3 n, float eta) 
-{ 
-    float cosTheta = min(dot(-uv, n), 1.0); 
-    vec3 rPerp = eta * (uv + cosTheta*n); 
-    vec3 rParral = -sqrt(abs(1.0 - length(rPerp)*length(rPerp))) * n; 
-    return rPerp + rParral; 
-} 
 vec3 RefractionScatter(vec3 Normal, vec3 IncomingRay, float refractionIndex) 
 { 
-    bool frontFace = dot(IncomingRay, Normal) < 0; 
-    float ri = 0.0; 
-    if(frontFace) 
-    { 
-        ri = (1.0 / refractionIndex); 
-    }else { 
-        ri = refractionIndex; 
-    } 
+    // 1. Determine if we are entering or exiting the material
+    bool frontFace = dot(IncomingRay, Normal) < 0.0; 
+    float eta = frontFace ? (1.0 / refractionIndex) : refractionIndex; 
+    
     vec3 unitDir = normalize(IncomingRay); 
 
-    float cosTheta = min(dot(-unitDir, Normal), 1.0);
-    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+    // 2. Use the built-in function
+    vec3 refracted = refract(unitDir, Normal, eta);
 
-    bool cannotRefract = (ri * sinTheta) > 1.0;
-    vec3 direction;
-    if(cannotRefract)
+    // 3. GLSL refract returns vec3(0.0) if total internal reflection occurs!
+    if(refracted == vec3(0.0))
     {
-        direction = reflect(unitDir, Normal);
-    }else
-    {
-        direction = Refract(unitDir, Normal, ri);
+        return reflect(unitDir, Normal);
     }
-
-    vec3 refracted = direction; 
+    
     return refracted; 
 }
 
-struct ray
+void hitSphere(ray r, int index, inout hitInfo info)
 {
-    vec3 dir;
-    vec3 pos;
-};
-
-struct hitInfo
-{
-    float dist;
-    vec3 normal;
-    int matIndex;
-};
-
-void hitSphere(sphere sphere, ray r, int index, inout hitInfo info)
-{
+    sphere sphere = Spheres[index];
     vec3 Pc = r.pos-sphere.point;
     float b = dot(Pc, r.dir);
     float c = dot(Pc, Pc) - sphere.radius*sphere.radius;
@@ -167,17 +154,24 @@ void hitSphere(sphere sphere, ray r, int index, inout hitInfo info)
 }
 
 
-void hitTriangle(triangle tri, ray r, int index, inout hitInfo info)
+void hitTriangle(ray r, int i, inout hitInfo info)
 {
-    vec3 e1 = tri.b - tri.a;
-    vec3 e2 = tri.c - tri.a;
+    Triangle tri = tris[i];
+
+    Triangle transformedTri;
+    transformedTri.a = vec4(vec3(modelsInfo[int(tri.a.w)].matrixModel * vec4(vec3(tri.a.x, tri.a.y, tri.a.z), 1.0)), tri.a.w);
+    transformedTri.b = vec4(vec3(modelsInfo[int(tri.a.w)].matrixModel * vec4(vec3(tri.b.x, tri.b.y, tri.b.z), 1.0)), tri.a.w);
+    transformedTri.c = vec4(vec3(modelsInfo[int(tri.a.w)].matrixModel * vec4(vec3(tri.c.x, tri.c.y, tri.c.z), 1.0)), tri.a.w);
+    tri = transformedTri;
+    vec3 e1 = tri.b.xyz - tri.a.xyz;
+    vec3 e2 = tri.c.xyz - tri.a.xyz;
     vec3 p = cross(r.dir, e2);
     float det = dot(e1, p);
 
     if(abs(det) < 1e-6) return;
 
     float invDet = 1.0 / det;
-    vec3 t = r.pos - tri.a;
+    vec3 t = r.pos - tri.a.xyz;
     float u = dot(t, p) * invDet;
     if(u < 0 || u > 1) return;
 
@@ -190,14 +184,62 @@ void hitTriangle(triangle tri, ray r, int index, inout hitInfo info)
     {
         info.dist = dist;
         info.normal = normalize(cross(e1, e2));
-        info.matIndex = tri.matIndex;
+        info.matIndex = modelsInfo[int(tri.a.w)].matIndex;
     }
+}
+
+
+hitInfo GetHitInfo(ray r)
+{
+    hitInfo HitInfo;
+    HitInfo.dist = 1e30;
+    HitInfo.matIndex = -1;
+    for(int i = 0; i < SphereCount; i++)
+    {
+        hitSphere(r, i, HitInfo);
+    }
+    for(int i = 0; i < TriCount; i++)
+    {
+        hitTriangle(r, i, HitInfo);
+    }
+    return HitInfo;
+}
+
+float ScatteringPdf(vec3 scatDir, vec3 n)
+{
+    float cosine = dot(scatDir, n);
+    return cosine < 0 ? 0 : cosine / pi;
+}
+
+
+vec3  RandomCosineDir(inout uint seed, vec3 w)
+{
+    float r1 = RandomFloat(seed);
+    float r2 = RandomFloat(seed);
+    float z = sqrt(1-r2);
+    float phi = 2 * pi * r1;
+    float sqrtR2 = sqrt(r2);
+    float x = cos(phi) * sqrtR2;
+    float y = sin(phi) * sqrtR2;
+
+
+    vec3 axis[3];
+    axis[2] = normalize(w);
+    vec3 a = (abs(axis[2].x) > 0.9) ? vec3(0.0, 1.0, 0.0) : vec3(1, 0, 0);
+    axis[1] = normalize(cross(axis[2], a));
+    axis[0] = cross(axis[2], axis[1]);
+
+    return axis[0] * x + axis[1] * y + axis[2] * z; 
+}
+
+float CosinePdf(vec3 dir, vec3 n)
+{
+    float cosine = dot(normalize(dir), n);
+    return max(0, cosine/ pi);
 }
 
 void main()
 {
-
-
     ivec2 pix = ivec2(gl_GlobalInvocationID.xy);
     ivec2 size = imageSize(imgAccum);
 
@@ -214,63 +256,73 @@ void main()
 
     
 
-    vec3 contribution = vec3(1.0);
-    vec3 finalColor = vec3(0.0);
+    vec3 rayTraversalInfo = vec3(1.0);
+    vec3 rayColor = vec3(0.0);
     uint seed =
         uint(pix.x) * 1973u +
         uint(pix.y) * 9277u +
-        frameIndex  * 26699u + 1u;;
+        frameIndex  * 26699u + 1u;
 
     for(int iter = 0; iter < 10; iter++)
     {
-        hitInfo HitInfo;
-        HitInfo.dist = 1e30;
-        HitInfo.matIndex = -1;
-        for(int i = 0; i < SphereCount; i++)
-        {
-            hitSphere(Spheres[i],r, i, HitInfo);
-        }
-        for(int i = 0; i < TriCount; i++)
-        {
-            hitTriangle(Triangles[i],r, i, HitInfo);
-        }
 
-
+        hitInfo HitInfo = GetHitInfo(r);
+        // if nothing got hit, just return a base color.
         if (HitInfo.matIndex == -1) {
-            float a = 0.5*(r.dir.y + 1);  
-            vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
-            finalColor = contribution * sky;  // environment brightness
+            // if(skyColor == 1)
+            // {
+            //     float a = 0.5*(r.dir.y + 1);  
+            //     vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
+            //     rayColor = rayTraversalInfo * sky;  // environment brightness
+            // }
             break;
         }
+
+        //Something got hit!
         vec3 HitPoint = r.pos + r.dir * HitInfo.dist;
         vec3 outwardN = HitInfo.normal;
         bool frontFace = dot(r.dir, outwardN) < 0.0;
         vec3 n = frontFace ? outwardN : -outwardN;
         material hitMat = materials[HitInfo.matIndex];
 
-        vec3 rNext = r.dir;
+        //Scatter light and evaluate color
+        // vec3 randV = RandomOnHemisphere(seed, n); 
+        // vec3 rNext = n + randV;
 
-        if (hitMat.materialType == 1) {
-            rNext = LambertianScatter(n, seed);
-        } else if (hitMat.materialType == 2) {
-            rNext = ReflectionScatter(n, r.dir, hitMat.fuzz, seed);
-        } else if (hitMat.materialType == 3) {
-            rNext = RefractionScatter(n, r.dir, hitMat.refractionIndex);
-        }
 
-        rNext = normalize(rNext);
-        r.pos = HitPoint + rNext * 0.001;
-        r.dir = rNext;
+        // vec3 onLight = vec3(RandomFloat(seed) * 0.5 -0.25, 6.2, RandomFloat(seed)* 0.5 - 0.25);
+        // vec3 toLight = onLight - HitPoint;
+        // float distanceSqr = toLight.x*toLight.x + toLight.y*toLight.y + toLight.z*toLight.z;
+        // toLight = normalize(toLight);
 
-        contribution *= hitMat.albedo;
+
+        // float lightArea = 1;
+        // vec3 lightNormal = vec3(0.0, 1.0, 0.0);
+
+        // float cosLight = max(dot(toLight, lightNormal), 0.0);
+
+        r.pos = HitPoint + n * 0.001;
+        r.dir = RandomCosineDir(seed, n);
+        float brdf = ScatteringPdf(r.dir, n);
+        float pdf = CosinePdf(r.dir, n);
+
+    
+        rayTraversalInfo *= hitMat.albedo * brdf/ pdf;
+
+        rayColor += rayTraversalInfo * hitMat.emmColor;
+
     }
-    vec3 newColor = finalColor;
-
     if(accumulate == 1)
     {
         vec3 oldColor = imageLoad(imgAccum, pix).rgb;
-        newColor = (oldColor * float(frameIndex - 1) + finalColor) / float(frameIndex);
-    }
 
-    imageStore(imgAccum, pix, vec4(newColor, 1.0));
+        // clear accumulation texture on first frame
+        if(frameIndex == 1)
+            oldColor = vec3(0.0);
+
+        vec3 newColor = oldColor + rayColor; // store sum
+        imageStore(imgAccum, pix, vec4(newColor, 1.0));
+    }else{
+        imageStore(imgAccum, pix, vec4(rayColor, 1.0));
+    }
 }

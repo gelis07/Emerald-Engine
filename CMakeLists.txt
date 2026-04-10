@@ -15,6 +15,7 @@ include_directories(${CMAKE_SOURCE_DIR}/vendor/imgui/backends/)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/imgui/)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/glm)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/fmt/include)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/json/include)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 
@@ -24,6 +25,7 @@ add_executable(Raytracer
 src/main.cpp
 src/app/Application.cpp
 src/engine/Renderer.cpp
+src/engine/Rasterizer.cpp
 src/engine/GPUBackend.cpp
 src/app/GUI.cpp
 src/app/CameraControl.cpp

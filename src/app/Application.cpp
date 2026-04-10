@@ -121,7 +121,7 @@ void Application::InitImGui()
     style.FramePadding = ImVec2(4.0f, 3.0f);
     style.ItemSpacing = ImVec2(6.0f, 4.0f);
     style.ItemInnerSpacing = ImVec2(4.0f, 4.0f);
-    io.ConfigFlags = ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 }
 void GladErrorCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei lenght, const GLchar* message, const void *userParam)
 {
@@ -136,10 +136,11 @@ void Application::Init()
         system("pause");
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     window = glfwCreateWindow(WWIDTH, WHEIGHT, "Raytracer", NULL, NULL);
+    glfwMaximizeWindow(window);
     if(!window)
     {
         fmt::println("{}", fmt::format(fg(fmt::rgb(0xFF0000)), "Couldn't initialize window"));
@@ -149,16 +150,20 @@ void Application::Init()
     glfwMakeContextCurrent(window);
     glfwSwapInterval(true);
     gladLoadGL();
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     GLint flags;
     glDebugMessageCallback(GladErrorCallBack, NULL);
-
+    glEnable(GL_DEPTH_TEST);
     InitImGui();
-    camControl.Init(45.0f, 0.1f, 1000.0f, WWIDTH, WHEIGHT);
-    rend.Init(WWIDTH, WHEIGHT);
-
-
-    gui.settings.scene.model.Load("mushroom.obj");
+    camControl.Init(45.0f, 0.1f, 1000.0f);
+    Model model;
+    model.Load("mushroom.obj");
+    gui.settings.scene.models.push_back(model);
     fmt::println("finished loading model");
+
+
+    rend.Init(gui.settings, 600, 600);
+    // rast.Init(&gui.settings.scene, 600, 600);
 }
 
 
@@ -169,14 +174,14 @@ void Application::OnUpdate()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        glClear(GL_COLOR_BUFFER_BIT);
         dt = glfwGetTime() - mLastTime;
         mLastTime = glfwGetTime();
+        glClear(GL_COLOR_BUFFER_BIT);
+        camControl.OnUpdate(dt, gui.settings.ImgWidth, gui.settings.ImgHeight);
         
-        camControl.OnUpdate(dt);
-
+        gui.SceneModifier(dt, {rend.PostProcessingImage}, camControl);
         gui.settings.scene.camera = camControl.GetCamera();
-        gui.SceneModifier(dt);
+        // rast.Update(gui.settings);
         rend.OnUpdate(gui.settings);
 
         ImGui::Render();

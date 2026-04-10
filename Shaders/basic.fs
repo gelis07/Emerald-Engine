@@ -9,5 +9,3 @@ void main()
 {
     outColor = vec4(texture(RenderImage, TexCoords).rgb, 1.0);
 }
-
-

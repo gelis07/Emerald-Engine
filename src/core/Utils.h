@@ -3,7 +3,7 @@
 #include <cstring>
 #include <glad/glad.h>
 #include <iostream>
-
+#include <vector>
 
 namespace Utils
 {
@@ -46,3 +46,41 @@ namespace Utils
     }
     
 }
+
+inline std::vector<unsigned int> CubeIndices {
+    //Top
+    2, 6, 7,
+    2, 3, 7,
+
+    //Bottom
+    0, 4, 5,
+    0, 1, 5,
+
+    //Left
+    0, 2, 6,
+    0, 4, 6,
+
+    //Right
+    1, 3, 7,
+    1, 5, 7,
+
+    //Front
+    0, 2, 3,
+    0, 1, 3,
+
+    //Back
+    4, 6, 7,
+    4, 5, 7
+};
+
+
+inline std::vector<float> CubeVertices {
+    -1, -1,  0.5, //0
+        1, -1,  0.5, //1
+    -1,  1,  0.5, //2
+        1,  1,  0.5, //3
+    -1, -1, -0.5, //4
+        1, -1, -0.5, //5
+    -1,  1, -0.5, //6
+        1,  1, -0.5  //7
+};

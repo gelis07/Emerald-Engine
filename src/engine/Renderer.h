@@ -8,18 +8,22 @@ class Renderer
 {
     public:
         void OnUpdate(RenderSettings& rs);
-        void Init(int width, int heigth);
+        void Init(const RenderSettings& rs, int width, int heigth);
+        GLuint PostProcessingImage;
     private:
-        GLuint VBO, VAO;
+        void CreateRenderImage(int width, int height);
+        void CreateTriangleSSBO(const RenderSettings& rs);
+        std::vector<float> BakeModel(const std::vector<Model>& models);
 
-        Shader Screen;
         Shader Raytracer;
         Shader PostProcessing;
 
+        GLuint ITriSSBO;
+        GLuint VerticesSSBO;
         GLuint RenderImage;
-        GLuint PostProcessingImage;
         int frames = 1;
         float tfov;
         float AR;
-        const unsigned int TEXTURE_WIDTH = 1000, TEXTURE_HEIGHT = 1000;
+        int prevWindowWidth, prevWindowHeight, prevModelCount;
+
 };

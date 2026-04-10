@@ -10,6 +10,7 @@
 #include <app/GUI.h>
 #include <app/CameraControl.h>
 #include <core/Model.h>
+#include <engine/Rasterizer.h>
 
 #define WWIDTH 1280
 #define WHEIGHT 920
@@ -24,6 +25,7 @@ class Application
         void InitImGui();
         GLFWwindow* window;
         Renderer rend;
+        Rasterizer rast;
         GUI gui;
         double mLastTime = 0.0f;
         double dt = 0.0f;

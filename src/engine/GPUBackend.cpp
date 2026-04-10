@@ -50,7 +50,11 @@ void Shader::Uniform3f(const std::string& name, const glm::vec3& value)
 {
     glUniform3fv(glGetUniformLocation(mProgramID,name.c_str()), 1, glm::value_ptr(value));
 }
+void Shader::Uniform4f(const std::string& name, const glm::vec4& value)
+{
+    glUniform4fv(glGetUniformLocation(mProgramID,name.c_str()), 1, glm::value_ptr(value));
+}
 void Shader::UniformMat4(const std::string& name, const glm::mat4& mat)
 {
-    glUniformMatrix4fv(glad_glGetUniformLocation(mProgramID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+    glUniformMatrix4fv(glGetUniformLocation(mProgramID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 }

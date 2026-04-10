@@ -14,6 +14,7 @@ class Material
         float fuzz = 0.0f;
         float refractionIndex = 0.0f;
         glm::vec3 albedo;
+        glm::vec3 emmColor = glm::vec3(0,0,0);
         int scatter;
 };
 class Hittable
@@ -39,7 +40,7 @@ class Scene
 {
     public:
         Camera camera;
-        Model model;
+        std::vector<Model> models;
 
 
         std::vector<Material*> materials;
@@ -65,3 +66,7 @@ class Scene
             }
         }
 };
+
+
+
+

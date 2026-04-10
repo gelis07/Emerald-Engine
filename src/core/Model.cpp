@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+
 enum LoadingType
 {
     TRIANGLE,
@@ -19,8 +20,6 @@ void Model::Load(const std::string& path)
             std::string word;
             LoadingType type;
             int i = 0;
-            std::vector<int> vertices;
-            std::vector<float> pos;
             bool skip = false;
             while(ss >> word && !skip)
             {
@@ -43,29 +42,19 @@ void Model::Load(const std::string& path)
                         case VERTEX:
                         {
                             float coord = std::stof(word);
-                            pos.push_back(coord);
+                            mVertices.push_back(coord);
                             break;
                         }
                         case TRIANGLE:
                         {
-                            int vertex = std::stoi(word);
-                            vertices.push_back(vertex);
+                            int vertex = std::stoi(word) - 1;
+                            mTriangles.push_back(vertex);
                             break;
                         }
                     }
                 }
 
                 i++;
-            }
-            if(!skip)
-            {
-                if(vertices.size() != 0)
-                {
-                    mTriangles.push_back({vertices[0], vertices[1], vertices[2]});
-                }else if(pos.size() != 0)
-                {
-                    mVertices.push_back({pos[0], pos[1], pos[2]});
-                }
             }
         }
 
@@ -74,4 +63,25 @@ void Model::Load(const std::string& path)
     else {
         fmt::println("cannot open file");
     }
+
+    type = CUSTOM;
+    fileSource = path;
+}
+
+
+void Model::Load(const std::vector<float>& iVertices, const std::vector<unsigned int>& iIndices)
+{
+    mVertices = iVertices;
+    mTriangles = iIndices;
+    type = CUBE;
+}
+
+void Model::Transform()
+{
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, pos);
+    model = glm::rotate(model, rotation.x, glm::vec3(1, 0, 0));
+    model = glm::rotate(model, rotation.y,   glm::vec3(0, 1, 0));
+    model = glm::rotate(model, rotation.z,  glm::vec3(0, 0, 1));
+    model = glm::scale(model, scale);
 }

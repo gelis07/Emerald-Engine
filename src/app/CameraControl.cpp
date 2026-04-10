@@ -7,20 +7,19 @@
 #include <glm/gtx/quaternion.hpp>
 
 
-void CameraControl::Init(float verticalFov, float nearClip, float farClip, int width, int height)
+void CameraControl::Init(float verticalFov, float nearClip, float farClip)
 {
-    mWidth = width;
-    mHeight = height;
     CameraSettings stg;
     stg.dir = glm::vec3(0, 0, 1);
     stg.pos = glm::vec3(0, 0, 0);
     mCamera.Set(stg);
 }
 
-void CameraControl::OnUpdate(float ts)
+void CameraControl::OnUpdate(float ts, int width, int height)
 {
     CameraSettings stg;
     stg.pos = mCamera.GetPos();
+    stg.dir = mCamera.GetDirection();
     GLFWwindow* window = glfwGetCurrentContext();
     double x, y;
     glfwGetCursorPos(window, &x, &y);
@@ -88,23 +87,36 @@ void CameraControl::OnUpdate(float ts)
 
     if(moved)
     {
-        stg.projection = CalculateProj();
-        stg.view = CalculateView(stg.pos);
+        stg.view = CalculateView(stg.pos, mCamera.GetDirection());
+    }
+    if(prevHeight != height || prevWidth != width)
+    {
+        stg.projection = CalculateProj(width, height);
+        prevWidth = width;
+        prevHeight = height;
     }
 
     mCamera.Set(stg);
     mCamera.moved = true;
 }
 
-glm::mat4 CameraControl::CalculateView(const glm::vec3& pos)
+glm::mat4 CameraControl::CalculateView(const glm::vec3& pos, const glm::vec3& dir)
 {
-    glm::mat4 view = glm::lookAt(pos, pos + mCamera.GetDirection(), glm::vec3(0,1,0));
+    glm::mat4 view = glm::lookAt(pos, pos + dir, glm::vec3(0,1,0));
     return view;
 }
 
-glm::mat4 CameraControl::CalculateProj()
+glm::mat4 CameraControl::CalculateProj(int width, int height)
 {
-    glm::mat4 proj = glm::perspectiveFov(glm::radians(mCamera.GetFov()), (float)mWidth, 
-    (float)mHeight, mCamera.GetNearClip(), mCamera.GetFarClip());
+    glm::mat4 proj = glm::perspectiveFov(glm::radians(mCamera.GetFov()), (float)width, 
+    (float)height, mCamera.GetNearClip(), mCamera.GetFarClip());
     return proj;
+}
+
+void CameraControl::SetSettings(const CameraSettings& settings)
+{
+    CameraSettings stg = settings;
+    stg.view = CalculateView(settings.pos, settings.dir);
+    mCamera.Set(stg);
+    mCamera.moved = true;
 }
