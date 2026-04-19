@@ -4,6 +4,8 @@
 #include <glad/glad.h>
 #include <iostream>
 #include <vector>
+#include <glm/glm.hpp>
+
 
 namespace Utils
 {
@@ -20,7 +22,14 @@ namespace Utils
         memcpy(buffer, text.c_str(), text.size() + 1); // includes '\0'
         return buffer;
     }
+    inline glm::vec3 RandomVec3()
+    {
+        float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        float b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        float g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
+        return glm::vec3(r,g,b);
+    }
     inline void checkCompileErrors(GLuint shader, std::string type)
     {
         GLint success;
@@ -75,12 +84,22 @@ inline std::vector<unsigned int> CubeIndices {
 
 
 inline std::vector<float> CubeVertices {
-    -1, -1,  0.5, //0
-        1, -1,  0.5, //1
-    -1,  1,  0.5, //2
-        1,  1,  0.5, //3
-    -1, -1, -0.5, //4
-        1, -1, -0.5, //5
-    -1,  1, -0.5, //6
-        1,  1, -0.5  //7
+    -1, -1,  1, //0
+        1, -1,  1, //1
+    -1,  1,  1, //2
+        1,  1,  1, //3
+    -1, -1, -1, //4
+        1, -1, -1, //5
+    -1,  1, -1, //6
+        1,  1, -1  //7
+};
+inline std::vector<glm::vec3> CubeVerticesVec3 {
+    glm::vec3(-1, -1,  1), //0
+        glm::vec3(1, -1,  1), //1
+    glm::vec3(-1,  1,  1), //2
+        glm::vec3(1,  1,  1), //3
+    glm::vec3(-1, -1, -1), //4
+        glm::vec3(1, -1, -1), //5
+    glm::vec3(-1,  1, -1), //6
+        glm::vec3(1,  1, -1)  //7
 };

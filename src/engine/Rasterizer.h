@@ -1,5 +1,4 @@
 #pragma once
-#include "core/Scene.h"
 #include <engine/GPUBackend.h>
 #include <core/RenderSettings.h>
 
@@ -14,14 +13,20 @@ struct RasterizedModel
 class Rasterizer
 {
     public:
-        void Init(Scene*, int width, int height);
-        void Update(const RenderSettings& rs);
+        void Init(RenderSettings& rs, int width, int height);
+        void Update(RenderSettings& rs);
         GLuint renderTexture;
     private:
+        void AddModels(RenderSettings& rs);
+        void CalculateSceneAABB(RenderSettings& rs);
+        void CreateTexture(int width, int height);
         Shader RastShader;
-        Scene* activeScene;
-        RasterizedModel rastModel;
+        std::vector<RasterizedModel> rastModels;
         GLuint frameBuffer;
         GLuint depthTexture;
         GLuint renderBuffer;
+        int prevWindowWidth, prevWindowHeight;
+
+        int lastModelCount = 0;
+        GLuint cubeVbo, cubeIbo, cubeVao;
 };

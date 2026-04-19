@@ -11,7 +11,7 @@ struct CameraSettings
     glm::vec3 pos = glm::vec3(INFINITY);
     float fov = -1.0f;
     float nearClip = -1.0f;
-    float farClip = -1.0f;   
+    float farClip = -1.0f;
 };
 
 class Camera

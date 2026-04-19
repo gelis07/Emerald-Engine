@@ -7,20 +7,20 @@
 class Renderer
 {
     public:
-        void OnUpdate(RenderSettings& rs);
+        void Render(RenderSettings& rs);
         void Init(const RenderSettings& rs, int width, int heigth);
-        GLuint PostProcessingImage;
+        GLuint RenderImage;
+
     private:
         void CreateRenderImage(int width, int height);
         void CreateTriangleSSBO(const RenderSettings& rs);
+        void AABBSetupGPU(const Scene& scene);
         std::vector<float> BakeModel(const std::vector<Model>& models);
 
         Shader Raytracer;
-        Shader PostProcessing;
 
-        GLuint ITriSSBO;
         GLuint VerticesSSBO;
-        GLuint RenderImage;
+        GLuint AABBInfo;
         int frames = 1;
         float tfov;
         float AR;

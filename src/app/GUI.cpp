@@ -91,7 +91,7 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
     {
         Model cube;
         cube.Load(CubeVertices, CubeIndices);
-        scene.models.push_back(cube);
+        scene.AddModel(std::move(cube));
     }
     if(ImGui::Button("add mat"))
     {
@@ -111,6 +111,13 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
     {
         LoadSettings("scene.json", camControl);
     }
+
+
+    if(ImGui::Button("Render"))
+    {
+        settings.Render = true;
+    }
+
     ImGui::End();
 
     for (int i = 0; i < imgs.size(); i++)
@@ -118,8 +125,6 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
         std::string title = "Viewport #" + std::to_string(i);
         Windows(title.c_str(), imgs[i]);
     }
-
-
 }
 
 

@@ -2,9 +2,32 @@
 
 layout(location = 0) out vec4 oColor;
 uniform vec4 uColor;
+uniform int randomColor;
 
+
+uint PCGHash(uint seed) {
+    uint state = seed * 747796405u + 2891336453u;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (word >> 22u) ^ word;
+}
+
+float RandomFloat(inout uint seed)
+{
+    seed = PCGHash(seed);
+    return float(seed) / 4294967295.0;
+}
 
 void main()
 {
-    oColor = uColor;
-}
+    uint seed = uint(gl_PrimitiveID) * 1973u;
+
+    vec3 color = vec3(
+        RandomFloat(seed),
+        RandomFloat(seed),
+        RandomFloat(seed)
+    );
+    if(randomColor == 1)
+        oColor = vec4(color, 1.0);
+    else
+        oColor = uColor;
+}     

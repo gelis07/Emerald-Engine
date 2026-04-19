@@ -3,7 +3,7 @@
 #include <vector>
 #include <fmt/base.h>
 
-void Renderer::OnUpdate(RenderSettings& rs)
+void Renderer::Render(RenderSettings& rs)
 {
     if(rs.accumulate)
     {
@@ -32,15 +32,11 @@ void Renderer::OnUpdate(RenderSettings& rs)
         prevWindowWidth = rs.ImgWidth;
     }
     glBindImageTexture(0, RenderImage, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
-    glBindImageTexture(1, PostProcessingImage, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
     Raytracer.Bind();
     Raytracer.Uniform1f("AR", AR);
     Raytracer.Uniform1f("tfov", tfov);
     Raytracer.Uniform3f("CamPos", rs.scene.camera.GetPos());
-    Raytracer.Uniform1i("SphereCount", rs.scene.hitObjects.size());
 
-    Raytracer.Uniform1i("frameIndex", frames);
-    Raytracer.Uniform1i("accumulate", rs.accumulate);
     Raytracer.Uniform1i("skyColor", rs.EnvLight);
     Raytracer.UniformMat4("InvProj", rs.scene.camera.GetInvProjection());
     Raytracer.UniformMat4("InvView", rs.scene.camera.GetInvView());
@@ -48,13 +44,6 @@ void Renderer::OnUpdate(RenderSettings& rs)
     {
         Hittable* HitObj = rs.scene.hitObjects[i];
         std::string indexString = std::to_string(i);
-        
-        if(HitObj->type == SPHERE)
-        {
-            Raytracer.Uniform1i(std::string("Spheres[" + indexString + "].matIndex"), HitObj->matIndex);
-            Raytracer.Uniform1f(std::string("Spheres[" + indexString + "].radius"), static_cast<HitSphere*>(HitObj)->radius);
-            Raytracer.Uniform3f(std::string("Spheres[" + indexString + "].point"),static_cast<HitSphere*>(HitObj)->point);
-        }
     }
 
     for(int i = 0; i < rs.scene.models.size(); i++)
@@ -88,12 +77,6 @@ void Renderer::OnUpdate(RenderSettings& rs)
 
     glDispatchCompute((unsigned int)rs.ImgWidth/16, (unsigned int)rs.ImgHeight/16, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-    
-    PostProcessing.Bind();
-    PostProcessing.Uniform1i("PPframeIndex", frames);
-
-    glDispatchCompute((unsigned int)rs.ImgWidth/16, (unsigned int)rs.ImgHeight/16, 1);
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 void Renderer::Init(const RenderSettings& rs, int width, int heigth)
@@ -116,16 +99,44 @@ void Renderer::Init(const RenderSettings& rs, int width, int heigth)
     CreateTriangleSSBO(rs);
 
     Raytracer.Init();
-    PostProcessing.Init();
 
-    Raytracer.LinkShader("../Shaders/shader.comp", GL_COMPUTE_SHADER);
-    PostProcessing.LinkShader("../Shaders/PostProcessing.comp", GL_COMPUTE_SHADER);
+    Raytracer.LinkShader("../Shaders/raytracer.comp", GL_COMPUTE_SHADER);
 
 
     tfov = glm::tan(3.14159 / 8);
     AR = (double)width / (double)heigth;
 
 }
+
+
+struct AABBGPUstruct
+{
+    glm::vec4 min;
+    glm::vec4 max;
+    int nodeA;
+    int nodeB;
+    int triIndex;
+    int triCount;
+};
+
+void Renderer::AABBSetupGPU(const Scene& scene)
+{
+    std::vector<AABBGPUstruct> modelAABBs;
+    for(int i = 0; i < scene.models.size(); i++)
+    {
+        const Model& model = scene.models[i];
+        for (int j = 0; j < model.aabbs.size(); j++)
+        {
+            const AABB& aabb = model.aabbs[j];
+            AABBGPUstruct aabbGPU;
+            aabbGPU.min = glm::vec4(aabb.min, 0.0f);
+            aabbGPU.max = glm::vec4(aabb.max, 0.0f);
+            aabbGPU.nodeA = aabb.nodeA;
+        }
+    }
+}
+
+
 void Renderer::CreateTriangleSSBO(const RenderSettings& rs)
 {
     std::vector<float> bake = BakeModel(rs.scene.models);
@@ -153,7 +164,6 @@ std::vector<float> Renderer::BakeModel(const std::vector<Model>& models)
 void Renderer::CreateRenderImage(int width, int height)
 {
     glDeleteTextures(1, &RenderImage);
-    glDeleteTextures(1, &PostProcessingImage);
 
     glGenTextures(1, &RenderImage);
     glBindTexture(GL_TEXTURE_2D, RenderImage);
@@ -163,14 +173,4 @@ void Renderer::CreateRenderImage(int width, int height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height,0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(0, RenderImage, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
-
-    glGenTextures(1, &PostProcessingImage);
-    glBindTexture(GL_TEXTURE_2D, PostProcessingImage);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height,0, GL_RGBA, GL_FLOAT, NULL);
-    glBindImageTexture(1, PostProcessingImage, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
-
 }

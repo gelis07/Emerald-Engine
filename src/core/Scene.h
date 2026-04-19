@@ -45,8 +45,18 @@ class Scene
 
         std::vector<Material*> materials;
         std::vector<Hittable*> hitObjects;
+
+        //AABB characteristics
+        AABB aabb;
+        std::vector<AABB> allAABBs; 
+        inline void AddModel(Model&& model)
+        { 
+            models.push_back(model);
+        }
+
         inline Scene()
         {
+            models.reserve(20);
             Material* mat = new Material;
             mat->albedo = glm::vec3(1.0f);
             mat->fuzz = 0.0f;

@@ -3,7 +3,9 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
 #include <iostream>
-
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stbi_write.h>
+#include <chrono>
 void Application::InitImGui()
 {
     IMGUI_CHECKVERSION();
@@ -157,13 +159,13 @@ void Application::Init()
     InitImGui();
     camControl.Init(45.0f, 0.1f, 1000.0f);
     Model model;
-    model.Load("mushroom.obj");
-    gui.settings.scene.models.push_back(model);
+    model.Load("dragon.obj");
+    gui.settings.scene.AddModel(std::move(model));
     fmt::println("finished loading model");
 
 
     rend.Init(gui.settings, 600, 600);
-    // rast.Init(&gui.settings.scene, 600, 600);
+    rast.Init(gui.settings, 600, 600);
 }
 
 
@@ -179,10 +181,40 @@ void Application::OnUpdate()
         glClear(GL_COLOR_BUFFER_BIT);
         camControl.OnUpdate(dt, gui.settings.ImgWidth, gui.settings.ImgHeight);
         
-        gui.SceneModifier(dt, {rend.PostProcessingImage}, camControl);
+        gui.SceneModifier(dt, {rast.renderTexture}, camControl);
         gui.settings.scene.camera = camControl.GetCamera();
-        // rast.Update(gui.settings);
-        rend.OnUpdate(gui.settings);
+        rast.Update(gui.settings);
+
+        if(gui.settings.Render)
+        {
+            auto iTime = std::chrono::high_resolution_clock::now();
+            fmt::println("started rendering");
+            rend.Render(gui.settings);
+            
+            //Exporting image
+            glBindTexture(GL_TEXTURE_2D, rend.RenderImage);
+            std::vector<unsigned char> pixels(gui.settings.ImgWidth * gui.settings.ImgHeight * 4);
+            glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+            std::vector<unsigned char> flipped(gui.settings.ImgWidth * gui.settings.ImgHeight * 4);
+            for (int y = 0; y < gui.settings.ImgHeight; y++)
+            {
+                memcpy(
+                    &flipped[y * gui.settings.ImgWidth * 4],
+                    &pixels[(gui.settings.ImgHeight - 1 - y) * gui.settings.ImgWidth * 4],
+                    gui.settings.ImgWidth * 4
+                );
+            }
+
+            // Write PNG
+            stbi_write_png("render.png", gui.settings.ImgWidth, gui.settings.ImgHeight, 4, 
+            flipped.data(), gui.settings.ImgWidth * 4);
+            auto fTime = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> Dt = fTime - iTime;
+            fmt::println("Render time: {} seconds", Dt.count());
+            
+            gui.settings.Render = false;
+
+        }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

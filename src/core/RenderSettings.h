@@ -8,4 +8,5 @@ struct RenderSettings
     bool EnvLight = true;
     int ImgWidth, ImgHeight;
     bool ReloadScene = false;
+    bool Render = false;
 };
