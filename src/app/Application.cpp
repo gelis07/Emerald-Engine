@@ -162,8 +162,9 @@ void Application::Init()
     model.Load("dragon.obj");
     gui.settings.scene.AddModel(std::move(model));
     fmt::println("finished loading model");
+    postProcessing.Init();
 
-
+    postProcessing.LinkShader("../Shaders/PostProcessing.comp", GL_COMPUTE_SHADER);
     rend.Init(gui.settings, 600, 600);
     rast.Init(gui.settings, 600, 600);
 }
@@ -184,13 +185,22 @@ void Application::OnUpdate()
         gui.SceneModifier(dt, {rast.renderTexture}, camControl);
         gui.settings.scene.camera = camControl.GetCamera();
         rast.Update(gui.settings);
-
+        const int spp = 100;
         if(gui.settings.Render)
         {
             auto iTime = std::chrono::high_resolution_clock::now();
             fmt::println("started rendering");
-            rend.Render(gui.settings);
-            
+            for(int i = 0; i < spp; i++)
+            {
+                rend.Render(gui.settings);
+                fmt::println("progress: {}%", (float(i) / float(spp)) * 100.0f);
+            }
+            glBindImageTexture(0, rend.RenderImage, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
+            postProcessing.Bind();
+            postProcessing.Uniform1i("spp", spp);
+            glDispatchCompute((unsigned int)gui.settings.ImgWidth/16, (unsigned int)gui.settings.ImgHeight/16, 1);
+            glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+            glFinish();
             //Exporting image
             glBindTexture(GL_TEXTURE_2D, rend.RenderImage);
             std::vector<unsigned char> pixels(gui.settings.ImgWidth * gui.settings.ImgHeight * 4);
@@ -204,7 +214,6 @@ void Application::OnUpdate()
                     gui.settings.ImgWidth * 4
                 );
             }
-
             // Write PNG
             stbi_write_png("render.png", gui.settings.ImgWidth, gui.settings.ImgHeight, 4, 
             flipped.data(), gui.settings.ImgWidth * 4);

@@ -2,7 +2,7 @@
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D img;
 const float pi = 3.14159265359;
-const int maxIter = 10;
+const int maxIter = 1;
 const int maxBounces = 5;
 /*
     Material type indeces.
@@ -83,6 +83,7 @@ uniform ModelInfo modelsInfo[24];
 uniform int ModelAABBIdxs[20];
 uniform float AR;
 uniform float tfov;
+uniform int uframe;
 uniform vec3 CamPos;
 uniform material materials[10];
 uniform int TriCount;
@@ -158,6 +159,112 @@ void hitTriangle(ray r, int i, inout hitInfo info)
     }
 }
 
+struct Plane
+{
+    vec3 normal;
+    vec3 r0;
+};
+
+hitInfo PlaneRayIntersection(ray r, Plane p)
+{
+    hitInfo info;
+    float nd = dot(p.normal, r.dir);
+    if(nd < 0)
+        nd = dot(-p.normal, r.dir);
+
+    if(nd <= 0.0001)
+        info.dist = -1;
+    else
+        info.dist = -dot(p.normal, r.pos - p.r0) / dot(p.normal, r.dir);
+    
+    info.normal = p.normal;
+    return info;
+}
+
+bool AabbRayIntersection(ray r, int idx)
+{
+    ModelAABB aabb = aabbs[idx];
+    vec3 bmin = aabb.min;
+    vec3 bmax = aabb.max;
+
+    vec3 invDir = 1.0 / r.dir;
+
+    vec3 t0 = (bmin - r.pos) * invDir;
+    vec3 t1 = (bmax - r.pos) * invDir;
+
+    vec3 tmin = min(t0, t1);
+    vec3 tmax = max(t0, t1);
+
+    float tNear = max(max(tmin.x, tmin.y), tmin.z);
+    float tFar  = min(min(tmax.x, tmax.y), tmax.z);
+
+    return tFar >= max(tNear, 0.0);
+}
+
+
+const int STACK_SIZE = 32;
+
+struct Stack {
+    int data[STACK_SIZE];
+    int sp; // stack pointer
+};
+
+void stackInit(inout Stack s) {
+    s.sp = 0;
+}
+
+bool stackEmpty(Stack s) {
+    return s.sp == 0;
+}
+
+bool stackPush(inout Stack s, int value) {
+    if (s.sp >= STACK_SIZE) return false; // overflow
+    s.data[s.sp++] = value;
+    return true;
+}
+
+bool stackPop(inout Stack s, out int value) {
+    if (s.sp <= 0) return false; // underflow
+    value = s.data[--s.sp];
+    return true;
+}
+
+
+void CheckAabbsIntersections(ray r)
+{
+    //! TRANSFORM RAY INTO MODEL SPACE.
+    hitInfo HitInfo;
+    HitInfo.dist = 1e30;
+    HitInfo.matIndex = -1;
+    
+    Stack stack;
+    stackInit(stack);
+    stackPush(stack, 0);
+
+    int aabbIdx;
+    while(!stackEmpty(stack))
+    {
+        stackPop(stack, aabbIdx);
+        if(aabbs[aabbIdx].triCount == 0)
+        {
+            if(AabbRayIntersection(r, aabbs[aabbIdx].nodeA))
+            {
+                stackPush(stack, aabbs[aabbIdx].nodeA);
+            }
+            if(AabbRayIntersection(r, aabbs[aabbIdx].nodeB))
+            {
+                stackPush(stack, aabbs[aabbIdx].nodeB);
+            }
+        }else
+        {
+            for(int i = aabbs[aabbIdx].triIndex; i < aabbs[aabbIdx].triIndex + aabbs[aabbIdx].triCount; i++)
+            {
+                hitTriangle(r, i, HitInfo);
+            }
+        }
+    }
+
+}
 
 hitInfo GetHitInfo(ray r)
 {
@@ -245,54 +352,49 @@ void main()
 
     vec4 target = InvProj * vec4(u, v , 1.0, 1.0);
 
-    vec3 finalColor = vec3(0.0);
-    for(int iter = 0; iter < maxIter; iter++)
+    ray r;
+    r.dir = vec3(InvView * vec4(normalize(vec3(target) / target.w), 0));
+    r.pos = CamPos;
+
+    vec3 rayTraversalInfo = vec3(1.0);
+    vec3 rayColor = vec3(0.0);
+    uint seed =
+    uint(pix.x) * 1973u +
+    uint(pix.y) * 9277u +
+    uframe  * 26699u + 1u;
+    for(int bounces = 0; bounces < maxBounces; bounces++)
     {
-        ray r;
-        r.dir = vec3(InvView * vec4(normalize(vec3(target) / target.w), 0));
-        r.pos = CamPos;
 
-        vec3 rayTraversalInfo = vec3(1.0);
-        vec3 rayColor = vec3(0.0);
-        uint seed =
-        uint(pix.x) * 1973u +
-        uint(pix.y) * 9277u +
-        iter  * 26699u + 1u;
-        for(int bounces = 0; bounces < maxBounces; bounces++)
-        {
-
-            hitInfo HitInfo = GetHitInfo(r);
-            // if nothing got hit, just return a base color.
-            if (HitInfo.matIndex == -1) {
-                if(skyColor == 1)
-                {
-                    float a = 0.5*(r.dir.y + 1);  
-                    vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
-                    rayColor = rayTraversalInfo * sky;  // environment brightness
-                }
-                break;
+        hitInfo HitInfo = GetHitInfo(r);
+        // if nothing got hit, just return a base color.
+        if (HitInfo.matIndex == -1) {
+            if(skyColor == 1)
+            {
+                float a = 0.5*(r.dir.y + 1);  
+                vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
+                rayColor = rayTraversalInfo * sky;  // environment brightness
             }
-
-            //Something got hit!
-            vec3 HitPoint = r.pos + r.dir * HitInfo.dist;
-            vec3 outwardN = HitInfo.normal;
-            bool frontFace = dot(r.dir, outwardN) < 0.0;
-            vec3 n = frontFace ? outwardN : -outwardN;
-            material hitMat = materials[HitInfo.matIndex];
-
-
-
-            r.pos = HitPoint + n * 0.001;
-            r.dir = RandomCosineDir(seed, n);
-            float brdf = ScatteringPdf(r.dir, n);
-            float pdf = CosinePdf(r.dir, n);
-            rayTraversalInfo *= hitMat.albedo * brdf/ pdf;
-
-            rayColor += rayTraversalInfo * hitMat.emmColor;
+            break;
         }
-        finalColor += rayColor;
-    }
-    finalColor /= maxIter;
 
-    imageStore(img, pix, vec4(sqrt(finalColor), 1.0));
+        //Something got hit!
+        vec3 HitPoint = r.pos + r.dir * HitInfo.dist;
+        vec3 outwardN = HitInfo.normal;
+        bool frontFace = dot(r.dir, outwardN) < 0.0;
+        vec3 n = frontFace ? outwardN : -outwardN;
+        material hitMat = materials[HitInfo.matIndex];
+
+
+
+        r.pos = HitPoint + n * 0.001;
+        r.dir = RandomCosineDir(seed, n);
+        float brdf = ScatteringPdf(r.dir, n);
+        float pdf = CosinePdf(r.dir, n);
+        rayTraversalInfo *= hitMat.albedo * brdf / pdf;
+
+        rayColor += rayTraversalInfo * hitMat.emmColor;
+    }
+    vec4 prev = imageLoad(img, pix);
+
+    imageStore(img, pix, vec4(prev.rgb + rayColor, 1.0));
 }

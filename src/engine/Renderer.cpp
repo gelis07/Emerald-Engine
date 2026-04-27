@@ -5,19 +5,7 @@
 
 void Renderer::Render(RenderSettings& rs)
 {
-    if(rs.accumulate)
-    {
-        frames++;
-    }else{
-        frames = 1;
-    }
-    if(rs.scene.camera.moved)
-    {
-        frames = 1;
-        rs.accumulate = false;
-    }
-
-
+    frames++;
     if(prevModelCount != rs.scene.models.size() || rs.ReloadScene)
     {
         CreateTriangleSSBO(rs);
@@ -38,6 +26,7 @@ void Renderer::Render(RenderSettings& rs)
     Raytracer.Uniform3f("CamPos", rs.scene.camera.GetPos());
 
     Raytracer.Uniform1i("skyColor", rs.EnvLight);
+    Raytracer.Uniform1i("uframe", frames);
     Raytracer.UniformMat4("InvProj", rs.scene.camera.GetInvProjection());
     Raytracer.UniformMat4("InvView", rs.scene.camera.GetInvView());
     for(int i = 0; i < rs.scene.hitObjects.size(); i++)
@@ -77,6 +66,7 @@ void Renderer::Render(RenderSettings& rs)
 
     glDispatchCompute((unsigned int)rs.ImgWidth/16, (unsigned int)rs.ImgHeight/16, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    glFinish();
 }
 
 void Renderer::Init(const RenderSettings& rs, int width, int heigth)
@@ -96,7 +86,7 @@ void Renderer::Init(const RenderSettings& rs, int width, int heigth)
     CreateRenderImage(rs.ImgWidth, rs.ImgHeight);
 
 
-    CreateTriangleSSBO(rs);
+    AABBSetupGPU(rs.scene);
 
     Raytracer.Init();
 
@@ -121,7 +111,11 @@ struct AABBGPUstruct
 
 void Renderer::AABBSetupGPU(const Scene& scene)
 {
+    std::vector<float> vertices;
     std::vector<AABBGPUstruct> modelAABBs;
+    int triCount = 0;
+
+    //! add model aabb indices to send to the gpu.
     for(int i = 0; i < scene.models.size(); i++)
     {
         const Model& model = scene.models[i];
@@ -129,11 +123,47 @@ void Renderer::AABBSetupGPU(const Scene& scene)
         {
             const AABB& aabb = model.aabbs[j];
             AABBGPUstruct aabbGPU;
-            aabbGPU.min = glm::vec4(aabb.min, 0.0f);
-            aabbGPU.max = glm::vec4(aabb.max, 0.0f);
+            aabbGPU.min = glm::vec4(aabb.min, i);
+            aabbGPU.max = glm::vec4(aabb.max, i);
             aabbGPU.nodeA = aabb.nodeA;
+            aabbGPU.nodeA = aabb.nodeB;
+            if(aabb.leaf)
+            {
+                aabbGPU.triIndex = triCount;
+                for(int t = 0; t < aabb.mTriangleList.size(); t++)
+                {
+                    const Triangle& tri = aabb.mTriangleList[t];
+                    vertices.push_back(tri.a.x);
+                    vertices.push_back(tri.a.y);
+                    vertices.push_back(tri.a.z);
+                    vertices.push_back(i);
+                    
+                    vertices.push_back(tri.b.x);
+                    vertices.push_back(tri.b.y);
+                    vertices.push_back(tri.b.z);
+                    vertices.push_back(i);
+                    
+                    vertices.push_back(tri.c.x);
+                    vertices.push_back(tri.c.y);
+                    vertices.push_back(tri.c.z);
+                    vertices.push_back(i);
+                    triCount++;
+                } 
+                aabbGPU.triCount = aabb.mTriangleList.size();
+            }
+            else
+            {
+                aabbGPU.triCount = 0;
+                aabbGPU.triIndex = 0;
+            }
+            modelAABBs.push_back(aabbGPU);
         }
     }
+
+    glCreateBuffers(1, &AABBInfo);
+    glNamedBufferStorage(AABBInfo, sizeof(float) * modelAABBs.size(), (const void*) modelAABBs.data(), 0);
+    glCreateBuffers(1, &VerticesSSBO);
+    glNamedBufferStorage(VerticesSSBO, sizeof(float) * vertices.size(), (const void*) vertices.data(), 0);
 }
 
 

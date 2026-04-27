@@ -22,6 +22,7 @@ class Application
         void Init();
     private:
         CameraControl camControl;
+        Shader postProcessing;
         void InitImGui();
         GLFWwindow* window;
         Renderer rend;

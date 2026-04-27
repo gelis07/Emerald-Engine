@@ -49,7 +49,7 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
         Model& model = scene.models[i];
         ImGui::PushID(i);
         ImGui::SeparatorText(std::string("Model: " + std::to_string(i)).c_str());
-        ImGui::DragFloat3("Position", glm::value_ptr(model.pos), 0.1f);
+        ImGui::DragFloat3("Position", glm::value_ptr(model.pos), 0.01f);
         ImGui::DragFloat3("Rotation", glm::value_ptr(model.rotation), 0.1f);
         ImGui::DragFloat3("Scale", glm::value_ptr(model.scale), 0.1f);
         ImGui::DragInt("matIndex", &model.matIndex);
