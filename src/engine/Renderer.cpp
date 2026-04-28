@@ -34,11 +34,20 @@ void Renderer::Render(RenderSettings& rs)
         Hittable* HitObj = rs.scene.hitObjects[i];
         std::string indexString = std::to_string(i);
     }
+    //Max on shader side: 20
+    for(int i = 0; i < mModelAabbIdcs.size(); i++)
+    {
+        std::string indexString = std::to_string(i);
+        Raytracer.Uniform1i(std::string("ModelAABBIdxs[" + indexString + "]"), mModelAabbIdcs[i]);
+    }
+    Raytracer.Uniform1i(std::string("modelAABBCount"), mModelAabbIdcs.size());
 
+    //Max on shader side: 24
     for(int i = 0; i < rs.scene.models.size(); i++)
     {
         std::string indexString = std::to_string(i);
         Raytracer.UniformMat4(std::string("modelsInfo[" + indexString + "].matrixModel"), rs.scene.models[i].model);
+        Raytracer.UniformMat4(std::string("modelsInfo[" + indexString + "].invMatrixModel"), rs.scene.models[i].GetModelInverse());
         Raytracer.Uniform1i(std::string("modelsInfo[" + indexString + "].matIndex"), rs.scene.models[i].matIndex);
     }
 
@@ -114,10 +123,11 @@ void Renderer::AABBSetupGPU(const Scene& scene)
     std::vector<float> vertices;
     std::vector<AABBGPUstruct> modelAABBs;
     int triCount = 0;
+  
 
-    //! add model aabb indices to send to the gpu.
     for(int i = 0; i < scene.models.size(); i++)
     {
+        mModelAabbIdcs.push_back(0);
         const Model& model = scene.models[i];
         for (int j = 0; j < model.aabbs.size(); j++)
         {
@@ -158,6 +168,7 @@ void Renderer::AABBSetupGPU(const Scene& scene)
             }
             modelAABBs.push_back(aabbGPU);
         }
+        mModelAabbIdcs.push_back(modelAABBs.size() - 1);
     }
 
     glCreateBuffers(1, &AABBInfo);

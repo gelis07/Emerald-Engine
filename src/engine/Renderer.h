@@ -19,6 +19,7 @@ class Renderer
 
         Shader Raytracer;
 
+        std::vector<int> mModelAabbIdcs;
         GLuint VerticesSSBO;
         GLuint AABBInfo;
         int frames = 1;

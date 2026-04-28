@@ -180,6 +180,11 @@ void Model::GetAABBTriangles()
 }
 
 
+glm::mat4 Model::GetModelInverse()
+{
+    return glm::inverse(model);
+}
+
 void Model::SliceAABB(int idx, int axis)
 {
     AABB& aabb = aabbs[idx];

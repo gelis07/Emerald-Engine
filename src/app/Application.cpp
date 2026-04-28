@@ -185,7 +185,7 @@ void Application::OnUpdate()
         gui.SceneModifier(dt, {rast.renderTexture}, camControl);
         gui.settings.scene.camera = camControl.GetCamera();
         rast.Update(gui.settings);
-        const int spp = 100;
+        const int spp = 1;
         if(gui.settings.Render)
         {
             auto iTime = std::chrono::high_resolution_clock::now();

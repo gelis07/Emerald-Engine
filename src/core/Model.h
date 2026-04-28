@@ -44,6 +44,7 @@ class Model
         void SliceAABB(int idx, int axis);
         void ConstructAABBBounds(AABB& aabb);
         int ChooseSliceAxis(const AABB& aabb);
+        glm::mat4 GetModelInverse();
 
 
         std::vector<float> mVertices;
