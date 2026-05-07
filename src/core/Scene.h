@@ -11,8 +11,8 @@ enum HitType
 class Material
 {
     public:
-        float fuzz = 0.0f;
-        float refractionIndex = 0.0f;
+        float metallic = 1.0;
+        float roughness = 1.0;
         glm::vec3 albedo;
         glm::vec3 emmColor = glm::vec3(0,0,0);
         int scatter;
@@ -59,8 +59,6 @@ class Scene
             models.reserve(20);
             Material* mat = new Material;
             mat->albedo = glm::vec3(1.0f);
-            mat->fuzz = 0.0f;
-            mat->refractionIndex = 0.0f;
             mat->scatter = 1;
             materials.push_back(mat);
         }

@@ -2,8 +2,7 @@
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D img;
 const float pi = 3.14159265359;
-const int maxIter = 1;
-const int maxBounces = 1;
+const int maxBounces = 5;
 /*
     Material type indeces.
     1 Lambertian
@@ -54,8 +53,8 @@ struct material
     int materialType;
     vec3 albedo;
     vec3 emmColor;
-    float fuzz;
-    float refractionIndex;
+    float metallic;
+    float roughness;
 };
 struct sphere 
 {
@@ -161,83 +160,31 @@ void hitTriangle(ray r, int i, inout hitInfo info)
     }
 }
 
-struct Plane
+bool AabbRayIntersection(ray r, int idx)
 {
-    vec3 normal;
-    vec3 r0;
-};
 
-hitInfo PlaneRayIntersection(ray r, Plane p)
-{
-    hitInfo info;
-    float nd = dot(p.normal, r.dir);
-    if(nd < 0)
-        nd = dot(-p.normal, r.dir);
+    ModelAABB aabb = aabbs[idx];
+    vec3 bmin = vec3(aabb.min);
+    vec3 bmax = vec3(aabb.max);
+    mat4 invModel = modelsInfo[int(aabb.min.w)].invMatrixModel;
+    r.pos = (invModel * vec4(r.pos, 1.0)).xyz;
+    r.dir = (mat3(invModel) * r.dir);
 
-    if(nd <= 0.0001)
-        info.dist = -1;
-    else
-        info.dist = -dot(p.normal, r.pos - p.r0) / dot(p.normal, r.dir);
-    
-    info.normal = p.normal;
-    return info;
+    vec3 invDir = 1.0 / r.dir;
+
+    vec3 t0 = (bmin - r.pos) * invDir;
+    vec3 t1 = (bmax - r.pos) * invDir;
+
+    vec3 tmin = min(t0, t1);
+    vec3 tmax = max(t0, t1);
+
+    float tNear = max(max(tmin.x, tmin.y), tmin.z);
+    float tFar  = min(min(tmax.x, tmax.y), tmax.z);
+
+
+
+    return tFar >= max(tNear, 0.0);
 }
-
-
-bool AabbRayIntersection(ray r, int idx) 
-{ 
-    ModelAABB aabb = aabbs[idx]; 
-    Plane p[6]; 
-    vec3 newMax = vec3(modelsInfo[int(aabb.max.w)].matrixModel * vec4(aabb.max.x, aabb.max.y, aabb.max.z, 1.0)); 
-    vec3 newMin = vec3(modelsInfo[int(aabb.max.w)].matrixModel * vec4(aabb.min.x, aabb.min.y, aabb.min.z, 1.0)); 
-    p[0].normal = cross(vec3(newMax) - vec3(newMax.x, newMin.y, newMax.z), vec3(newMax) - vec3(newMin.x, newMax.y, newMax.z)); 
-    p[0].r0 = vec3(newMax); 
-    p[1].normal = cross(vec3(newMax) - vec3(newMin.x, newMax.y, newMax.z), vec3(newMax) - vec3(newMax.x, newMax.y, newMin.z)); 
-    p[1].r0 = vec3(newMax); 
-    p[2].normal = cross(vec3(newMax) - vec3(newMax.x, newMin.y, newMax.z), vec3(newMax) - vec3(newMax.x, newMax.y, newMin.z)); 
-    p[2].r0 = vec3(newMax); 
-    p[3].normal = cross(vec3(newMin) - vec3(newMin.x, newMin.y, newMax.z), vec3(newMin) - vec3(newMin.x, newMin.y, newMax.z)); 
-    p[3].r0 = vec3(newMin); 
-    p[4].normal = cross(vec3(newMin) - vec3(newMin.x, newMax.y, newMin.z), vec3(newMin) - vec3(newMax.x, newMin.y, newMin.z)); 
-    p[4].r0 = vec3(newMin);
-    p[5].normal = cross(vec3(newMin) - vec3(newMin.x, newMin.y, newMax.z), vec3(newMin) - vec3(newMax.x, newMin.y, newMin.z)); 
-    p[5].r0 = vec3(newMin); 
-    for(int i = 0; i < 6; i++) 
-    { 
-        hitInfo info = PlaneRayIntersection(r, p[i]); 
-        vec3 point = r.dir * info.dist + r.pos; 
-        if(all(lessThanEqual(point, newMax)) && all(greaterThanEqual(point, newMin))) 
-        { 
-            return true; 
-        } 
-    } 
-}
-
-// bool AabbRayIntersection(ray r, int idx)
-// {
-
-//     ModelAABB aabb = aabbs[idx];
-//     vec3 bmin = vec3(aabb.min);
-//     vec3 bmax = vec3(aabb.max);
-//     mat4 invModel = modelsInfo[int(aabb.min.w)].invMatrixModel;
-//     r.pos = (invModel * vec4(r.pos, 1.0)).xyz;
-//     r.dir = (mat3(invModel) * r.dir);
-
-//     vec3 invDir = 1.0 / r.dir;
-
-//     vec3 t0 = (bmin - r.pos) * invDir;
-//     vec3 t1 = (bmax - r.pos) * invDir;
-
-//     vec3 tmin = min(t0, t1);
-//     vec3 tmax = max(t0, t1);
-
-//     float tNear = max(max(tmin.x, tmin.y), tmin.z);
-//     float tFar  = min(min(tmax.x, tmax.y), tmax.z);
-
-
-
-//     return tFar >= max(tNear, 0.0);
-// }
 
 
 const int STACK_SIZE = 32;
@@ -328,33 +275,6 @@ float ScatteringPdf(vec3 scatDir, vec3 n)
     return cosine < 0 ? 0 : cosine / pi;
 }
 
-vec3 FresnelRefl(float cosTheta, vec3 eta, vec3 k)
-{
-    cosTheta = clamp(cosTheta, 0.0, 1.0);
-
-    vec3 cos2 = vec3(cosTheta * cosTheta);
-    vec3 sin2 = vec3(1.0) - cos2;
-
-    vec3 eta2 = eta * eta;
-    vec3 k2 = k * k;
-
-    vec3 t0 = eta2 - k2 - sin2;
-    vec3 a2plusb2 = sqrt(t0 * t0 + 4.0 * eta2 * k2);
-
-    vec3 t1 = a2plusb2 + cos2;
-    vec3 a = sqrt(0.5 * (a2plusb2 + t0));
-    vec3 t2 = 2.0 * cosTheta * a;
-
-    vec3 Rs = (t1 - t2) / (t1 + t2);
-
-    vec3 t3 = cos2 * a2plusb2 + sin2 * sin2;
-    vec3 t4 = t2 * sin2;
-
-    vec3 Rp = Rs * (t3 - t4) / (t3 + t4);
-
-    return 0.5 * (Rp + Rs);
-
-}
 
 
 vec3  RandomCosineDir(inout uint seed, vec3 w)
@@ -383,6 +303,66 @@ float CosinePdf(vec3 dir, vec3 n)
     return max(0, cosine/ pi);
 }
 
+// float GGXNDF(vec3 wm, vec3 n, float a)
+// {
+//     float NoM = max(dot(n, wm), 0.0);
+//     if (NoM <= 0.0) return 0.0;
+
+//     float a2 = a * a;
+//     float denom = NoM * NoM * (a2 - 1.0) + 1.0;
+
+//     return a2 / (pi * denom * denom);
+// }
+float GGXNDF(vec3 wm, float a)
+{
+    float costheta2 = wm.z * wm.z;
+    float tantheta2 = -1.0 + 1.0 / costheta2;
+    float denom = pi * costheta2 * costheta2 * pow((a*a + tantheta2), 2.0);
+    return a*a / denom; 
+}
+vec3 Fresnel(vec3 wi, vec3 wm, vec3 f0)
+{
+    return f0 + (1-f0) * pow(1.0 -  dot(wi, wm), 5.0);
+}
+float lambda(vec3 w, vec3 n, float a)
+{
+    float costheta2 = dot(w, n);
+    costheta2 *= costheta2;
+    float tantheta2 = -1.0 + 1.0 / costheta2;
+    return 0.5 * (sqrt(1.0 + a*a*tantheta2) - 1.0);
+}
+vec3 RandomWm(inout uint seed, vec3 w, float a)
+{
+    float r1 = RandomFloat(seed);
+    float r2 = RandomFloat(seed);
+    float thetam = atan(a * sqrt(r1 / (1 - r1)));
+    float phim = 2 * pi * r2;
+    float x = sin(thetam) * cos(phim);
+    float y = sin(thetam) * sin(phim);
+    float z = cos(thetam);
+
+
+    vec3 axis[3];
+    axis[2] = normalize(w);
+    vec3 an = (abs(axis[2].x) > 0.9) ? vec3(0.0, 1.0, 0.0) : vec3(1, 0, 0);
+    axis[1] = normalize(cross(axis[2], an));
+    axis[0] = cross(axis[2], axis[1]);
+
+    return axis[0] * x + axis[1] * y + axis[2] * z; 
+
+}
+float TorSpPdf(vec3 wo, vec3 wm, vec3 n, float a)
+{
+    float D = GGXNDF(wm, a);
+    float cosThetaM = max(dot(n, wm), 0.0);
+    float cosWoWm = max(dot(wo, wm), 0.0);
+
+    return (D * cosThetaM) / (4.0 * cosWoWm);
+}
+float G(vec3 wo, vec3 wi, vec3 n, float a)
+{
+    return (1 / (1 + lambda(wo,n, a) + lambda(wi,n, a)));
+}
 void main()
 {
     ivec2 pix = ivec2(gl_GlobalInvocationID.xy);
@@ -409,47 +389,51 @@ void main()
     for(int bounces = 0; bounces < maxBounces; bounces++)
     {
 
-
-        for(int i = 0; i < modelAABBCount; i++)
-        {
-            // CheckAabbsIntersections(r, ModelAABBIdxs[i], HitInfo);
-            if(AabbRayIntersection(r, ModelAABBIdxs[i]))
+        hitInfo HitInfo = GetHitInfoAABB(r);
+        // if nothing got hit, just return a base color.
+        if (HitInfo.matIndex == -1) {
+            if(skyColor == 1)
             {
-                imageStore(img, pix, vec4(1.0, 0.0, 1.0, 1.0));
+                float a = 0.5*(r.dir.y + 1);  
+                vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
+                rayColor = rayTraversalInfo * sky;  // environment brightness
             }
+            break;
         }
 
+        //Something got hit.
+        vec3 HitPoint = r.pos + r.dir * HitInfo.dist;
+        vec3 outwardN = HitInfo.normal;
+        bool frontFace = dot(r.dir, outwardN) < 0.0;
+        vec3 n = frontFace ? outwardN : -outwardN;
+        material hitMat = materials[HitInfo.matIndex];
 
-        // hitInfo HitInfo = GetHitInfoAABB(r);
-        // // if nothing got hit, just return a base color.
-        // if (HitInfo.matIndex == -1) {
-        //     if(skyColor == 1)
-        //     {
-        //         float a = 0.5*(r.dir.y + 1);  
-        //         vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
-        //         rayColor = rayTraversalInfo * sky;  // environment brightness
-        //     }
-        //     break;
-        // }
+        r.pos = HitPoint + n * 0.001;
 
-        // //Something got hit!
-        // vec3 HitPoint = r.pos + r.dir * HitInfo.dist;
-        // vec3 outwardN = HitInfo.normal;
-        // bool frontFace = dot(r.dir, outwardN) < 0.0;
-        // vec3 n = frontFace ? outwardN : -outwardN;
-        // material hitMat = materials[HitInfo.matIndex];
+        float a  = hitMat.roughness;
+        vec3 wo = normalize(-r.dir);
+        vec3 wm = RandomWm(seed, n, a);
+        vec3 wi = -wo + 2.0 * dot(wo, wm) * wm;
+        if(dot(wi, n) <= 0.0 || dot(wo, n) <= 0.0)
+            continue;
+
+        vec3 f0 = mix(vec3(1.0), hitMat.albedo, hitMat.metallic);
+        float NoV = max(dot(n, wo), 0.0);
+        float NoL = max(dot(n, wi), 0.0);
+
+        vec3 brdf = GGXNDF(wm, a)
+                * Fresnel(wi, wm, f0)
+                * G(wo, wi, n, a)
+                / (4.0 * NoV * NoL);
+        float pdf = TorSpPdf(wo, wm,n,a);
+        vec3 mSample = brdf * NoL / pdf;
 
 
-
-        // r.pos = HitPoint + n * 0.001;
-        // r.dir = RandomCosineDir(seed, n);
-        // float brdf = ScatteringPdf(r.dir, n);
-        // float pdf = CosinePdf(r.dir, n);
-        // rayTraversalInfo *= hitMat.albedo * brdf / pdf;
-
-        // rayColor += rayTraversalInfo * hitMat.emmColor;
+        r.dir = wi;
+        rayTraversalInfo *= mSample;
+        rayColor += rayTraversalInfo * hitMat.emmColor;
     }
-    // vec4 prev = imageLoad(img, pix);
+    vec4 prev = imageLoad(img, pix);
 
-    // imageStore(img, pix, vec4(prev.rgb + rayColor, 1.0));
+    imageStore(img, pix, vec4(prev.rgb + rayColor, 1.0));
 }

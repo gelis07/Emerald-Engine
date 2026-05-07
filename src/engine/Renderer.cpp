@@ -8,7 +8,7 @@ void Renderer::Render(RenderSettings& rs)
     frames++;
     if(prevModelCount != rs.scene.models.size() || rs.ReloadScene)
     {
-        CreateTriangleSSBO(rs);
+        AABBSetupGPU(rs.scene);
         prevModelCount = rs.scene.models.size();
         rs.ReloadScene = false;
     }
@@ -52,6 +52,7 @@ void Renderer::Render(RenderSettings& rs)
     }
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, VerticesSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, AABBInfo);
 
     size_t triCount = 0;
     for (int i = 0; i < rs.scene.models.size(); i++)
@@ -69,8 +70,8 @@ void Renderer::Render(RenderSettings& rs)
         Raytracer.Uniform3f(std::string("materials[" + indexString + "].albedo"), mat.albedo);
         Raytracer.Uniform3f(std::string("materials[" + indexString + "].emmColor"), mat.emmColor);
         Raytracer.Uniform1i(std::string("materials[" + indexString + "].materialType"), mat.scatter);
-        Raytracer.Uniform1f(std::string("materials[" + indexString + "].fuzz"), mat.fuzz);
-        Raytracer.Uniform1f(std::string("materials[" + indexString + "].refractionIndex"), mat.refractionIndex);
+        Raytracer.Uniform1f(std::string("materials[" + indexString + "].metallic"), mat.metallic);
+        Raytracer.Uniform1f(std::string("materials[" + indexString + "].roughness"), mat.roughness);
     }
 
     glDispatchCompute((unsigned int)rs.ImgWidth/16, (unsigned int)rs.ImgHeight/16, 1);
@@ -95,7 +96,7 @@ void Renderer::Init(const RenderSettings& rs, int width, int heigth)
     CreateRenderImage(rs.ImgWidth, rs.ImgHeight);
 
 
-    AABBSetupGPU(rs.scene);
+    // AABBSetupGPU(rs.scene);
 
     Raytracer.Init();
 
@@ -124,10 +125,10 @@ void Renderer::AABBSetupGPU(const Scene& scene)
     std::vector<AABBGPUstruct> modelAABBs;
     int triCount = 0;
   
-
+    mModelAabbIdcs.clear();
+    mModelAabbIdcs.push_back(0);
     for(int i = 0; i < scene.models.size(); i++)
     {
-        mModelAabbIdcs.push_back(0);
         const Model& model = scene.models[i];
         for (int j = 0; j < model.aabbs.size(); j++)
         {
@@ -136,7 +137,7 @@ void Renderer::AABBSetupGPU(const Scene& scene)
             aabbGPU.min = glm::vec4(aabb.min, i);
             aabbGPU.max = glm::vec4(aabb.max, i);
             aabbGPU.nodeA = aabb.nodeA;
-            aabbGPU.nodeA = aabb.nodeB;
+            aabbGPU.nodeB = aabb.nodeB;
             if(aabb.leaf)
             {
                 aabbGPU.triIndex = triCount;
@@ -165,14 +166,15 @@ void Renderer::AABBSetupGPU(const Scene& scene)
             {
                 aabbGPU.triCount = 0;
                 aabbGPU.triIndex = 0;
-            }
+            }   
             modelAABBs.push_back(aabbGPU);
         }
-        mModelAabbIdcs.push_back(modelAABBs.size() - 1);
+        if(i != scene.models.size() - 1)
+            mModelAabbIdcs.push_back(modelAABBs.size());
     }
 
     glCreateBuffers(1, &AABBInfo);
-    glNamedBufferStorage(AABBInfo, sizeof(float) * modelAABBs.size(), (const void*) modelAABBs.data(), 0);
+    glNamedBufferStorage(AABBInfo, sizeof(AABBGPUstruct) * modelAABBs.size(), (const void*) modelAABBs.data(), 0);
     glCreateBuffers(1, &VerticesSSBO);
     glNamedBufferStorage(VerticesSSBO, sizeof(float) * vertices.size(), (const void*) vertices.data(), 0);
 }

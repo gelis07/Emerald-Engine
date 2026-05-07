@@ -69,7 +69,13 @@ void Model::Load(const std::string& path)
     GetAABBTriangles();
     ConstructAABBBounds(ModelAabb);
     aabbs.push_back(ModelAabb);
-    SliceAABB(0, ChooseSliceAxis(ModelAabb));
+    if(ModelAabb.mTriangleList.size() > 25)
+    {
+        SliceAABB(0, ChooseSliceAxis(ModelAabb));
+    }else
+    {
+        aabbs[0].leaf = true;
+    }
 
     aabbs.reserve(100);
     type = CUSTOM;
@@ -105,7 +111,13 @@ void Model::Load(const std::vector<float>& iVertices, const std::vector<unsigned
     GetAABBTriangles();
     ConstructAABBBounds(ModelAabb);
     aabbs.push_back(ModelAabb);
-    SliceAABB(0, ChooseSliceAxis(ModelAabb));
+    if(ModelAabb.mTriangleList.size() > 12)
+    {
+        SliceAABB(0, ChooseSliceAxis(ModelAabb));
+    }else
+    {
+        aabbs[0].leaf = true;
+    }
     type = CUBE;
 }
 

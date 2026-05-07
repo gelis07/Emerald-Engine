@@ -71,9 +71,9 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
         ImGui::SeparatorText(std::string("Material: " + std::to_string(i)).c_str());
         ImGui::DragFloat3("albedo", glm::value_ptr(mat->albedo), 0.01f);
         ImGui::DragFloat3("emmColor", glm::value_ptr(mat->emmColor), 0.01f);
+        ImGui::DragFloat("metallic", &mat->metallic, 0.01f, 0.0f, 1.0f);
+        ImGui::DragFloat("roughness", &mat->roughness, 0.01f, 0.0f, 1.0f);
         ImGui::DragInt("material Index", &mat->scatter, 0.01f);
-        ImGui::DragFloat("material fuzz", &mat->fuzz, 0.01f, 0.0f, 1.0f);
-        ImGui::DragFloat("material refraction index", &mat->refractionIndex, 0.01f, 0.0f);
         ImGui::PopID();
     }
     ImGui::SeparatorText("Environment Settings");
@@ -97,8 +97,7 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
     {
         Material* mat = new Material;
         mat->albedo = glm::vec3(1.0f);
-        mat->fuzz = 0.0f;
-        mat->refractionIndex = 0.0f;
+        mat->albedo = glm::vec3(0.0f);
         mat->scatter = 1;
         scene.materials.push_back(mat);
     }
@@ -254,8 +253,6 @@ void GUI::LoadSettings(const std::string& source, CameraControl& camControl)
         mat->emmColor.r = data["materials"][std::to_string(i)]["emColor"]["r"].get<float>();
         mat->emmColor.g = data["materials"][std::to_string(i)]["emColor"]["g"].get<float>();
         mat->emmColor.b = data["materials"][std::to_string(i)]["emColor"]["b"].get<float>();
-        mat->fuzz = 0.0f;
-        mat->refractionIndex = 0.0f;
         mat->scatter = 1;
 
         settings.scene.materials.push_back(mat);
