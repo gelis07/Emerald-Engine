@@ -6,6 +6,10 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stbi_write.h>
 #include <chrono>
+
+constexpr inline int spp = 1000; // samples per pixel
+
+
 void Application::InitImGui()
 {
     IMGUI_CHECKVERSION();
@@ -137,6 +141,7 @@ void Application::Init()
         fmt::println("{}", fmt::format(fg(fmt::rgb(0xFF0000)), "GLFW init error"));
         system("pause");
     }
+    //Initialize window
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
@@ -151,24 +156,33 @@ void Application::Init()
     }
     glfwMakeContextCurrent(window);
     glfwSwapInterval(true);
+    //Initlaize glad
     gladLoadGL();
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     GLint flags;
     glDebugMessageCallback(GladErrorCallBack, NULL);
     glEnable(GL_DEPTH_TEST);
+
+
     InitImGui();
     camControl.Init(45.0f, 0.1f, 1000.0f);
-    Model model;
-    model.Load("dragon.obj");
-    gui.settings.scene.AddModel(std::move(model));
-    fmt::println("finished loading model");
-    postProcessing.Init();
+    gui.loader = &assimpLoader;
 
-    postProcessing.LinkShader("../Shaders/PostProcessing.comp", GL_COMPUTE_SHADER);
     rend.Init(gui.settings, 600, 600);
     rast.Init(gui.settings, 600, 600);
-}
 
+}
+void Application::CreateRenderImage(int width, int height)
+{
+    glGenTextures(1, &RenderImage);
+    glBindTexture(GL_TEXTURE_2D, RenderImage);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height,0, GL_RGBA, GL_FLOAT, NULL);
+    glBindImageTexture(0, RenderImage, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
+}
 
 void Application::OnUpdate()
 {
@@ -185,44 +199,22 @@ void Application::OnUpdate()
         gui.SceneModifier(dt, {rast.renderTexture}, camControl);
         gui.settings.scene.camera = camControl.GetCamera();
         rast.Update(gui.settings);
-        const int spp = 1000;
         if(gui.settings.Render)
         {
             auto iTime = std::chrono::high_resolution_clock::now();
             fmt::println("started rendering");
-            for(int i = 0; i < spp; i++)
-            {
-                rend.Render(gui.settings);
-                fmt::println("progress: {}%", (float(i) / float(spp)) * 100.0f);
-            }
-            glBindImageTexture(0, rend.RenderImage, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
-            postProcessing.Bind();
-            postProcessing.Uniform1i("spp", spp);
-            glDispatchCompute((unsigned int)gui.settings.ImgWidth/16, (unsigned int)gui.settings.ImgHeight/16, 1);
-            glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-            glFinish();
-            //Exporting image
-            glBindTexture(GL_TEXTURE_2D, rend.RenderImage);
-            std::vector<unsigned char> pixels(gui.settings.ImgWidth * gui.settings.ImgHeight * 4);
-            glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-            std::vector<unsigned char> flipped(gui.settings.ImgWidth * gui.settings.ImgHeight * 4);
-            for (int y = 0; y < gui.settings.ImgHeight; y++)
-            {
-                memcpy(
-                    &flipped[y * gui.settings.ImgWidth * 4],
-                    &pixels[(gui.settings.ImgHeight - 1 - y) * gui.settings.ImgWidth * 4],
-                    gui.settings.ImgWidth * 4
-                );
-            }
-            // Write PNG
-            stbi_write_png("render.png", gui.settings.ImgWidth, gui.settings.ImgHeight, 4, 
-            flipped.data(), gui.settings.ImgWidth * 4);
+            CreateRenderImage(gui.settings.ImgWidth, gui.settings.ImgHeight);
+            gui.settings.imageOut = RenderImage;
+            gui.settings.spp = spp;
+            //Rendering
+            rend.Render(gui.settings);
+
             auto fTime = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> Dt = fTime - iTime;
             fmt::println("Render time: {} seconds", Dt.count());
-            
-            gui.settings.Render = false;
+            Export();
 
+            gui.settings.Render = false;
         }
 
         ImGui::Render();
@@ -230,4 +222,24 @@ void Application::OnUpdate()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+}
+void Application::Export()
+{
+
+    //Exporting image
+    glBindTexture(GL_TEXTURE_2D, RenderImage);
+    std::vector<unsigned char> pixels(gui.settings.ImgWidth * gui.settings.ImgHeight * 4);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    std::vector<unsigned char> flipped(gui.settings.ImgWidth * gui.settings.ImgHeight * 4);
+    for (int y = 0; y < gui.settings.ImgHeight; y++)
+    {
+        memcpy(
+            &flipped[y * gui.settings.ImgWidth * 4],
+            &pixels[(gui.settings.ImgHeight - 1 - y) * gui.settings.ImgWidth * 4],
+            gui.settings.ImgWidth * 4
+        );
+    }
+    // Write PNG
+    stbi_write_png("render.png", gui.settings.ImgWidth, gui.settings.ImgHeight, 4, 
+    flipped.data(), gui.settings.ImgWidth * 4);
 }

@@ -8,6 +8,7 @@ struct RasterizedModel
     GLuint vbo;
     GLuint vao;
     GLuint ibo;
+    int indicesCount = 0;
 };
 
 class Rasterizer

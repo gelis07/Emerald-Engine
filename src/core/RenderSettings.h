@@ -4,9 +4,10 @@
 struct RenderSettings
 {
     Scene scene;
-    bool accumulate = false;
     bool EnvLight = true;
     int ImgWidth, ImgHeight;
     bool ReloadScene = false;
     bool Render = false;
+    int spp;
+    int imageOut;
 };

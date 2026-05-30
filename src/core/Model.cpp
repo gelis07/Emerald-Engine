@@ -1,86 +1,13 @@
 #include "Model.h"
-#include "fmt/base.h"
 #include <algorithm>
-#include <fstream>
 #include <string>
-#include <sstream>
 
 enum LoadingType
 {
     TRIANGLE,
-    VERTEX
+    VERTEX,
+    VERTEX_COORD
 };
-void Model::Load(const std::string& path)
-{
-    std::ifstream file(path);
-    std::string line;
-    if (file.is_open()) {
-        while (getline(file, line)) 
-        {
-            std::stringstream ss(line);
-            std::string word;
-            LoadingType type;
-            int i = 0;
-            bool skip = false;
-            while(ss >> word && !skip)
-            {
-                if(i == 0)
-                {
-                    if(word == "v")
-                    {
-                        type = VERTEX;
-                    }else if(word == "f")
-                    {
-                        type = TRIANGLE;
-                    }else
-                    {
-                        skip = true;
-                    }
-                }else
-                {
-                    switch (type)
-                    {
-                        case VERTEX:
-                        {
-                            float coord = std::stof(word);
-                            mVertices.push_back(coord);
-                            break;
-                        }
-                        case TRIANGLE:
-                        {
-                            int vertex = std::stoi(word) - 1;
-                            mTriangles.push_back(vertex);
-                            break;
-                        }
-                    }
-                }
-
-                i++;
-            }
-        }
-
-        file.close();
-    }
-    else {
-        fmt::println("cannot open file");
-    }
-    fmt::println("Dragon time!");
-
-    GetAABBTriangles();
-    ConstructAABBBounds(ModelAabb);
-    aabbs.push_back(ModelAabb);
-    if(ModelAabb.mTriangleList.size() > 25)
-    {
-        SliceAABB(0, ChooseSliceAxis(ModelAabb));
-    }else
-    {
-        aabbs[0].leaf = true;
-    }
-
-    aabbs.reserve(100);
-    type = CUSTOM;
-    fileSource = path;
-}
 
 int Model::ChooseSliceAxis(const AABB& aabb)
 {
@@ -103,11 +30,11 @@ int Model::ChooseSliceAxis(const AABB& aabb)
 
     return -1;
 }
-void Model::Load(const std::vector<float>& iVertices, const std::vector<unsigned int>& iIndices)
+
+
+void Model::Load(const ModelConstructData& data)
 {
-    fmt::println("Ill be talking about a cube!");
-    mVertices = iVertices;
-    mTriangles = iIndices;
+    mMeshes = data.meshes;
     GetAABBTriangles();
     ConstructAABBBounds(ModelAabb);
     aabbs.push_back(ModelAabb);
@@ -118,7 +45,12 @@ void Model::Load(const std::vector<float>& iVertices, const std::vector<unsigned
     {
         aabbs[0].leaf = true;
     }
-    type = CUBE;
+    if(data.path == "")
+        type = CUBE;
+    else{
+        type = CUSTOM;
+        fileSource = data.path;
+    }
 }
 
 void Model::Transform()
@@ -148,47 +80,41 @@ void Model::ConstructAABBBounds(AABB& aabb)
 
 void Model::GetAABBTriangles()
 {
-    for (int i = 0; i < mTriangles.size(); i+=3) 
+    for (int m = 0; m < mMeshes.size(); m++)
     {
-        Triangle tri;
+        const Mesh& mesh = mMeshes[m];
+        for (int i = 0; i < mesh.indices.size(); i+=3) 
+        {
+            Triangle tri;
 
-        tri.a = glm::vec3(
-            mVertices[mTriangles[i] * 3],
-            mVertices[mTriangles[i] * 3 + 1],
-            mVertices[mTriangles[i] * 3 + 2]);
+            tri.a = mesh.vertices[mesh.indices[i]].position;
+            tri.b = mesh.vertices[mesh.indices[i+1]].position;
+            tri.c = mesh.vertices[mesh.indices[i+2]].position;
+            tri.texA = mesh.vertices[mesh.indices[i]].texCoords;
+            tri.texB = mesh.vertices[mesh.indices[i+1]].texCoords;
+            tri.texC = mesh.vertices[mesh.indices[i+2]].texCoords;
+            tri.meshIdx = m;
+            float tempMinX = glm::min(tri.a.x, tri.b.x);
+            tri.min.x = glm::min(tempMinX, tri.c.x); 
 
-        tri.b = glm::vec3(
-            mVertices[mTriangles[i+1] * 3],
-            mVertices[mTriangles[i+1] * 3 + 1],
-            mVertices[mTriangles[i+1] * 3 + 2]);
+            float tempMinY = glm::min(tri.a.y, tri.b.y);
+            tri.min.y = glm::min(tempMinY, tri.c.y); 
 
-        tri.c = glm::vec3(
-            mVertices[mTriangles[i+2] * 3],
-            mVertices[mTriangles[i+2] * 3 + 1],
-            mVertices[mTriangles[i+2] * 3 + 2]);
-        
-        float tempMinX = glm::min(tri.a.x, tri.b.x);
-        tri.min.x = glm::min(tempMinX, tri.c.x); 
+            float tempMinZ = glm::min(tri.a.z, tri.b.z);
+            tri.min.z = glm::min(tempMinZ, tri.c.z); 
 
-        float tempMinY = glm::min(tri.a.y, tri.b.y);
-        tri.min.y = glm::min(tempMinY, tri.c.y); 
+            float tempMaxX = glm::max(tri.a.x, tri.b.x);
+            tri.max.x = glm::max(tempMaxX, tri.c.x); 
 
-        float tempMinZ = glm::min(tri.a.z, tri.b.z);
-        tri.min.z = glm::min(tempMinZ, tri.c.z); 
+            float tempMaxY = glm::max(tri.a.y, tri.b.y);
+            tri.max.y = glm::max(tempMaxY, tri.c.y); 
 
-        float tempMaxX = glm::max(tri.a.x, tri.b.x);
-        tri.max.x = glm::max(tempMaxX, tri.c.x); 
-
-        float tempMaxY = glm::max(tri.a.y, tri.b.y);
-        tri.max.y = glm::max(tempMaxY, tri.c.y); 
-
-        float tempMaxZ = glm::max(tri.a.z, tri.b.z);
-        tri.max.z = glm::max(tempMaxZ, tri.c.z);
-        
-        ModelAabb.mTriangleList.push_back(tri);
+            float tempMaxZ = glm::max(tri.a.z, tri.b.z);
+            tri.max.z = glm::max(tempMaxZ, tri.c.z);
+            
+            ModelAabb.mTriangleList.push_back(tri);
+        }
     }
-
-    // fmt::println("Model triangle count: {}", ModelAabb.mTriangleList.size());
 }
 
 
@@ -237,9 +163,7 @@ void Model::SliceAABB(int idx, int axis)
         SliceAABB(nodeA, ChooseSliceAxis(aabbA));
         SliceAABB(nodeB, ChooseSliceAxis(aabbB));
     }else{
-        fmt::println("Node depth: {}", aabbA.nodeNum);
         aabbs[nodeA].leaf = true;
         aabbs[nodeB].leaf = true;
     }
-
 }

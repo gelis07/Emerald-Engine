@@ -1,7 +1,7 @@
 #pragma once
 #include <core/RenderSettings.h>
 #include <app/CameraControl.h>
-
+#include "AssimpLoader.h"
 
 
 class GUI
@@ -9,6 +9,7 @@ class GUI
     public:
         void SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraControl& camControl);
         RenderSettings settings;
+        AssimpLoader* loader  = nullptr;
     private:
         void Windows(const char* name, unsigned int image);
 

@@ -4,27 +4,34 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <engine/GPUBackend.h>
 
+
 class Renderer
 {
     public:
-        void Render(RenderSettings& rs);
+        void RenderSample(RenderSettings& rs);
         void Init(const RenderSettings& rs, int width, int heigth);
-        GLuint RenderImage;
-
+        void Render(RenderSettings& rs);
     private:
-        void CreateRenderImage(int width, int height);
-        void CreateTriangleSSBO(const RenderSettings& rs);
         void AABBSetupGPU(const Scene& scene);
-        std::vector<float> BakeModel(const std::vector<Model>& models);
+        void UpdateSettings(RenderSettings& rs);
 
         Shader Raytracer;
+        Shader postProcessing;
 
+        unsigned int ModelTexture;
         std::vector<int> mModelAabbIdcs;
-        GLuint VerticesSSBO;
-        GLuint AABBInfo;
-        int frames = 1;
+        int frames = 0;
         float tfov;
         float AR;
+        int mSceneTriCount;
         int prevWindowWidth, prevWindowHeight, prevModelCount;
+
+        std::vector<int> TextureIds;
+        bool hasCreatedBuffers = false;
+        GLuint ModelInfo;
+        GLuint MeshInfo;
+        GLuint AABBIndices;
+        GLuint TrianglesSSBO;
+        GLuint AABBInfo;
 
 };

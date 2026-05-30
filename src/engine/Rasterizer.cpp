@@ -67,18 +67,36 @@ void Rasterizer::AddModels(RenderSettings& rs)
     {
         RasterizedModel rastModel;
         rastModel.model = &rs.scene.models[i];
-    
+        std::vector<Vertex> vertices;
+        std::vector<unsigned int> indices; 
+
+        for(int i = 0; i < rastModel.model->mMeshes.size(); i++)
+        {
+            rastModel.indicesCount += rastModel.model->mMeshes[i].indices.size();
+            for(int j = 0; j < rastModel.model->mMeshes[i].vertices.size(); j++)
+            {
+                vertices.push_back(rastModel.model->mMeshes[i].vertices[j]);
+            }
+            for(int j = 0; j < rastModel.model->mMeshes[i].indices.size(); j++)
+            {
+                indices.push_back(rastModel.model->mMeshes[i].indices[j]);
+            }
+        }
+
+
         glCreateBuffers(1, &rastModel.vbo);
-        glNamedBufferStorage(rastModel.vbo, sizeof(float) * rastModel.model->mVertices.size(), rastModel.model->mVertices.data(), 0);
+        glNamedBufferStorage(rastModel.vbo, sizeof(Vertex) * vertices.size(),vertices.data(), 0);
         glCreateBuffers(1, &rastModel.ibo);
-        glNamedBufferStorage(rastModel.ibo, sizeof(unsigned int) * rastModel.model->mTriangles.size(), rastModel.model->mTriangles.data(), 0);
+        glNamedBufferStorage(rastModel.ibo, sizeof(unsigned int) * indices.size(), indices.data(), 0);
 
         glCreateVertexArrays(1, &rastModel.vao);
         glBindVertexArray(rastModel.vao);
         glBindBuffer(GL_ARRAY_BUFFER, rastModel.vbo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rastModel.ibo);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
 
         rastModels.push_back(rastModel);
     }
@@ -98,7 +116,6 @@ void Rasterizer::Update(RenderSettings& rs)
     {
         AddModels(rs);
     }
-
     if(prevWindowWidth != rs.ImgWidth || prevWindowHeight != rs.ImgHeight)
     {
         CreateTexture(rs.ImgWidth, rs.ImgHeight);
@@ -118,64 +135,10 @@ void Rasterizer::Update(RenderSettings& rs)
         RastShader.Uniform1i("randomColor", 1);
         
         glBindVertexArray(rastModel.vao);
-        glDrawElements(GL_TRIANGLES, rastModel.model->mTriangles.size(), GL_UNSIGNED_INT, (void*)0);
-
-        for(int j = 0; j < rastModel.model->aabbs.size(); j++)
-        {
-            if(!rastModel.model->aabbs[j].leaf)
-                continue;
-
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glm::vec3 pos((rastModel.model->aabbs[j].min.x + rastModel.model->aabbs[j].max.x),
-            (rastModel.model->aabbs[j].min.y + rastModel.model->aabbs[j].max.y),
-            (rastModel.model->aabbs[j].min.z + rastModel.model->aabbs[j].max.z));
-
-            glm::vec3 size(rastModel.model->aabbs[j].max.x - rastModel.model->aabbs[j].min.x,
-            rastModel.model->aabbs[j].max.y - rastModel.model->aabbs[j].min.y, 
-            rastModel.model->aabbs[j].max.z - rastModel.model->aabbs[j].min.z);
-            size *= 0.5f;
-            pos *= 0.5f;
-
-            
-            glm::mat4 AABBmodel = glm::translate(glm::mat4(1.0f), pos);
-            AABBmodel = glm::scale(AABBmodel, size);
-            glm::mat4 AABBmvp = mvp * AABBmodel;
-            glm::mat4 aabbWs = rastModel.model->model * AABBmodel;
-
-            RastShader.UniformMat4("uMvp", AABBmvp);
-            RastShader.Uniform4f("uColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-            RastShader.Uniform1i("randomColor", 0);
-
-            glBindVertexArray(cubeVao);
-            glDrawElements(GL_TRIANGLES, CubeIndices.size(), GL_UNSIGNED_INT, (void*)0);
-        }
+        glDrawElements(GL_TRIANGLES, rastModel.indicesCount, GL_UNSIGNED_INT, (void*)0);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
-
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    // glm::mat4 model(1.0f);
-    // glm::mat4 mvp = rs.scene.camera.GetProjection() * rs.scene.camera.GetView();
-    // glm::vec3 pos((rs.scene.minMaxX.x + rs.scene.minMaxX.y),
-    // (rs.scene.minMaxY.x + rs.scene.minMaxY.y),
-    // (rs.scene.minMaxZ.x + rs.scene.minMaxZ.y));
-    // glm::vec3 size(rs.scene.minMaxX.y - rs.scene.minMaxX.x,
-    // rs.scene.minMaxY.y - rs.scene.minMaxY.x, 
-    // rs.scene.minMaxZ.y - rs.scene.minMaxZ.x);
-
-    // size *= 0.5f;
-    // pos *= 0.5f;
-    // model = glm::translate(model, pos);
-    // model = glm::scale(model, size);
-    // mvp = mvp * model;
-    // RastShader.UniformMat4("uMvp", mvp);
-    // RastShader.Uniform4f("uColor", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-    // RastShader.Uniform1i("randomColor", 0);
-
-    // glBindVertexArray(cubeVao);
-    // glDrawElements(GL_TRIANGLES, CubeIndices.size(), GL_UNSIGNED_INT, (void*)0);
-    // glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

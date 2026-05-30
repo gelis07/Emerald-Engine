@@ -7,7 +7,6 @@ class CameraControl
     public:
         void Init(float verticalFov, float nearClip, float farClip);
         void OnUpdate(float ts, int width, int height);
-        // void OnResize(uint32_t width, uint32_t height);
         void SetSettings(const CameraSettings& settings);
         const Camera& GetCamera() {return mCamera;}
     private:

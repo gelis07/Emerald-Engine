@@ -28,18 +28,11 @@ struct Triangle
     vec4 a;
     vec4 b;
     vec4 c;
+    vec4 idtex;
 };
+//! add comments for the weird structure for triangle.
 
 
-layout (binding = 2, std430) readonly buffer AABBData
-{
-    ModelAABB aabbs[];
-};
-
-layout(binding = 1, std430) readonly buffer VerticesSSBO
-{
-    Triangle tris[];
-};
 
 struct ModelInfo
 {
@@ -48,6 +41,11 @@ struct ModelInfo
     int matIndex;
 };
 
+struct MeshInfo
+{
+    int modelIdx;
+    int textureIdx;
+};
 struct material
 {
     int materialType;
@@ -55,12 +53,6 @@ struct material
     vec3 emmColor;
     float metallic;
     float roughness;
-};
-struct sphere 
-{
-    vec3 point;
-    float radius;
-    int matIndex;
 };
 struct ray
 {
@@ -73,14 +65,32 @@ struct hitInfo
     float dist;
     vec3 normal;
     int matIndex;
+    vec3 color;
 };
 
+layout (binding = 4, std430) readonly buffer AABBIndices
+{
+    int ModelAABBIdxs[];
+};
+layout (binding = 3, std430) readonly buffer modelInfoData
+{
+    ModelInfo modelsInfo[];
+};
+layout (binding = 5, std430) readonly buffer meshInfoData
+{
+    MeshInfo meshInfo[];
+};
+layout (binding = 2, std430) readonly buffer AABBData
+{
+    ModelAABB aabbs[];
+};
+
+layout(binding = 1, std430) readonly buffer VerticesSSBO
+{
+    Triangle tris[];
+};
 
 //Scene Vars
-uniform ModelInfo modelsInfo[24];
-
-
-uniform int ModelAABBIdxs[20];
 uniform int modelAABBCount;
 uniform float AR;
 uniform float tfov;
@@ -90,8 +100,9 @@ uniform material materials[10];
 uniform int TriCount;
 uniform mat4 InvProj;
 uniform mat4 InvView;
-uniform int skyColor;
-
+uniform sampler2D texImage[20];
+// uniform ModelInfo modelsInfo[24];
+// uniform int ModelAABBIdxs[24];
 
 uint PCGHash(uint seed) {
     uint state = seed * 747796405u + 2891336453u;
@@ -113,6 +124,12 @@ vec3 RandomVec3(inout uint seed)
     RandomFloat(seed) * 2.0 - 1.0);
 }
 
+
+vec3 SampleSquare(inout uint seed)
+{
+    return vec3(RandomFloat(seed) - 0.5,RandomFloat(seed) - 0.5,0.0); 
+}
+
 vec3 RandomOnHemisphere(inout uint seed, vec3 normal)
 {
     vec3 vector = RandomVec3(seed);
@@ -131,10 +148,15 @@ void hitTriangle(ray r, int i, inout hitInfo info)
     Triangle tri = tris[i];
 
     Triangle transformedTri;
-    transformedTri.a = vec4(vec3(modelsInfo[int(tri.a.w)].matrixModel * vec4(vec3(tri.a.x, tri.a.y, tri.a.z), 1.0)), tri.a.w);
-    transformedTri.b = vec4(vec3(modelsInfo[int(tri.a.w)].matrixModel * vec4(vec3(tri.b.x, tri.b.y, tri.b.z), 1.0)), tri.a.w);
-    transformedTri.c = vec4(vec3(modelsInfo[int(tri.a.w)].matrixModel * vec4(vec3(tri.c.x, tri.c.y, tri.c.z), 1.0)), tri.a.w);
+    int curModelIdx = meshInfo[int(tri.idtex.x)].modelIdx;
+    transformedTri.a = vec4(vec3(modelsInfo[curModelIdx].matrixModel * vec4(vec3(tri.a.x, tri.a.y, tri.a.z), 1.0)), tri.a.w);
+    transformedTri.b = vec4(vec3(modelsInfo[curModelIdx].matrixModel * vec4(vec3(tri.b.x, tri.b.y, tri.b.z), 1.0)), tri.b.w);
+    transformedTri.c = vec4(vec3(modelsInfo[curModelIdx].matrixModel * vec4(vec3(tri.c.x, tri.c.y, tri.c.z), 1.0)), tri.c.w);
+    transformedTri.idtex = tri.idtex;
     tri = transformedTri;
+
+
+
     vec3 e1 = tri.b.xyz - tri.a.xyz;
     vec3 e2 = tri.c.xyz - tri.a.xyz;
     vec3 p = cross(r.dir, e2);
@@ -151,12 +173,25 @@ void hitTriangle(ray r, int i, inout hitInfo info)
     float v = dot(r.dir, q) * invDet;
     if(v < 0 || u + v > 1) return;
 
+
     float dist = dot(e2, q) * invDet;
     if(dist > 0.001 && dist < info.dist)
     {
         info.dist = dist;
         info.normal = normalize(cross(e1, e2));
-        info.matIndex = modelsInfo[int(tri.a.w)].matIndex;
+        info.matIndex = modelsInfo[int(tri.idtex.x)].matIndex;
+
+        if(meshInfo[int(tri.idtex.x)].textureIdx != -1)
+        {
+            vec2 texCoordA = vec2(tri.a.w, tri.idtex.y);
+            vec2 texCoordB = vec2(tri.b.w, tri.idtex.z);
+            vec2 texCoordC = vec2(tri.c.w, tri.idtex.w);
+            vec2 uvHit = (1-u-v)*texCoordA + u * texCoordB + v * texCoordC;
+            info.color = texture(texImage[meshInfo[int(tri.idtex.x)].textureIdx], uvHit).rgb;
+        }else
+        {
+            info.color = vec3(-1, -1, -1);
+        }
     }
 }
 
@@ -303,16 +338,6 @@ float CosinePdf(vec3 dir, vec3 n)
     return max(0, cosine/ pi);
 }
 
-// float GGXNDF(vec3 wm, vec3 n, float a)
-// {
-//     float NoM = max(dot(n, wm), 0.0);
-//     if (NoM <= 0.0) return 0.0;
-
-//     float a2 = a * a;
-//     float denom = NoM * NoM * (a2 - 1.0) + 1.0;
-
-//     return a2 / (pi * denom * denom);
-// }
 float GGXNDF(vec3 wm, float a)
 {
     float costheta2 = wm.z * wm.z;
@@ -353,11 +378,10 @@ vec3 RandomWm(inout uint seed, vec3 w, float a)
 }
 float TorSpPdf(vec3 wo, vec3 wm, vec3 n, float a)
 {
-    float D = GGXNDF(wm, a);
     float cosThetaM = max(dot(n, wm), 0.0);
     float cosWoWm = max(dot(wo, wm), 0.0);
 
-    return (D * cosThetaM) / (4.0 * cosWoWm);
+    return (cosThetaM) / (4.0 * cosWoWm);
 }
 float G(vec3 wo, vec3 wi, vec3 n, float a)
 {
@@ -368,9 +392,13 @@ void main()
     ivec2 pix = ivec2(gl_GlobalInvocationID.xy);
     ivec2 size = imageSize(img);
 
-    float u = (float(pix.x) + 0.5) / float(size.x);
-    float v = (float(pix.y) + 0.5) / float(size.y);
-
+    uint seed =
+    uint(pix.x) * 1973u +
+    uint(pix.y) * 9277u +
+    uframe  * 26699u + 1u;
+    vec3 offset = SampleSquare(seed);
+    float u = (float(pix.x + offset.x) + 0.5) / float(size.x);
+    float v = (float(pix.y + offset.y) + 0.5) / float(size.y);
     u = u * 2.0 - 1.0;
     v = v * 2.0 - 1.0;
 
@@ -382,22 +410,15 @@ void main()
 
     vec3 rayTraversalInfo = vec3(1.0);
     vec3 rayColor = vec3(0.0);
-    uint seed =
-    uint(pix.x) * 1973u +
-    uint(pix.y) * 9277u +
-    uframe  * 26699u + 1u;
     for(int bounces = 0; bounces < maxBounces; bounces++)
     {
 
         hitInfo HitInfo = GetHitInfoAABB(r);
         // if nothing got hit, just return a base color.
         if (HitInfo.matIndex == -1) {
-            if(skyColor == 1)
-            {
-                float a = 0.5*(r.dir.y + 1);  
-                vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
-                rayColor = rayTraversalInfo * sky;  // environment brightness
-            }
+            float a = 0.5*(r.dir.y + 1);  
+            vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
+            rayColor = rayTraversalInfo * sky;  // environment brightness
             break;
         }
 
@@ -417,14 +438,20 @@ void main()
         if(dot(wi, n) <= 0.0 || dot(wo, n) <= 0.0)
             continue;
 
+        if(HitInfo.color.r != -1)
+        {
+            hitMat.albedo = HitInfo.color;
+        }
+
         vec3 f0 = mix(vec3(1.0), hitMat.albedo, hitMat.metallic);
         float NoV = max(dot(n, wo), 0.0);
         float NoL = max(dot(n, wi), 0.0);
 
-        vec3 brdf = GGXNDF(wm, a)
-                * Fresnel(wi, wm, f0)
+        vec3 brdf = Fresnel(wi, wm, f0)
                 * G(wo, wi, n, a)
                 / (4.0 * NoV * NoL);
+
+
         float pdf = TorSpPdf(wo, wm,n,a);
         vec3 mSample = brdf * NoL / pdf;
 
@@ -436,4 +463,5 @@ void main()
     vec4 prev = imageLoad(img, pix);
 
     imageStore(img, pix, vec4(prev.rgb + rayColor, 1.0));
+
 }

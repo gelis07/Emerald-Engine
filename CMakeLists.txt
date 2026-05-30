@@ -13,6 +13,7 @@ include_directories(${CMAKE_SOURCE_DIR}/vendor/glad/include)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/imgui/backends/)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/imgui/)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/assimp/include/)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/glm)
 include_directories(${CMAKE_SOURCE_DIR}/vendor)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/fmt/include)
@@ -25,6 +26,7 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 add_executable(Raytracer
 src/main.cpp
 src/app/Application.cpp
+src/app/AssimpLoader.cpp
 src/engine/Renderer.cpp
 src/engine/Rasterizer.cpp
 src/engine/GPUBackend.cpp
@@ -41,3 +43,4 @@ vendor/imgui/imgui_widgets.cpp
 )
 
 target_link_libraries(Raytracer PRIVATE libglfw3.a)
+target_link_libraries(Raytracer PRIVATE libassimp-6.dll)

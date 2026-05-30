@@ -4,6 +4,7 @@
 #include <string>
 #include <core/Utils.h>
 #include <nlohmann/json.hpp>
+#include <fmt/base.h>
 using json = nlohmann::json;
 
 void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraControl& camControl)
@@ -20,29 +21,6 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
     ImGui::DragFloat3("Direction", glm::value_ptr(dir));
     camera.Set(stg);
 
-
-    ImGui::SeparatorText("Object Settings");
-    for(int i = 0; i < scene.hitObjects.size(); i++)
-    {
-        Hittable* hitObj = scene.hitObjects[i];
-        ImGui::PushID(i);
-        ImGui::SeparatorText(std::string("Sphere: " + std::to_string(i)).c_str());
-        ImGui::DragInt("mat Index", &hitObj->matIndex);
-        if(scene.hitObjects[i]->type == SPHERE)
-        {
-            ImGui::DragFloat3("position", glm::value_ptr(static_cast<HitSphere*>(hitObj)->point), 0.01f);
-            ImGui::DragFloat("radius", &static_cast<HitSphere*>(hitObj)->radius, 0.01f);
-        }
-        if(scene.hitObjects[i]->type == TRIANGLE)
-        {
-            HitTriangle* tri = static_cast<HitTriangle*>(hitObj);
-            ImGui::DragFloat3("a", glm::value_ptr(tri->a), 0.01f);
-            ImGui::DragFloat3("b", glm::value_ptr(tri->b), 0.01f);
-            ImGui::DragFloat3("c", glm::value_ptr(tri->c), 0.01f);
-
-            ImGui::PopID();
-        }
-    }
     ImGui::SeparatorText("Model Settings");
     for (int i = 0; i < scene.models.size(); i++)
     {
@@ -77,20 +55,17 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
         ImGui::PopID();
     }
     ImGui::SeparatorText("Environment Settings");
-    ImGui::Checkbox("accumulate", &settings.accumulate);
     ImGui::Checkbox("EnvLight", &settings.EnvLight);
-    if(ImGui::Button("add sphere"))
-    {
-        HitSphere* newSphere = new HitSphere();
-        newSphere->radius = 1.0f;
-        newSphere->point = glm::vec3(0, 0, 0);
-        newSphere->matIndex = 0;
-        scene.hitObjects.push_back(newSphere);
-    }
     if(ImGui::Button("add cube"))
     {
         Model cube;
-        cube.Load(CubeVertices, CubeIndices);
+        ModelConstructData data;
+        Mesh mesh;
+        mesh.vertices = CubeVertices;
+        mesh.indices = CubeIndices;
+        mesh.texture.id = -1;
+        data.meshes.push_back(mesh);
+        cube.Load(data);
         scene.AddModel(std::move(cube));
     }
     if(ImGui::Button("add mat"))
@@ -220,12 +195,24 @@ void GUI::LoadSettings(const std::string& source, CameraControl& camControl)
         {
             case(CUSTOM):
             {
-                model.Load(modelJson["source"].get<std::string>());
+                if(loader != nullptr)
+                {
+                    ModelConstructData data = loader->LoadModel(modelJson["source"].get<std::string>());
+                    model.Load(data);
+                }else{
+                    fmt::println("Loader on GUI Class is not defined!");
+                }
                 break;
             }
             case(CUBE):
             {
-                model.Load(CubeVertices, CubeIndices);
+                ModelConstructData data;
+                Mesh mesh;
+                mesh.vertices = CubeVertices;
+                mesh.indices = CubeIndices;
+                mesh.texture.id = -1;
+                data.meshes.push_back(mesh);
+                model.Load(data);
                 break;
             }
         }
@@ -269,5 +256,4 @@ void GUI::LoadSettings(const std::string& source, CameraControl& camControl)
     camSettings.dir.z = data["camera"]["direction"]["z"].get<float>();
     camControl.SetSettings(camSettings);
     settings.ReloadScene = true;
-
 }

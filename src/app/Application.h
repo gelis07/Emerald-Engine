@@ -9,8 +9,8 @@
 #include <engine/Renderer.h>
 #include <app/GUI.h>
 #include <app/CameraControl.h>
-#include <core/Model.h>
 #include <engine/Rasterizer.h>
+#include <app/AssimpLoader.h>
 
 #define WWIDTH 1280
 #define WHEIGHT 920
@@ -21,13 +21,17 @@ class Application
         void OnUpdate(); //Every frame.
         void Init();
     private:
-        CameraControl camControl;
-        Shader postProcessing;
+        void Export();
         void InitImGui();
-        GLFWwindow* window;
+        void CreateRenderImage(int width, int height);
+        CameraControl camControl;
         Renderer rend;
         Rasterizer rast;
+        AssimpLoader assimpLoader;
         GUI gui;
+        GLuint RenderImage;
+
+        GLFWwindow* window;
         double mLastTime = 0.0f;
         double dt = 0.0f;
 };

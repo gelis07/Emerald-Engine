@@ -17,34 +17,13 @@ class Material
         glm::vec3 emmColor = glm::vec3(0,0,0);
         int scatter;
 };
-class Hittable
-{
-    public:
-        int matIndex;
-        HitType type;
-};
-class HitTriangle : public Hittable
-{
-    public:
-        HitTriangle() {type = TRIANGLE;}
-        glm::vec3 a,b,c;
-};
-class HitSphere : public Hittable
-{
-    public:
-        HitSphere() {type = SPHERE;}
-        float radius;
-        glm::vec3 point;
-};
+
 class Scene
 {
     public:
         Camera camera;
         std::vector<Model> models;
-
-
         std::vector<Material*> materials;
-        std::vector<Hittable*> hitObjects;
 
         //AABB characteristics
         AABB aabb;
@@ -53,7 +32,6 @@ class Scene
         { 
             models.push_back(model);
         }
-
         inline Scene()
         {
             models.reserve(20);
@@ -64,10 +42,6 @@ class Scene
         }
         inline ~Scene()
         {
-            for (int i ; i < hitObjects.size(); i++)
-            {
-                delete hitObjects[i];
-            }
             for (int i ; i < materials.size(); i++)
             {
                 delete materials[i];
