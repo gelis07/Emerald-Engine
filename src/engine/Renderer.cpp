@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <fmt/base.h>
+#include "stb_image.h"
+#include "GLFW/glfw3.h"
 
 struct alignas(16) ModelInfoData {
     glm::mat4 matrixModel;
@@ -23,27 +25,45 @@ void Renderer::Render(RenderSettings& rs)
         fmt::println("proper samples per pixel needed");
         return;
     }
-
-    for(int i = 0; i < rs.spp; i++)
+    if(frameCount == 0)
     {
-        RenderSample(rs);
-        fmt::println("progress: {}%", (float(i) / float(rs.spp)) * 100.0f);
+        stbi_set_flip_vertically_on_load(true);
+        int skyWidth, skyHeight, nrComp;
+        float* data = stbi_loadf("skyblue.hdr", &skyWidth,&skyHeight, &nrComp, 0);
+        glGenTextures(1, &SkyTexture);
+        glBindTexture(GL_TEXTURE_2D, SkyTexture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, skyWidth, skyHeight,0, GL_RGB, GL_FLOAT, data);
     }
 
-    //Post processing
-    glBindImageTexture(0, rs.imageOut, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
-    postProcessing.Bind();
-    postProcessing.Uniform1i("spp", rs.spp);
-    glDispatchCompute((unsigned int)rs.ImgWidth/16, (unsigned int)rs.ImgHeight/16, 1);
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-    glFinish();
+
+    lastTime = glfwGetTime();
+    RenderSample(rs);
+    fmt::println("progress: {:.2f}%, dt = {:.2f}ms", (float(frameCount) / float(rs.spp)) * 100.0f, (glfwGetTime() - lastTime)*1000);
+    frameCount++;
+    rs.Render = frameCount != rs.spp;
+
+    if(!rs.Render)
+    {
+        fmt::println("im here");
+        //Post processing
+        glBindImageTexture(0, rs.imageOut, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
+        postProcessing.Bind();
+        postProcessing.Uniform1i("spp", rs.spp);
+        glDispatchCompute((unsigned int)rs.ImgWidth/16, (unsigned int)rs.ImgHeight/16, 1);
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        glFinish();
+        frameCount = 0;
+    }
 }
 
 void Renderer::RenderSample(RenderSettings& rs)
 {
     frames++;
     UpdateSettings(rs);
-
     glBindImageTexture(0, rs.imageOut, 0, GL_FALSE,0 ,GL_READ_WRITE, GL_RGBA32F);
     Raytracer.Bind();
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, TrianglesSSBO);
@@ -80,6 +100,9 @@ void Renderer::RenderSample(RenderSettings& rs)
         glBindTexture(GL_TEXTURE_2D, TextureIds[i]);
         Raytracer.Uniform1i("texImage[" + indexString + "]", i+1);
     }
+    glActiveTexture(GL_TEXTURE0 + TextureIds.size() + 2);
+    glBindTexture(GL_TEXTURE_2D, SkyTexture);
+    Raytracer.Uniform1i("skyTexture", TextureIds.size() + 2);
     for(int i = 0; i < rs.scene.materials.size(); i++)
     {
         const Material& mat = (*rs.scene.materials[i]);
@@ -90,7 +113,6 @@ void Renderer::RenderSample(RenderSettings& rs)
         Raytracer.Uniform1f(std::string("materials[" + indexString + "].metallic"), mat.metallic);
         Raytracer.Uniform1f(std::string("materials[" + indexString + "].roughness"), mat.roughness);
     }
-
 
     glDispatchCompute((unsigned int)rs.ImgWidth/16, (unsigned int)rs.ImgHeight/16, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -132,6 +154,9 @@ void Renderer::Init(const RenderSettings& rs, int width, int heigth)
 
     tfov = glm::tan(3.14159 / 8);
     AR = (double)width / (double)heigth;
+
+
+
 }
 
 

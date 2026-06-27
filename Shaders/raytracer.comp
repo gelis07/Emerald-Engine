@@ -3,14 +3,7 @@ layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D img;
 const float pi = 3.14159265359;
 const int maxBounces = 5;
-/*
-    Material type indeces.
-    1 Lambertian
-    2 Metal
-    3 Dialectric
-*/
-
-
+const float INF = 3.402823466e+38;
 
 struct ModelAABB
 {
@@ -96,13 +89,12 @@ uniform float AR;
 uniform float tfov;
 uniform int uframe;
 uniform vec3 CamPos;
-uniform material materials[10];
+uniform material materials[20];
 uniform int TriCount;
 uniform mat4 InvProj;
 uniform mat4 InvView;
 uniform sampler2D texImage[20];
-// uniform ModelInfo modelsInfo[24];
-// uniform int ModelAABBIdxs[24];
+uniform sampler2D skyTexture;
 
 uint PCGHash(uint seed) {
     uint state = seed * 747796405u + 2891336453u;
@@ -146,15 +138,15 @@ vec3 RandomOnHemisphere(inout uint seed, vec3 normal)
 void hitTriangle(ray r, int i, inout hitInfo info)
 {
     Triangle tri = tris[i];
-
-    Triangle transformedTri;
     int curModelIdx = meshInfo[int(tri.idtex.x)].modelIdx;
+    // r.pos = (modelsInfo[curModelIdx].invMatrixModel * vec4(r.pos, 1.0)).xyz;
+    // r.dir = (modelsInfo[curModelIdx].invMatrixModel * vec4(r.dir, 0.0)).xyz;
+    Triangle transformedTri;
     transformedTri.a = vec4(vec3(modelsInfo[curModelIdx].matrixModel * vec4(vec3(tri.a.x, tri.a.y, tri.a.z), 1.0)), tri.a.w);
     transformedTri.b = vec4(vec3(modelsInfo[curModelIdx].matrixModel * vec4(vec3(tri.b.x, tri.b.y, tri.b.z), 1.0)), tri.b.w);
     transformedTri.c = vec4(vec3(modelsInfo[curModelIdx].matrixModel * vec4(vec3(tri.c.x, tri.c.y, tri.c.z), 1.0)), tri.c.w);
     transformedTri.idtex = tri.idtex;
     tri = transformedTri;
-
 
 
     vec3 e1 = tri.b.xyz - tri.a.xyz;
@@ -194,8 +186,12 @@ void hitTriangle(ray r, int i, inout hitInfo info)
         }
     }
 }
-
-bool AabbRayIntersection(ray r, int idx)
+struct AABBHitInfo
+{
+    bool hit;
+    float dist;
+};
+AABBHitInfo AabbRayIntersection(ray r, int idx)
 {
 
     ModelAABB aabb = aabbs[idx];
@@ -215,14 +211,16 @@ bool AabbRayIntersection(ray r, int idx)
 
     float tNear = max(max(tmin.x, tmin.y), tmin.z);
     float tFar  = min(min(tmax.x, tmax.y), tmax.z);
-
-
-
-    return tFar >= max(tNear, 0.0);
+    float hitDistance = (tNear >= 0.0) ? tNear : tFar;
+    AABBHitInfo genHitInfo;
+    genHitInfo.hit = tFar >= max(tNear, 0.0);
+    genHitInfo.dist = hitDistance;
+    return genHitInfo;
 }
 
 
-const int STACK_SIZE = 32;
+const int STACK_SIZE = 16;
+
 
 struct Stack {
     int data[STACK_SIZE];
@@ -249,7 +247,6 @@ bool stackPop(inout Stack s, out int value) {
     return true;
 }
 
-
 void CheckAabbsIntersections(ray r, int starIdx, inout hitInfo HitInfo)
 {
     Stack stack;
@@ -261,13 +258,31 @@ void CheckAabbsIntersections(ray r, int starIdx, inout hitInfo HitInfo)
     while(!stackEmpty(stack))
     {
         stackPop(stack, aabbIdx);
+        AABBHitInfo reCheck = AabbRayIntersection(r, aabbIdx);
+        if (reCheck.dist > HitInfo.dist)
+        {
+            continue; // Skip traversing this branch!
+        }
         if(aabbs[aabbIdx].triCount == 0)
         {
-            if(AabbRayIntersection(r, aabbs[aabbIdx].nodeA))
+            AABBHitInfo aHit = AabbRayIntersection(r, aabbs[aabbIdx].nodeA);
+            AABBHitInfo bHit = AabbRayIntersection(r, aabbs[aabbIdx].nodeB);
+            if(aHit.hit && bHit.hit)
+            {
+                if(aHit.dist < bHit.dist)
+                {
+                    stackPush(stack, aabbs[aabbIdx].nodeB);
+                    stackPush(stack, aabbs[aabbIdx].nodeA);
+                }else{
+                    stackPush(stack, aabbs[aabbIdx].nodeA);
+                    stackPush(stack, aabbs[aabbIdx].nodeB);
+                }
+            }
+            else if(aHit.hit && !bHit.hit)
             {
                 stackPush(stack, aabbs[aabbIdx].nodeA);
             }
-            if(AabbRayIntersection(r, aabbs[aabbIdx].nodeB))
+            else if(bHit.hit && !aHit.hit)
             {
                 stackPush(stack, aabbs[aabbIdx].nodeB);
             }
@@ -284,7 +299,7 @@ void CheckAabbsIntersections(ray r, int starIdx, inout hitInfo HitInfo)
 hitInfo GetHitInfoAABB(ray r)
 {
     hitInfo HitInfo;
-    HitInfo.dist = 1e30;
+    HitInfo.dist = INF;
     HitInfo.matIndex = -1;
     for(int i = 0; i < modelAABBCount; i++)
     {
@@ -295,7 +310,7 @@ hitInfo GetHitInfoAABB(ray r)
 hitInfo GetHitInfo(ray r)
 {
     hitInfo HitInfo;
-    HitInfo.dist = 1e30;
+    HitInfo.dist = INF;
     HitInfo.matIndex = -1;
     for(int i = 0; i < TriCount; i++)
     {
@@ -311,8 +326,19 @@ float ScatteringPdf(vec3 scatDir, vec3 n)
 }
 
 
+vec3 SampleSky(vec3 dir)
+{
+    float theta = atan(dir.z, dir.x);
+    float phi =  asin(dir.y);
 
-vec3  RandomCosineDir(inout uint seed, vec3 w)
+    float u = (theta + pi) / (2.0 * pi);
+    float v = (phi + pi * 0.5) / pi;
+
+    return texture(skyTexture, vec2(u,v)).rgb;
+}
+
+
+vec3 RandomCosineDir(inout uint seed, vec3 w)
 {
     float r1 = RandomFloat(seed);
     float r2 = RandomFloat(seed);
@@ -381,12 +407,84 @@ float TorSpPdf(vec3 wo, vec3 wm, vec3 n, float a)
     float cosThetaM = max(dot(n, wm), 0.0);
     float cosWoWm = max(dot(wo, wm), 0.0);
 
-    return (cosThetaM) / (4.0 * cosWoWm);
+    return GGXNDF(wm, a) * (cosThetaM) / (4.0 * cosWoWm);
+}
+
+float lightSamplingPdf(vec3 HitPoint, float area, vec3 wi)
+{
+    //!HARD CODED FOR CURRENT LIGHT QUAD.
+    float t = (5.7 - HitPoint.y) / wi.y;
+
+    if (t > 0.0) {
+        vec3 intersectPos = HitPoint + t * wi;
+        
+        // Check if the intersection point lies within the quad's bounds [-0.35, 0.35]
+        if (abs(intersectPos.x) <= 0.35 && abs(intersectPos.z) <= 0.35) {
+            vec3 lightVec = intersectPos - HitPoint;
+            return  dot(lightVec, lightVec) / (wi.y * area);
+        }
+    }
+    return 0;
 }
 float G(vec3 wo, vec3 wi, vec3 n, float a)
 {
     return (1 / (1 + lambda(wo,n, a) + lambda(wi,n, a)));
 }
+
+
+
+
+vec3 BRDFSampling(vec3 n,vec3 HitPoint, float area, vec3 f0, float a, vec3 wm, vec3 wi, vec3 wo,
+inout vec3 rayTraversalInfo, vec3 matEmission)
+{
+
+    if(dot(wi, n) <= 0.0 || dot(wo, n) <= 0.0)
+        return vec3(0);
+
+    float NoV = max(dot(n, wo), 0.0);
+    float NoL = abs(dot(n, wi));
+
+    vec3 brdf = GGXNDF(wm, a)
+            *Fresnel(wi, wm, f0)
+            * G(wo, wi, n, a)
+            / (4.0 * NoV * NoL);
+
+    float pdfBrdf = TorSpPdf(wo, wm, n, a);
+    float pdfLight = lightSamplingPdf(HitPoint, area, wi);
+    float weight = pdfBrdf / (pdfBrdf + pdfLight);
+    vec3 Sample = weight * brdf * NoL / pdfBrdf;
+    return rayTraversalInfo *Sample* matEmission;
+}
+
+vec3 LightSampling(vec3 n, vec3 f0, float a, float area,
+vec3 wm, vec3 wi, vec3 wo, vec3 HitPoint, inout vec3 rayTraversalInfo)
+{
+    ray rToLight;
+    rToLight.pos = HitPoint + wi * 0.0001;
+    rToLight.dir = wi;
+
+    hitInfo HitInfo = GetHitInfoAABB(rToLight);
+    if(HitInfo.matIndex == 5)
+    {
+        material hitMat = materials[HitInfo.matIndex];
+        vec3 emmision = hitMat.emmColor;
+        float NoV = max(dot(n, wo), 0.0);
+        float NoL = abs(dot(n, wi));
+        vec3 brdf = GGXNDF(wm, a)
+            *Fresnel(wi, wm, f0)
+            * G(wo, wi, n, a)
+            / (4.0 * NoV * NoL);
+
+        float pdfBrdf = TorSpPdf(wo, wm,n,a);
+        float pdfLight = lightSamplingPdf(HitPoint, area, wi);
+        float weight = pdfLight / (pdfBrdf + pdfLight);
+        vec3 Sample = weight * brdf * NoL / (pdfLight);
+        return (rayTraversalInfo*Sample * emmision);
+    }
+    return vec3(0);
+}
+
+
 void main()
 {
     ivec2 pix = ivec2(gl_GlobalInvocationID.xy);
@@ -416,9 +514,10 @@ void main()
         hitInfo HitInfo = GetHitInfoAABB(r);
         // if nothing got hit, just return a base color.
         if (HitInfo.matIndex == -1) {
-            float a = 0.5*(r.dir.y + 1);  
-            vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
-            rayColor = rayTraversalInfo * sky;  // environment brightness
+            // float a = 0.5*(r.dir.y + 1);  
+            // vec3 sky = (1-a)*vec3(1) + a * vec3(0.5, 0.7, 1.0);
+            // rayColor = rayTraversalInfo * sky;  // environment brightness
+            // rayColor = rayTraversalInfo * SampleSky(normalize(r.dir));
             break;
         }
 
@@ -433,35 +532,45 @@ void main()
 
         float a  = hitMat.roughness;
         vec3 wo = normalize(-r.dir);
-        vec3 wm = RandomWm(seed, n, a);
-        vec3 wi = -wo + 2.0 * dot(wo, wm) * wm;
-        if(dot(wi, n) <= 0.0 || dot(wo, n) <= 0.0)
-            continue;
 
+        vec3 wm[2];
+        vec3 wi[2];
+        //Cook torrance pdf
+        wm[0] = RandomWm(seed, n, a);
+        wi[0] = -wo + 2.0 * dot(wo, wm[0]) * wm[0];
+
+
+        //Light sampling
+        float area = 0.7*0.7;
+        vec3 pointOnLight = vec3((RandomFloat(seed) - 0.5) * 0.7, 5.7, (RandomFloat(seed) - 0.5) * 0.7);
+        wi[1] = pointOnLight - HitPoint;
+        wi[1] = normalize(wi[1]);
+        // float distSqr = dot(wi[1], wi[1]);
+        // float cosAng = wi[1].y;
+
+        wm[1] = normalize(wi[1] + wo);
         if(HitInfo.color.r != -1)
         {
             hitMat.albedo = HitInfo.color;
         }
 
-        vec3 f0 = mix(vec3(1.0), hitMat.albedo, hitMat.metallic);
-        float NoV = max(dot(n, wo), 0.0);
-        float NoL = max(dot(n, wi), 0.0);
-
-        vec3 brdf = Fresnel(wi, wm, f0)
-                * G(wo, wi, n, a)
-                / (4.0 * NoV * NoL);
+        vec3 f0 = hitMat.albedo;
+        vec3 SampleSum = vec3(0);
 
 
-        float pdf = TorSpPdf(wo, wm,n,a);
-        vec3 mSample = brdf * NoL / pdf;
 
+        vec3 lightSample = LightSampling(n, f0, a, area, wm[1], wi[1], wo, HitPoint, rayTraversalInfo);
+        vec3 brdfSample = BRDFSampling(n,HitPoint, area, f0, a, wm[0], wi[0], wo, rayTraversalInfo, hitMat.emmColor);
+        
+        rayColor += lightSample + brdfSample;
 
-        r.dir = wi;
-        rayTraversalInfo *= mSample;
-        rayColor += rayTraversalInfo * hitMat.emmColor;
+        float pdfBrdf = TorSpPdf(wo, wm[0], n, a);
+        float NoL = abs(dot(n, wi[0]));
+        vec3 brdf = GGXNDF(wm[0], a) * Fresnel(wi[0], wm[0], f0) * G(wo, wi[0], n, a) / (4.0 * max(dot(n, wo), 0.0) * NoL);
+
+        rayTraversalInfo *= (brdf * NoL / pdfBrdf);
+        r.dir = wi[0];
     }
     vec4 prev = imageLoad(img, pix);
-
     imageStore(img, pix, vec4(prev.rgb + rayColor, 1.0));
-
 }

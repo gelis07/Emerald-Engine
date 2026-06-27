@@ -37,6 +37,7 @@ void Model::Load(const ModelConstructData& data)
     mMeshes = data.meshes;
     GetAABBTriangles();
     ConstructAABBBounds(ModelAabb);
+    ModelAabb.cost = INFINITY;
     aabbs.push_back(ModelAabb);
     if(ModelAabb.mTriangleList.size() > 12)
     {
@@ -122,7 +123,7 @@ glm::mat4 Model::GetModelInverse()
 {
     return glm::inverse(model);
 }
-
+const unsigned int SlicePoints = 24;
 void Model::SliceAABB(int idx, int axis)
 {
     AABB& aabb = aabbs[idx];
@@ -131,21 +132,46 @@ void Model::SliceAABB(int idx, int axis)
     {
         return a.min[axis] < b.min[axis];
     });
-
-    size_t mid = aabb.mTriangleList.size() / 2;
     AABB aabbA;
-    aabbA.mTriangleList.assign(
-        aabb.mTriangleList.begin(),
-        aabb.mTriangleList.begin() + mid
-    );
-
     AABB aabbB;
-    aabbB.mTriangleList.assign(
-        aabb.mTriangleList.begin() + mid,
-        aabb.mTriangleList.end()
-    );
-    ConstructAABBBounds(aabbA);
-    ConstructAABBBounds(aabbB);
+    float minCost = aabb.cost;
+    //Split the bounding box into "SlicePoints" possible cutting points and compute the sah.
+    for(int i = 1; i <= SlicePoints; i++)
+    {
+        size_t splitPoint = i * aabb.mTriangleList.size() / SlicePoints;
+        AABB tempAABBa;
+        AABB tempAABBb;
+        tempAABBa.mTriangleList.assign(
+            aabb.mTriangleList.begin(),
+            aabb.mTriangleList.begin() + splitPoint
+        );
+        tempAABBb.mTriangleList.assign(
+            aabb.mTriangleList.begin() + splitPoint,
+            aabb.mTriangleList.end()
+        );
+        ConstructAABBBounds(tempAABBa);
+        ConstructAABBBounds(tempAABBb);
+
+        float areaA = VolumeSurfaceArea(tempAABBa);
+        float areaB = VolumeSurfaceArea(tempAABBb);
+
+        float cost = (areaA) * tempAABBa.mTriangleList.size() 
+        + (areaB) * tempAABBb.mTriangleList.size(); 
+        tempAABBa.cost = cost;
+        tempAABBb.cost = cost;
+        if(cost < minCost)
+        {
+            aabbA = tempAABBa;
+            aabbB = tempAABBb;
+            minCost = cost;
+        }
+    }
+    if(minCost >= aabb.cost)
+    {
+        aabb.leaf = true;
+        return;
+    }
+
     aabbA.nodeNum = aabb.nodeNum+1;
     aabbB.nodeNum = aabb.nodeNum+1;
 
@@ -158,12 +184,12 @@ void Model::SliceAABB(int idx, int axis)
     aabbs[idx].nodeA = nodeA;
     aabbs[idx].nodeB = nodeB;
 
-    if(aabbA.mTriangleList.size() > 12)
-    {
-        SliceAABB(nodeA, ChooseSliceAxis(aabbA));
-        SliceAABB(nodeB, ChooseSliceAxis(aabbB));
-    }else{
-        aabbs[nodeA].leaf = true;
-        aabbs[nodeB].leaf = true;
-    }
+    SliceAABB(nodeA, ChooseSliceAxis(aabbA));
+    SliceAABB(nodeB, ChooseSliceAxis(aabbB));
+}
+
+
+float Model::VolumeSurfaceArea(const AABB& aabb)
+{
+    return 2* (aabb.max.z - aabb.min.z) * (aabb.max.y - aabb.min.y + aabb.max.x - aabb.min.x);
 }

@@ -47,6 +47,7 @@ struct AABB
     int nodeB;
     int nodeNum = 0;
     int listId;
+    float cost = 0;
 };
 
 struct Mesh
@@ -82,7 +83,7 @@ class Model
         void SliceAABB(int idx, int axis);
         void ConstructAABBBounds(AABB& aabb);
         int ChooseSliceAxis(const AABB& aabb);
-
+        float VolumeSurfaceArea(const AABB& aabb);
         std::vector<Mesh> mMeshes;
         ModelType type;
         std::string fileSource;

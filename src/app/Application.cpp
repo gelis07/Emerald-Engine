@@ -5,7 +5,6 @@
 #include <iostream>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stbi_write.h>
-#include <chrono>
 
 constexpr inline int spp = 1000; // samples per pixel
 
@@ -201,20 +200,26 @@ void Application::OnUpdate()
         rast.Update(gui.settings);
         if(gui.settings.Render)
         {
-            auto iTime = std::chrono::high_resolution_clock::now();
-            fmt::println("started rendering");
-            CreateRenderImage(gui.settings.ImgWidth, gui.settings.ImgHeight);
-            gui.settings.imageOut = RenderImage;
-            gui.settings.spp = spp;
+            if(rend.frameCount == 0)
+            {
+                iTime = std::chrono::high_resolution_clock::now();
+                fmt::println("started rendering");
+                CreateRenderImage(gui.settings.ImgWidth, gui.settings.ImgHeight);
+                gui.settings.imageOut = RenderImage;
+                gui.settings.spp = spp;
+            }
             //Rendering
             rend.Render(gui.settings);
 
-            auto fTime = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> Dt = fTime - iTime;
-            fmt::println("Render time: {} seconds", Dt.count());
-            Export();
+            if(!gui.settings.Render)
+            {
+                auto fTime = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> Dt = fTime - iTime;
+                fmt::println("Render time: {} seconds", Dt.count());
+                Export();
 
-            gui.settings.Render = false;
+                gui.settings.Render = false;
+            }
         }
 
         ImGui::Render();
