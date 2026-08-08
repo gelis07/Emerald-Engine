@@ -1,12 +1,10 @@
-#include <app/Application.h>
-
+#include <app/vkApp.h>
 
 int main()
 {
-    Application app;
-
+    vkApp app{};
     app.Init();
-    app.OnUpdate();
+    app.Update();
 
     return 0;
 }

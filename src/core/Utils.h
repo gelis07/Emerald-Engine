@@ -1,10 +1,12 @@
 #pragma once
 #include <fstream>
 #include <cstring>
-#include <glad/glad.h>
 #include <iostream>
 #include <glm/glm.hpp>
 
+
+constexpr int RTXimgWidth = 1280; 
+constexpr int RTXimgHeight = 720; 
 
 namespace Utils
 {
@@ -21,6 +23,27 @@ namespace Utils
         memcpy(buffer, text.c_str(), text.size() + 1); // includes '\0'
         return buffer;
     }
+
+    inline std::vector<char> ReadFileBinary(const std::string& path)
+    {
+        // Open the file in binary mode and seek to the end to get the size
+        std::ifstream file(path, std::ios::ate | std::ios::binary);
+
+        if (!file.is_open()) {
+            throw std::runtime_error("failed to open shader file!");
+        }
+
+        size_t fileSize = (size_t)file.tellg();
+        std::vector<char> buffer(fileSize);
+
+        // Seek back to the beginning and read the file
+        file.seekg(0);
+        file.read(buffer.data(), fileSize);
+
+        file.close();
+
+        return buffer;
+    } 
     inline glm::vec3 RandomVec3()
     {
         float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -28,29 +51,6 @@ namespace Utils
         float g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
         return glm::vec3(r,g,b);
-    }
-    inline void checkCompileErrors(GLuint shader, std::string type)
-    {
-        GLint success;
-        GLchar infoLog[1024];
-        if (type != "PROGRAM")
-        {
-            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-            if (!success)
-            {
-                glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n ---------------------------------------------" << std::endl;
-            }
-        }
-        else
-        {
-            glGetProgramiv(shader, GL_LINK_STATUS, &success);
-            if (!success)
-            {
-                glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n --------------------------------------------------" << std::endl;
-            }
-        }
     }
     
 }

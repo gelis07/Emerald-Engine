@@ -1,13 +1,13 @@
 #include "GUI.h"
 #include <glm/gtc/type_ptr.hpp>
-#include <imgui.h>
 #include <string>
 #include <core/Utils.h>
 #include <nlohmann/json.hpp>
 #include <fmt/base.h>
+#include <misc/cpp/imgui_stdlib.h>
 using json = nlohmann::json;
 
-void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraControl& camControl)
+void GUI::SceneModifier(float dt, const std::vector<ImTextureID>& imgs, CameraControl& camControl, LoadSceneInfo info)
 {
     ImGui::DockSpaceOverViewport();
     Scene& scene = settings.scene;
@@ -30,7 +30,7 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
         ImGui::DragFloat3("Position", glm::value_ptr(model.pos), 0.01f);
         ImGui::DragFloat3("Rotation", glm::value_ptr(model.rotation), 0.1f);
         ImGui::DragFloat3("Scale", glm::value_ptr(model.scale), 0.1f);
-        ImGui::DragInt("matIndex", &model.matIndex);
+        ImGui::DragInt("matIndex", &model.mMeshes[0].matIndex);
 
         model.Transform();
         if(ImGui::Button("Delete"))
@@ -44,14 +44,13 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
     ImGui::SeparatorText("Material Settings");
     for(int i = 0; i < scene.materials.size(); i++)
     {
-        Material* mat = scene.materials[i];
         ImGui::PushID(i);
         ImGui::SeparatorText(std::string("Material: " + std::to_string(i)).c_str());
-        ImGui::DragFloat3("albedo", glm::value_ptr(mat->albedo), 0.01f);
-        ImGui::DragFloat3("emmColor", glm::value_ptr(mat->emmColor), 0.01f);
-        ImGui::DragFloat("metallic", &mat->metallic, 0.01f, 0.0f, 1.0f);
-        ImGui::DragFloat("roughness", &mat->roughness, 0.01f, 0.0f, 1.0f);
-        ImGui::DragInt("material Index", &mat->scatter, 0.01f);
+        ImGui::DragFloat3("albedo", glm::value_ptr(scene.materials[i].albedo), 0.01f);
+        ImGui::DragFloat3("emmColor", glm::value_ptr(scene.materials[i].emmColor), 0.01f);
+        ImGui::DragFloat("roughness", &scene.materials[i].roughness, 0.01f, 0.0f, 1.0f);
+        if(scene.materials[i].albedoTexture != -1)
+            ImGui::Text("I have a texture!");
         ImGui::PopID();
     }
     ImGui::SeparatorText("Environment Settings");
@@ -63,19 +62,34 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
         Mesh mesh;
         mesh.vertices = CubeVertices;
         mesh.indices = CubeIndices;
-        mesh.texture.id = -1;
         data.meshes.push_back(mesh);
+        #ifdef OPENGL
+            mesh.texture.id = -1;
+        #endif
         cube.Load(data);
         scene.AddModel(std::move(cube));
     }
     if(ImGui::Button("add mat"))
     {
-        Material* mat = new Material;
-        mat->albedo = glm::vec3(1.0f);
-        mat->albedo = glm::vec3(0.0f);
-        mat->scatter = 1;
+        Material mat;
+        mat.albedo = glm::vec3(1.0f);
+        mat.albedo = glm::vec3(0.0f);
         scene.materials.push_back(mat);
     }
+
+    ImGui::InputText("input model", &loadModelTextbox);
+    if(ImGui::Button("Load Model"))
+    {
+        Model model;
+        ModelConstructData data = loader->LoadModel(loadModelTextbox, info);
+        LoadExternalScene(data, model);
+        model.pos = glm::vec3(0.0);
+        model.rotation = glm::vec3(0.0);
+        model.scale = glm::vec3(1.0);
+
+        scene.AddModel(std::move(model));
+    }
+
     ImGui::Text("delta time is %fms", dt * 1000);
     if(ImGui::Button("Save"))
     {
@@ -83,7 +97,7 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
     }
     if(ImGui::Button("Load"))
     {
-        LoadSettings("scene.json", camControl);
+        LoadSettings("scene.json", camControl, info);
     }
 
 
@@ -91,7 +105,7 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
     {
         settings.Render = true;
     }
-
+    ImGui::Text("%i", settings.frameIdx);
     ImGui::End();
 
     for (int i = 0; i < imgs.size(); i++)
@@ -102,13 +116,23 @@ void GUI::SceneModifier(float dt, const std::vector<unsigned int>& imgs, CameraC
 }
 
 
-void GUI::Windows(const char* name, unsigned int image)
+void GUI::Windows(const char* name, ImTextureID image)
 {
     ImGui::Begin(name);
     ImVec2 size = ImGui::GetWindowSize();
-    settings.ImgWidth = size.x;
-    settings.ImgHeight = size.y;
-    ImGui::Image(image, size, ImVec2(0,1), ImVec2(1,0));
+    settings.ImgWidth = RTXimgWidth;
+    settings.ImgHeight = RTXimgHeight;
+
+    float ar = (float)settings.ImgWidth / (float)settings.ImgHeight;
+    ImVec2 avail_size = ImGui::GetContentRegionAvail();
+
+    ImVec2 display_size = avail_size;
+    if (avail_size.x / avail_size.y > ar) {
+        display_size.x = avail_size.y * ar;
+    } else {
+        display_size.y = avail_size.x / ar;
+    }
+    ImGui::Image(image, display_size, ImVec2(0,1), ImVec2(1,0));
 
     ImGui::End();
 }
@@ -139,21 +163,27 @@ void GUI::SaveSettings(CameraControl& camControl)
         modelJson["scale"]["x"] = model.scale.x; 
         modelJson["scale"]["y"] = model.scale.y; 
         modelJson["scale"]["z"] = model.scale.z;
-        
-        modelJson["matIndex"] = model.matIndex;
+        modelJson["meshCount"] = model.mMeshes.size();
+        for(int j = 0; j < model.mMeshes.size(); j++)
+        {
+            json meshJson;
+            meshJson["matIdx"] = model.mMeshes[j].matIndex;
+            modelJson["meshes"][std::to_string(j)] = meshJson;
+        }
         data["models"][std::to_string(i)] = modelJson;
     }
     data["materials"]["count"] = settings.scene.materials.size();
     for(int i = 0; i < settings.scene.materials.size(); i++)
     {
-        Material* mat = settings.scene.materials[i];
+        Material mat = settings.scene.materials[i];
         json materialsJson;
-        materialsJson["albedo"]["r"] = mat->albedo.r;
-        materialsJson["albedo"]["g"] = mat->albedo.g;
-        materialsJson["albedo"]["b"] = mat->albedo.b;
-        materialsJson["emColor"]["r"] = mat->emmColor.r;
-        materialsJson["emColor"]["g"] = mat->emmColor.g;
-        materialsJson["emColor"]["b"] = mat->emmColor.b;
+        materialsJson["albedo"]["r"] = mat.albedo.r;
+        materialsJson["albedo"]["g"] = mat.albedo.g;
+        materialsJson["albedo"]["b"] = mat.albedo.b;
+        materialsJson["emColor"]["r"] = mat.emmColor.r;
+        materialsJson["emColor"]["g"] = mat.emmColor.g;
+        materialsJson["emColor"]["b"] = mat.emmColor.b;
+        materialsJson["albedoMap"] = mat.albedoTexture;
 
         data["materials"][std::to_string(i)] = materialsJson;
     }
@@ -173,18 +203,29 @@ void GUI::SaveSettings(CameraControl& camControl)
     file.close();
 }
 
-void GUI::LoadSettings(const std::string& source, CameraControl& camControl)
+void GUI::LoadSettings(const std::string& source, CameraControl& camControl, LoadSceneInfo info)
 {
     settings.scene.models.clear();
-    for(int i = 0; i < settings.scene.materials.size(); i++)
-    {
-        delete settings.scene.materials[i];
-    }
     settings.scene.materials.clear();
 
 
     std::ifstream f(source);
     json data = json::parse(f);
+    
+    int matCount = data["materials"]["count"].get<int>();
+    for(int i = 0; i < matCount; i++)
+    {
+        Material mat;
+        mat.albedo.r = data["materials"][std::to_string(i)]["albedo"]["r"].get<float>();
+        mat.albedo.g = data["materials"][std::to_string(i)]["albedo"]["g"].get<float>();
+        mat.albedo.b = data["materials"][std::to_string(i)]["albedo"]["b"].get<float>();
+        mat.emmColor.r = data["materials"][std::to_string(i)]["emColor"]["r"].get<float>();
+        mat.emmColor.g = data["materials"][std::to_string(i)]["emColor"]["g"].get<float>();
+        mat.emmColor.b = data["materials"][std::to_string(i)]["emColor"]["b"].get<float>();
+        mat.albedoTexture = data["materials"][std::to_string(i)]["albedoMap"].get<uint32_t>();
+
+        settings.scene.materials.push_back(mat);
+    }
     int modelCount = data["models"]["count"].get<int>();
     for (int i = 0; i < modelCount; i++)
     {
@@ -197,8 +238,8 @@ void GUI::LoadSettings(const std::string& source, CameraControl& camControl)
             {
                 if(loader != nullptr)
                 {
-                    ModelConstructData data = loader->LoadModel(modelJson["source"].get<std::string>());
-                    model.Load(data);
+                    ModelConstructData data = loader->LoadModel(modelJson["source"].get<std::string>(), info);
+                    LoadExternalScene(data, model);
                 }else{
                     fmt::println("Loader on GUI Class is not defined!");
                 }
@@ -210,12 +251,16 @@ void GUI::LoadSettings(const std::string& source, CameraControl& camControl)
                 Mesh mesh;
                 mesh.vertices = CubeVertices;
                 mesh.indices = CubeIndices;
-                mesh.texture.id = -1;
                 data.meshes.push_back(mesh);
                 model.Load(data);
                 break;
             }
         }
+        for(int j = 0; j < model.mMeshes.size(); j++)
+        {
+            model.mMeshes[j].matIndex = modelJson["meshes"][std::to_string(j)]["matIdx"];
+        }
+
         model.pos.x = modelJson["position"]["x"].get<float>();
         model.pos.y = modelJson["position"]["y"].get<float>();
         model.pos.z = modelJson["position"]["z"].get<float>();
@@ -226,24 +271,9 @@ void GUI::LoadSettings(const std::string& source, CameraControl& camControl)
         model.scale.y = modelJson["scale"]["y"].get<float>();
         model.scale.z = modelJson["scale"]["z"].get<float>();
         model.Transform();
-        model.matIndex = modelJson["matIndex"].get<int>();
         settings.scene.models.push_back(model);
     }
 
-    int matCount = data["materials"]["count"].get<int>();
-    for(int i = 0; i < matCount; i++)
-    {
-        Material* mat = new Material;
-        mat->albedo.r = data["materials"][std::to_string(i)]["albedo"]["r"].get<float>();
-        mat->albedo.g = data["materials"][std::to_string(i)]["albedo"]["g"].get<float>();
-        mat->albedo.b = data["materials"][std::to_string(i)]["albedo"]["b"].get<float>();
-        mat->emmColor.r = data["materials"][std::to_string(i)]["emColor"]["r"].get<float>();
-        mat->emmColor.g = data["materials"][std::to_string(i)]["emColor"]["g"].get<float>();
-        mat->emmColor.b = data["materials"][std::to_string(i)]["emColor"]["b"].get<float>();
-        mat->scatter = 1;
-
-        settings.scene.materials.push_back(mat);
-    }
 
     json cameraJson = data["camera"];
     CameraSettings camSettings;
@@ -256,4 +286,18 @@ void GUI::LoadSettings(const std::string& source, CameraControl& camControl)
     camSettings.dir.z = data["camera"]["direction"]["z"].get<float>();
     camControl.SetSettings(camSettings);
     settings.ReloadScene = true;
+}
+
+
+
+void GUI::LoadExternalScene(const ModelConstructData& data, Model& model)
+{
+    model.Load(data);
+    settings.scene.textures.insert(settings.scene.textures.end(), data.textureData.begin(), data.textureData.end());
+    settings.scene.materials.insert(settings.scene.materials.end(), data.materials.begin(), data.materials.end());
+
+    for(int i = 0; i < model.mMeshes.size(); i++)
+    {
+        model.mMeshes[i].matIndex += settings.scene.materials.size() - 1;
+    }
 }

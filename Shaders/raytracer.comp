@@ -2,8 +2,8 @@
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D img;
 const float pi = 3.14159265359;
-const int maxBounces = 5;
 const float INF = 3.402823466e+38;
+const int maxBounces = 5;
 
 struct ModelAABB
 {
@@ -90,10 +90,10 @@ uniform float tfov;
 uniform int uframe;
 uniform vec3 CamPos;
 uniform material materials[20];
+uniform sampler2D texImage[20];
 uniform int TriCount;
 uniform mat4 InvProj;
 uniform mat4 InvView;
-uniform sampler2D texImage[20];
 uniform sampler2D skyTexture;
 
 uint PCGHash(uint seed) {
@@ -116,12 +116,6 @@ vec3 RandomVec3(inout uint seed)
     RandomFloat(seed) * 2.0 - 1.0);
 }
 
-
-vec3 SampleSquare(inout uint seed)
-{
-    return vec3(RandomFloat(seed) - 0.5,RandomFloat(seed) - 0.5,0.0); 
-}
-
 vec3 RandomOnHemisphere(inout uint seed, vec3 normal)
 {
     vec3 vector = RandomVec3(seed);
@@ -133,6 +127,12 @@ vec3 RandomOnHemisphere(inout uint seed, vec3 normal)
         return -vector;
     }
 }
+
+vec3 SampleSquare(inout uint seed)
+{
+    return vec3(RandomFloat(seed) - 0.5,RandomFloat(seed) - 0.5,0.0); 
+}
+
 
 
 void hitTriangle(ray r, int i, inout hitInfo info)
@@ -191,20 +191,20 @@ struct AABBHitInfo
     bool hit;
     float dist;
 };
-AABBHitInfo AabbRayIntersection(ray r, int idx)
+AABBHitInfo AabbRayIntersection(ray r, int idx, float dist)
 {
 
     ModelAABB aabb = aabbs[idx];
     vec3 bmin = vec3(aabb.min);
     vec3 bmax = vec3(aabb.max);
     mat4 invModel = modelsInfo[int(aabb.min.w)].invMatrixModel;
-    r.pos = (invModel * vec4(r.pos, 1.0)).xyz;
-    r.dir = (mat3(invModel) * r.dir);
+    r.pos = (invModel * vec4(r.pos.xyz, 1.0)).xyz, 0;
+    r.dir = mat3(invModel) * r.dir.xyz, 0;
 
-    vec3 invDir = 1.0 / r.dir;
+    vec3 invDir = 1.0 / r.dir.xyz;
 
-    vec3 t0 = (bmin - r.pos) * invDir;
-    vec3 t1 = (bmax - r.pos) * invDir;
+    vec3 t0 = (bmin - r.pos.xyz) * invDir;
+    vec3 t1 = (bmax - r.pos.xyz) * invDir;
 
     vec3 tmin = min(t0, t1);
     vec3 tmax = max(t0, t1);
@@ -215,95 +215,217 @@ AABBHitInfo AabbRayIntersection(ray r, int idx)
     AABBHitInfo genHitInfo;
     genHitInfo.hit = tFar >= max(tNear, 0.0);
     genHitInfo.dist = hitDistance;
+
+    if(hitDistance > dist)
+    {
+        genHitInfo.hit = false;
+    }
     return genHitInfo;
 }
 
+// AABBHitInfo AabbRayIntersection(ray r, int idx)
+// {
 
-const int STACK_SIZE = 16;
+//     ModelAABB aabb = aabbs[idx];
+//     vec3 bmin = vec3(aabb.min);
+//     vec3 bmax = vec3(aabb.max);
+//     mat4 invModel = modelsInfo[int(aabb.min.w)].invMatrixModel;
+//     r.pos = (invModel * vec4(r.pos, 1.0)).xyz;
+//     r.dir = (mat3(invModel) * r.dir);
+
+//     vec3 invDir = 1.0 / r.dir;
+
+//     vec3 t0 = (bmin - r.pos) * invDir;
+//     vec3 t1 = (bmax - r.pos) * invDir;
+
+//     vec3 tmin = min(t0, t1);
+//     vec3 tmax = max(t0, t1);
+
+//     float tNear = max(max(tmin.x, tmin.y), tmin.z);
+//     float tFar  = min(min(tmax.x, tmax.y), tmax.z);
+//     float hitDistance = (tNear >= 0.0) ? tNear : tFar;
+//     AABBHitInfo genHitInfo;
+//     genHitInfo.hit = tFar >= max(tNear, 0.0);
+//     genHitInfo.dist = hitDistance;
+//     return genHitInfo;
+// }
 
 
-struct Stack {
-    int data[STACK_SIZE];
-    int sp; // stack pointer
-};
+// const int STACK_SIZE = 16;
 
-void stackInit(inout Stack s) {
-    s.sp = 0;
-}
 
-bool stackEmpty(Stack s) {
-    return s.sp == 0;
-}
+// struct Stack {
+//     int data[STACK_SIZE];
+//     int sp; // stack pointer
+// };
 
-bool stackPush(inout Stack s, int value) {
-    if (s.sp >= STACK_SIZE) return false; // overflow
-    s.data[s.sp++] = value;
-    return true;
-}
+// void stackInit(inout Stack s) {
+//     s.sp = 0;
+// }
 
-bool stackPop(inout Stack s, out int value) {
-    if (s.sp <= 0) return false; // underflow
-    value = s.data[--s.sp];
-    return true;
-}
+// bool stackEmpty(Stack s) {
+//     return s.sp == 0;
+// }
 
-void CheckAabbsIntersections(ray r, int starIdx, inout hitInfo HitInfo)
+// bool stackPush(inout Stack s, int value) {
+//     if (s.sp >= STACK_SIZE) return false; // overflow
+//     s.data[s.sp++] = value;
+//     return true;
+// }
+
+// bool stackPop(inout Stack s, out int value) {
+//     if (s.sp <= 0) return false; // underflow
+//     value = s.data[--s.sp];
+//     return true;
+// }
+/*
+0 fromSibling
+1 fromChild
+2 fromParent
+*/
+void CheckAabbsIntersectionsStackless(ray r, int starIdx, inout hitInfo HitInfo)
 {
-    Stack stack;
-    stackInit(stack);
-    stackPush(stack, starIdx);
-
-
-    int aabbIdx;
-    while(!stackEmpty(stack))
+    int aabbIdx = starIdx;
+    int state = 2;
+    while(true)
     {
-        stackPop(stack, aabbIdx);
-        AABBHitInfo reCheck = AabbRayIntersection(r, aabbIdx);
-        if (reCheck.dist > HitInfo.dist)
+        ModelAABB aabb = aabbs[aabbIdx];
+        if(state == 1)
         {
-            continue; // Skip traversing this branch!
-        }
-        if(aabbs[aabbIdx].triCount == 0)
-        {
-            AABBHitInfo aHit = AabbRayIntersection(r, aabbs[aabbIdx].nodeA);
-            AABBHitInfo bHit = AabbRayIntersection(r, aabbs[aabbIdx].nodeB);
-            if(aHit.hit && bHit.hit)
+            if(int(aabb.max.w) == -1)
             {
-                if(aHit.dist < bHit.dist)
+                break;
+            }
+            
+            ModelAABB parent = aabbs[int(aabb.max.w)];
+            if(parent.nodeA == aabbIdx)
+            {
+                aabbIdx = parent.nodeB;
+                state = 0;
+            }else
+            {
+                aabbIdx = int(aabb.max.w);
+                state = 1;
+            }
+        }else if(state == 0)
+        {
+            AABBHitInfo Hit = AabbRayIntersection(r, aabbIdx, HitInfo.dist);
+            if(!Hit.hit)
+            {
+                aabbIdx = int(aabb.max.w);
+                state = 1;
+            }else if(aabb.triCount != 0)
+            {
+                for(int i = aabb.triIndex; i < aabb.triIndex + aabb.triCount; i++)
                 {
-                    stackPush(stack, aabbs[aabbIdx].nodeB);
-                    stackPush(stack, aabbs[aabbIdx].nodeA);
-                }else{
-                    stackPush(stack, aabbs[aabbIdx].nodeA);
-                    stackPush(stack, aabbs[aabbIdx].nodeB);
+                    hitTriangle(r, i, HitInfo);
                 }
+                aabbIdx = int(aabb.max.w);
+                state = 1;
             }
-            else if(aHit.hit && !bHit.hit)
-            {
-                stackPush(stack, aabbs[aabbIdx].nodeA);
+            else{
+                aabbIdx = aabb.nodeA;
+                state = 2;
             }
-            else if(bHit.hit && !aHit.hit)
-            {
-                stackPush(stack, aabbs[aabbIdx].nodeB);
-            }
-        }else
+        }
+        else if(state == 2)
         {
-            for(int i = aabbs[aabbIdx].triIndex; i < aabbs[aabbIdx].triIndex + aabbs[aabbIdx].triCount; i++)
+            AABBHitInfo Hit = AabbRayIntersection(r, aabbIdx, HitInfo.dist);
+            ModelAABB parent = aabbs[int(aabb.max.w)];
+            if(!Hit.hit)
             {
-                hitTriangle(r, i, HitInfo);
+                aabbIdx = parent.nodeB;
+                state = 0;
+            }else if(aabb.triCount != 0)
+            {
+                for(int i = aabb.triIndex; i < aabb.triIndex + aabb.triCount; i++)
+                {
+                    hitTriangle(r, i, HitInfo);
+                }
+                aabbIdx = parent.nodeB;
+                state = 0;
+            }else
+            {
+                aabbIdx = aabb.nodeA;
+                state = 2;
             }
         }
     }
 }
+// void CheckAabbsIntersections(ray r, int starIdx, inout hitInfo HitInfo)
+// {
+//     Stack stack;
+//     stackInit(stack);
+//     stackPush(stack, starIdx);
+
+
+//     int aabbIdx;
+//     while(!stackEmpty(stack))
+//     {
+//         stackPop(stack, aabbIdx);
+//         AABBHitInfo reCheck = AabbRayIntersection(r, aabbIdx, HitInfo.dist);
+//         if (reCheck.dist > HitInfo.dist)
+//         {
+//             continue; // Skip traversing this branch!
+//         }
+//         if(aabbs[aabbIdx].triCount == 0)
+//         {
+//             AABBHitInfo aHit = AabbRayIntersection(r, aabbs[aabbIdx].nodeA, HitInfo.dist);
+//             AABBHitInfo bHit = AabbRayIntersection(r, aabbs[aabbIdx].nodeB, HitInfo.dist);
+//             if(aHit.hit && bHit.hit)
+//             {
+//                 if(aHit.dist < bHit.dist)
+//                 {
+//                     stackPush(stack, aabbs[aabbIdx].nodeB);
+//                     stackPush(stack, aabbs[aabbIdx].nodeA);
+//                 }else{
+//                     stackPush(stack, aabbs[aabbIdx].nodeA);
+//                     stackPush(stack, aabbs[aabbIdx].nodeB);
+//                 }
+//             }
+//             else if(aHit.hit && !bHit.hit)
+//             {
+//                 stackPush(stack, aabbs[aabbIdx].nodeA);
+//             }
+//             else if(bHit.hit && !aHit.hit)
+//             {
+//                 stackPush(stack, aabbs[aabbIdx].nodeB);
+//             }
+//         }else
+//         {
+//             for(int i = aabbs[aabbIdx].triIndex; i < aabbs[aabbIdx].triIndex + aabbs[aabbIdx].triCount; i++)
+//             {
+//                 hitTriangle(r, i, HitInfo);
+//             }
+//         }
+//     }
+// }
 
 hitInfo GetHitInfoAABB(ray r)
 {
     hitInfo HitInfo;
     HitInfo.dist = INF;
     HitInfo.matIndex = -1;
+    // for(int i = 0; i < modelAABBCount; i++)
+    // {
+    //     CheckAabbsIntersections(r, ModelAABBIdxs[i], HitInfo);
+    // }
     for(int i = 0; i < modelAABBCount; i++)
     {
-        CheckAabbsIntersections(r, ModelAABBIdxs[i], HitInfo);
+        AABBHitInfo Hit = AabbRayIntersection(r, ModelAABBIdxs[i], HitInfo.dist);
+        if(Hit.hit)
+        {
+            if(aabbs[ModelAABBIdxs[i]].triCount == 0)
+            {
+                CheckAabbsIntersectionsStackless(r, aabbs[ModelAABBIdxs[i]].nodeA, HitInfo);
+            }else
+            {
+                for(int j = aabbs[ModelAABBIdxs[i]].triIndex; j < aabbs[ModelAABBIdxs[i]].triIndex + aabbs[ModelAABBIdxs[i]].triCount; j++)
+                {
+                    hitTriangle(r, j, HitInfo);
+                }
+            }
+        }
     }
     return HitInfo;
 }
@@ -413,15 +535,15 @@ float TorSpPdf(vec3 wo, vec3 wm, vec3 n, float a)
 float lightSamplingPdf(vec3 HitPoint, float area, vec3 wi)
 {
     //!HARD CODED FOR CURRENT LIGHT QUAD.
-    float t = (5.7 - HitPoint.y) / wi.y;
+    float t = (4.29 - HitPoint.y) / wi.y;
 
     if (t > 0.0) {
         vec3 intersectPos = HitPoint + t * wi;
         
         // Check if the intersection point lies within the quad's bounds [-0.35, 0.35]
-        if (abs(intersectPos.x) <= 0.35 && abs(intersectPos.z) <= 0.35) {
+        if (abs(intersectPos.x) <= 0.7 && abs(intersectPos.z) <= 0.7) {
             vec3 lightVec = intersectPos - HitPoint;
-            return  dot(lightVec, lightVec) / (wi.y * area);
+            return dot(lightVec, lightVec) / (wi.y * area);
         }
     }
     return 0;
@@ -444,19 +566,21 @@ inout vec3 rayTraversalInfo, vec3 matEmission)
     float NoV = max(dot(n, wo), 0.0);
     float NoL = abs(dot(n, wi));
 
-    vec3 brdf = GGXNDF(wm, a)
-            *Fresnel(wi, wm, f0)
-            * G(wo, wi, n, a)
-            / (4.0 * NoV * NoL);
+    float denominator = 4.0 * NoV * NoL;
+    vec3 brdf = GGXNDF(wm, a) * Fresnel(wi, wm, f0) * G(wo, wi, n, a) 
+                / max(denominator, 0.0001);
 
     float pdfBrdf = TorSpPdf(wo, wm, n, a);
     float pdfLight = lightSamplingPdf(HitPoint, area, wi);
     float weight = pdfBrdf / (pdfBrdf + pdfLight);
-    vec3 Sample = weight * brdf * NoL / pdfBrdf;
+    vec3 Sample = vec3(0.0);
+    if (pdfBrdf > 0.00001) {
+        Sample = brdf * NoL / pdfBrdf;
+    }
     return rayTraversalInfo *Sample* matEmission;
 }
 
-vec3 LightSampling(vec3 n, vec3 f0, float a, float area,
+vec3 LightSampling(vec3 n, vec3 f0, float a, float area, 
 vec3 wm, vec3 wi, vec3 wo, vec3 HitPoint, inout vec3 rayTraversalInfo)
 {
     ray rToLight;
@@ -470,15 +594,17 @@ vec3 wm, vec3 wi, vec3 wo, vec3 HitPoint, inout vec3 rayTraversalInfo)
         vec3 emmision = hitMat.emmColor;
         float NoV = max(dot(n, wo), 0.0);
         float NoL = abs(dot(n, wi));
-        vec3 brdf = GGXNDF(wm, a)
-            *Fresnel(wi, wm, f0)
-            * G(wo, wi, n, a)
-            / (4.0 * NoV * NoL);
+        float denominator = 4.0 * NoV * NoL;
+        vec3 brdf = GGXNDF(wm, a) * Fresnel(wi, wm, f0) * G(wo, wi, n, a) 
+                    / max(denominator, 0.0001);
 
         float pdfBrdf = TorSpPdf(wo, wm,n,a);
         float pdfLight = lightSamplingPdf(HitPoint, area, wi);
         float weight = pdfLight / (pdfBrdf + pdfLight);
-        vec3 Sample = weight * brdf * NoL / (pdfLight);
+        vec3 Sample = vec3(0.0);
+        if (pdfLight > 0.00001) {
+            Sample = brdf * NoL / pdfLight;
+        }
         return (rayTraversalInfo*Sample * emmision);
     }
     return vec3(0);
@@ -512,6 +638,7 @@ void main()
     {
 
         hitInfo HitInfo = GetHitInfoAABB(r);
+
         // if nothing got hit, just return a base color.
         if (HitInfo.matIndex == -1) {
             // float a = 0.5*(r.dir.y + 1);  
@@ -541,8 +668,8 @@ void main()
 
 
         //Light sampling
-        float area = 0.7*0.7;
-        vec3 pointOnLight = vec3((RandomFloat(seed) - 0.5) * 0.7, 5.7, (RandomFloat(seed) - 0.5) * 0.7);
+        float area = 1.4*1.4;
+        vec3 pointOnLight = vec3((RandomFloat(seed)-0.5) * 2.0 * 0.7, 4.29, (RandomFloat(seed)-0.5) * 2.0 * 0.7);
         wi[1] = pointOnLight - HitPoint;
         wi[1] = normalize(wi[1]);
         // float distSqr = dot(wi[1], wi[1]);
@@ -559,16 +686,21 @@ void main()
 
 
 
-        vec3 lightSample = LightSampling(n, f0, a, area, wm[1], wi[1], wo, HitPoint, rayTraversalInfo);
+        // vec3 lightSample = LightSampling(n, f0, a, area, wm[1], wi[1], wo, HitPoint, rayTraversalInfo);
         vec3 brdfSample = BRDFSampling(n,HitPoint, area, f0, a, wm[0], wi[0], wo, rayTraversalInfo, hitMat.emmColor);
         
-        rayColor += lightSample + brdfSample;
+        rayColor += brdfSample;
 
         float pdfBrdf = TorSpPdf(wo, wm[0], n, a);
         float NoL = abs(dot(n, wi[0]));
         vec3 brdf = GGXNDF(wm[0], a) * Fresnel(wi[0], wm[0], f0) * G(wo, wi[0], n, a) / (4.0 * max(dot(n, wo), 0.0) * NoL);
 
         rayTraversalInfo *= (brdf * NoL / pdfBrdf);
+        if(pdfBrdf < 0.0001)
+        {
+            imageStore(img, pix, vec4(vec3(1,0,1), 1.0));
+            break;
+        }
         r.dir = wi[0];
     }
     vec4 prev = imageLoad(img, pix);

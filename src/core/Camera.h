@@ -55,7 +55,7 @@ class Camera
             return stg;
         }
 
-
+        bool moved = false;
         const glm::mat4& GetProjection() const {return mProjection;} 
         const glm::mat4& GetInvProjection() const {return mInvProjection;}
         const glm::mat4& GetView() const {return mView;}
@@ -65,8 +65,6 @@ class Camera
         const float& GetFov() const {return mFov;}
         const float& GetNearClip() const {return mNearClip;}
         const float& GetFarClip() const {return mFarClip;}
-
-        bool moved;
     private:
         glm::mat4 mProjection{1.0f};
         glm::mat4 mView{1.0f};

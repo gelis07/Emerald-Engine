@@ -10,4 +10,5 @@ struct RenderSettings
     bool Render = false;
     int spp;
     int imageOut;
+    int frameIdx;
 };

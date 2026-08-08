@@ -1,8 +1,6 @@
 #version 430 core
 
 layout(location = 0) out vec4 oColor;
-uniform vec4 uColor;
-uniform int randomColor;
 
 
 uint PCGHash(uint seed) {
@@ -26,8 +24,5 @@ void main()
         RandomFloat(seed),
         RandomFloat(seed)
     );
-    if(randomColor == 1)
-        oColor = vec4(color, 1.0);
-    else
-        oColor = uColor;
+    oColor = vec4(color, 1.0);
 }     

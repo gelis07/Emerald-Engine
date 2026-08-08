@@ -5,16 +5,24 @@
 #include <core/Model.h>
 
 
+struct LoadSceneInfo
+{
+    vk::Device device;
+    VmaAllocator alloc;
+    vk::CommandPool cPool;
+    vk::Queue queue;
+};
+
 
 class AssimpLoader
 {
     public:
-        ModelConstructData LoadModel(const std::string& path);
+        ModelConstructData LoadModel(const std::string& path, const LoadSceneInfo& info);
     private:
         void processNode(aiNode* node, const aiScene* scene, ModelConstructData& data);
         void processMesh(aiMesh *mesh, const aiScene *scene, ModelConstructData& data);
-        unsigned int LoadTexture(const std::string& path);
-        unsigned int LoadTextureFromData(const void* data, int width, int height);
+        void loadMaterials(const aiScene* scene, ModelConstructData& data, const LoadSceneInfo& info);
+
         Assimp::Importer importer;
-        std::vector<Texture> texturesLoaded;
+        std::vector<TextureVk> texturesLoaded;
 };

@@ -1,12 +1,13 @@
 #pragma once
 #include <core/Camera.h>
+#include <GLFW/glfw3.h>
 
 
 class CameraControl
 {
     public:
         void Init(float verticalFov, float nearClip, float farClip);
-        void OnUpdate(float ts, int width, int height);
+        void OnUpdate(GLFWwindow* window, float ts, int width, int height);
         void SetSettings(const CameraSettings& settings);
         const Camera& GetCamera() {return mCamera;}
     private:
