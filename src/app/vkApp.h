@@ -10,8 +10,9 @@
 #include <vkEngine/vkRasterizer.h>
 #include "CameraControl.h"
 #include "AssimpLoader.h"
-#include <vkEngine/vkRaytracer.h>
+#include <vkEngine/vkRaytracer/vkRaytracer.h>
 #include "GUI.h"
+#include <vkEngine/VkSceneManager.h>
 
 #define WWIDTH 1280
 #define WHEIGHT 920
@@ -55,14 +56,23 @@ class vkApp
         CameraControl camControl;
         std::vector<vk::Image> mRastImages;
         std::vector<vk::ImageView> mRastImageViews;
-        
+        VkSceneManager vkSceneManager;
+
         //ImGui
         VkDescriptorSet raytracingImgSet;
         std::vector<VkDescriptorSet> rastImgSets; //Its handled by imGui so C types here.
         vk::DescriptorPool imguiPool;
         vk::Sampler imguiSampler;
         GUI gui;
-        
+        RenderMode prevRendMode;
+
+        //Drawing ui
+        void drawUi(uint32_t width, uint32_t height);
+        std::vector<vk::CommandBuffer> uiDrawCbs;
+        std::array<vk::Semaphore, maxFramesInFlight> mImageAcquiredSemaphores;
+        std::array<vk::Fence, maxFramesInFlight> mFences;
+        std::vector<vk::Semaphore> mRenderCompleteSemaphores;
+
         //Functions.
         void InitInstance(std::vector<const char*> extensions);
         void CreateVirtualDevice();
@@ -79,6 +89,7 @@ class vkApp
         bool initImg = false;
         uint32_t frameIdx = 0;
         double mLastTime;
+        int mLastModelCount;
         int mLastImgWidth;
         int mLastImgHeight;
         int mLastWindowWidth;

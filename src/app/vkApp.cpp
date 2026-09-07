@@ -63,16 +63,39 @@ void vkApp::Init()
     mesh.vertices = CubeVertices;
     mesh.indices = CubeIndices;
     mesh.matIndex = 0;
+    mesh.nodeId = 0;
     cube.type = CUBE;
+    data.nodeData.push_back({glm::mat4(1.0f),UINT32_MAX, "root", "root"});
     data.meshes.push_back(mesh);
     cube.Load(data);
-    cube.Transform();
     gui.settings.scene.models.push_back(cube);
 
+    vk::CommandPoolCreateInfo commandPoolCi;
+    commandPoolCi.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
+    .setQueueFamilyIndex(queueFamilyCompute);
+    mCommandPool = mDevice.createCommandPool(commandPoolCi);
+
     //Initialize engines.
+    VkContext context;
+    context.alloc = mAllocator;
+    context.commandPool = mCommandPool;
+    context.device = mDevice;
+    context.physicalDevice = mPhysicalDevice;
+    context.queue = computeQueue;
+    context.queueFamily = queueFamilyCompute;
+    vkSceneManager.Init(context);
+    vkSceneManager.updateScene(gui.settings.scene);
+    mLastModelCount = gui.settings.scene.models.size();
+    raytracer.mVkScene = vkSceneManager.GetScenePointer();
+    rasterizer.mVkScene = vkSceneManager.GetScenePointer();
+
+
     int wWidth, wHeight;
     glfwGetWindowSize(mWindow, &wWidth, &wHeight);
     camControl.Init(45.0f, 0.1f, 1000.0f);
+
+    gui.settings.ImgWidth = RTXimgWidth;
+    gui.settings.ImgHeight = RTXimgHeight;
 
     RasterizerInitInfo rastInitInfo;
     rastInitInfo.physicalDevice = mPhysicalDevice;
@@ -130,10 +153,25 @@ void vkApp::Init()
     mLastImgHeight = 720;
 
 
-    vk::CommandPoolCreateInfo commandPoolCi;
-    commandPoolCi.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
-    .setQueueFamilyIndex(queueFamilyCompute);
-    mCommandPool = mDevice.createCommandPool(commandPoolCi);
+
+    vk::SemaphoreCreateInfo semaphoreCi;
+    vk::FenceCreateInfo fenceCi;
+    fenceCi.flags = vk::FenceCreateFlagBits::eSignaled;
+    for(int i = 0; i < maxFramesInFlight; i++)
+    {
+        mFences[i] = mDevice.createFence(fenceCi);
+        mImageAcquiredSemaphores[i] = mDevice.createSemaphore(semaphoreCi);
+    }
+    mRenderCompleteSemaphores.resize(mSwapchainImages.size());
+    for(int i = 0; i < mSwapchainImages.size(); i++)
+    {
+        mRenderCompleteSemaphores[i] = mDevice.createSemaphore(semaphoreCi);
+    }
+
+    vk::CommandBufferAllocateInfo cbAllocInfo;
+    cbAllocInfo.commandPool = mCommandPool;
+    cbAllocInfo.commandBufferCount = maxFramesInFlight;
+    uiDrawCbs = mDevice.allocateCommandBuffers(cbAllocInfo);
 }
 
 
@@ -147,15 +185,22 @@ void vkApp::Update()
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
 
-
+        
+        
         LoadSceneInfo loadSceneInfo;
+        loadSceneInfo.prevTextCount = gui.settings.scene.textures.size();
         loadSceneInfo.alloc = mAllocator;
         loadSceneInfo.cPool = mCommandPool;
         loadSceneInfo.queue = computeQueue;
         loadSceneInfo.device = mDevice;
+        
 
+        vkSceneManager.UpdateBoneTransforms(gui.settings.scene);
         ImGui::NewFrame();
-        gui.SceneModifier(dt, {(uint64_t)raytracingImgSet}, camControl, loadSceneInfo);
+        ImGuizmo::BeginFrame();
+        VkDescriptorSet renderTargetSet = gui.renderMode == RenderMode::PathTracing ? raytracingImgSet : rastImgSets[frameIdx];
+
+        gui.SceneModifier(dt, {(uint64_t)renderTargetSet}, camControl, loadSceneInfo);
         ImGui::Render();
 
 
@@ -163,6 +208,13 @@ void vkApp::Update()
         int ImgHeight = gui.settings.ImgHeight;
         int WindowWidth, WindowHeight;
         glfwGetWindowSize(mWindow, &WindowWidth, &WindowHeight);
+
+        if(mLastModelCount != gui.settings.scene.models.size())
+        {
+            vkSceneManager.deleteSceneModels();
+            vkSceneManager.updateScene(gui.settings.scene);
+            mLastModelCount = gui.settings.scene.models.size();
+        }
         if (ImgWidth > 0 && ImgHeight > 0) 
         {
             if(ImgWidth != mLastImgWidth || ImgHeight != mLastImgHeight)
@@ -175,30 +227,44 @@ void vkApp::Update()
             camControl.OnUpdate(mWindow, dt, ImgWidth, ImgHeight);
             gui.settings.scene.camera = camControl.GetCamera();
 
-            RaytracerRenderInfo raytracingRenderInfo;
-            raytracingRenderInfo.alloc = mAllocator;
-            raytracingRenderInfo.device = mDevice;
-            raytracingRenderInfo.rs = &gui.settings;
 
-            raytracer.Run(raytracingRenderInfo);
+            vkSceneManager.SkinMeshes(gui.settings.scene, static_cast<uint32_t>(gui.renderMode));
 
-            RasterizerRenderInfo renderInfo;
-            renderInfo.device = mDevice;
-            renderInfo.frameIdx = frameIdx;
-            renderInfo.swapchain = mSwapchain;
-            renderInfo.rs = &gui.settings;
-            renderInfo.drawImgs = mRastImages;
-            renderInfo.drawImgViews = mRastImageViews;
-            renderInfo.swapchainImgs = mSwapchainImages;
-            renderInfo.swapchainImgViews = mSwapchainImagesViews;
-            renderInfo.queue = graphicsQueue;
-            renderInfo.alloc = mAllocator;
+            if(gui.renderMode == RenderMode::PathTracing)
+            {
+                if(prevRendMode != gui.renderMode)
+                {
+                    raytracer.resetFrameIdx();
+                    gui.settings.ReloadScene = true;
+                }
 
-            rasterizer.Render(renderInfo);
+                RaytracerRenderInfo raytracingRenderInfo;
+                raytracingRenderInfo.alloc = mAllocator;
+                raytracingRenderInfo.device = mDevice;
+                raytracingRenderInfo.rs = &gui.settings;
+    
+                raytracer.Run(raytracingRenderInfo);
+            }
 
+            if(gui.renderMode == RenderMode::Rasterizer)
+            {
+                RasterizerRenderInfo renderInfo;
+                renderInfo.device = mDevice;
+                renderInfo.frameIdx = frameIdx;
+                renderInfo.fence = &mFences[frameIdx];
+                renderInfo.rs = &gui.settings;
+                renderInfo.drawImgs = mRastImages;
+                renderInfo.drawImgViews = mRastImageViews;
+                renderInfo.queue = graphicsQueue;
+                renderInfo.alloc = mAllocator;
+
+                rasterizer.Render(renderInfo);
+            }
+            
+            drawUi(WindowWidth, WindowHeight);
             if(gui.settings.Render)
             {
-                raytracer.ExportToPng(mAllocator, mDevice);
+                raytracer.ExportToPng(mAllocator, mDevice, "render.png");
                 gui.settings.Render = false;
             }
         }
@@ -209,10 +275,12 @@ void vkApp::Update()
             mLastWindowWidth = WindowWidth;
             UpdateSwapchain(WindowWidth, WindowHeight);
         }
-        
+        prevRendMode = gui.renderMode;
         glfwPollEvents();
         frameIdx = (frameIdx + 1) % maxFramesInFlight;
     }
+    mDevice.waitIdle();
+    vkSceneManager.deleteScene();
     rasterizer.destroy(mDevice, mAllocator);
     raytracer.destroy(mDevice, mAllocator);
     Destroy();
@@ -220,10 +288,17 @@ void vkApp::Update()
 
 void vkApp::Destroy()
 {
-    for (int i = 0; i < mSwapchainImages.size(); i++)
+    for(int i = 0; i < mFences.size(); i++)
     {
-        mDevice.destroyImage(mSwapchainImages[i]);
-        mDevice.destroyImageView(mSwapchainImagesViews[i]);
+        mDevice.destroyFence(mFences[i]);
+    }
+    for(int i = 0; i < mImageAcquiredSemaphores.size(); i++)
+    {
+        mDevice.destroySemaphore(mImageAcquiredSemaphores[i]);
+    }
+    for(int i = 0; i < mRenderCompleteSemaphores.size(); i++)
+    {
+        mDevice.destroySemaphore(mRenderCompleteSemaphores[i]);
     }
     for(int i = 0; i < mRastImages.size(); i++)
     {
@@ -244,6 +319,8 @@ void vkApp::UpdateSwapchain(int width, int height)
     mDevice.waitIdle();
     vk::SurfaceCapabilitiesKHR surfCap = mPhysicalDevice.getSurfaceCapabilitiesKHR(mSurface);
 
+
+
     swapchainCi.oldSwapchain = mSwapchain;
     swapchainCi.imageExtent.width = width;
     swapchainCi.imageExtent.height = height;
@@ -254,7 +331,15 @@ void vkApp::UpdateSwapchain(int width, int height)
     {
         mDevice.destroyImageView(mSwapchainImagesViews[i]);
     }
-
+    for (int i = 0; i < imageCount; i++)
+    {
+        mDevice.destroySemaphore(mRenderCompleteSemaphores[i]);
+    }
+    mRenderCompleteSemaphores.resize(imageCount);
+    for(int i = 0; i < imageCount; i++)
+    {
+        mRenderCompleteSemaphores[i] = mDevice.createSemaphore({});
+    }
     mSwapchainImages = mDevice.getSwapchainImagesKHR(mSwapchain);
     imageCount = mSwapchainImages.size();
     for(int i = 0; i < imageCount; i++)
@@ -343,6 +428,8 @@ void vkApp::InitImGuiStyles()
     io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
     ImGuiStyle& style = ImGui::GetStyle();
     ImVec4* colors = style.Colors;
+    io.Fonts->AddFontFromFileTTF("Lato-Regular.ttf", 16.0f);
+
 
     // Base Colors
     ImVec4 bgColor = ImVec4(0.10f, 0.105f, 0.11f, 1.00f);
@@ -452,6 +539,8 @@ void vkApp::InitImGuiStyles()
     style.ItemSpacing = ImVec2(6.0f, 4.0f);
     style.ItemInnerSpacing = ImVec2(4.0f, 4.0f);
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    gui.window = mWindow;
 }
 
 
@@ -569,8 +658,13 @@ void vkApp::CreateVirtualDevice()
     .setQueueCount(1)
     .setPQueuePriorities(&qfPrioritiesCompute);
 
+
+    vk::PhysicalDeviceRayQueryFeaturesKHR rayQueryFeatures{};
+    rayQueryFeatures.rayQuery = vk::True;
+
     vk::PhysicalDeviceAccelerationStructureFeaturesKHR accelFeature{};
     accelFeature.accelerationStructure = true;
+    accelFeature.pNext = &rayQueryFeatures;
 
     vk::PhysicalDeviceRayTracingPipelineFeaturesKHR rtPipFeatures{};
     rtPipFeatures.rayTracingPipeline = true;
@@ -594,9 +688,10 @@ void vkApp::CreateVirtualDevice()
     vk::PhysicalDeviceFeatures2 enabledVk10Features;
     enabledVk10Features.pNext = &enabledVk13Features;
     enabledVk10Features.features.samplerAnisotropy = VK_TRUE;
+    enabledVk10Features.features.geometryShader = vk::True;
     enabledVk10Features.features.shaderInt64 = vk::True;
     std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
-    VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME, VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME};
+    VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME, VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME, VK_KHR_RAY_QUERY_EXTENSION_NAME};
     vk::DeviceCreateInfo deviceCreateInfo;
     deviceCreateInfo.pNext = &enabledVk10Features;
     deviceCreateInfo.queueCreateInfoCount = 2;
@@ -710,4 +805,117 @@ void vkApp::InitImGui()
     initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
     initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.depthAttachmentFormat = static_cast<VkFormat>(vk::Format::eD32Sfloat);
 	ImGui_ImplVulkan_Init(&initInfo);
+}
+
+void vkApp::drawUi(uint32_t width, uint32_t height)
+{
+    if(gui.renderMode != RenderMode::Rasterizer)
+    {
+        mDevice.waitForFences(1, &mFences[frameIdx], vk::True, UINT64_MAX);
+        mDevice.resetFences(1, &mFences[frameIdx]);
+    }
+    
+    uint32_t imageIdx = mDevice.acquireNextImageKHR(mSwapchain, UINT64_MAX, mImageAcquiredSemaphores[frameIdx]).value;
+    vk::CommandBuffer uiDrawCb = uiDrawCbs[frameIdx];
+    uiDrawCb.reset();
+    vk::CommandBufferBeginInfo beginInfo;
+    beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+    uiDrawCb.begin(beginInfo);
+    vk::ImageMemoryBarrier2 midBarrier;
+    midBarrier.setSrcStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput)
+    .setSrcAccessMask(vk::AccessFlagBits2::eNone)
+    .setDstStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput)
+    .setDstAccessMask(vk::AccessFlagBits2::eColorAttachmentRead | vk::AccessFlagBits2::eColorAttachmentWrite)
+    .setOldLayout(vk::ImageLayout::eUndefined)
+    .setNewLayout(vk::ImageLayout::eAttachmentOptimal)
+    .setImage(mSwapchainImages[imageIdx]);
+    midBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    midBarrier.subresourceRange.levelCount = 1;
+    midBarrier.subresourceRange.layerCount = 1;
+
+    vk::DependencyInfo midBarriersDepInfo{};
+    midBarriersDepInfo.setImageMemoryBarrierCount(1)
+    .setPImageMemoryBarriers(&midBarrier);
+
+
+    uiDrawCb.pipelineBarrier2(midBarriersDepInfo);
+    vk::RenderingAttachmentInfo colorAttachmentInfo{};
+    colorAttachmentInfo.setImageView(mRastImageViews[frameIdx])
+    .setImageLayout(vk::ImageLayout::eAttachmentOptimal)
+    .setLoadOp(vk::AttachmentLoadOp::eClear)
+    .setStoreOp(vk::AttachmentStoreOp::eStore)
+    .clearValue.setColor({0.0f, 0.0f, 0.2f, 1.0f});
+    colorAttachmentInfo.setLoadOp(vk::AttachmentLoadOp::eLoad);
+    colorAttachmentInfo.setImageView(mSwapchainImagesViews[imageIdx]);
+
+    vk::RenderingInfo renderingInfo{};
+    renderingInfo.layerCount = 1;
+    renderingInfo.colorAttachmentCount = 1;
+    renderingInfo.pColorAttachments = &colorAttachmentInfo;
+    renderingInfo.pDepthAttachment = nullptr;
+    renderingInfo.renderArea.extent.width = static_cast<uint32_t>(width);
+    renderingInfo.renderArea.extent.height = static_cast<uint32_t>(height);
+
+    uiDrawCb.beginRendering(renderingInfo);
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), static_cast<VkCommandBuffer>(uiDrawCb));
+    uiDrawCb.endRendering();
+
+    vk::ImageMemoryBarrier2 barrierPresent{};
+    barrierPresent.srcStageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+    barrierPresent.srcAccessMask = vk::AccessFlagBits2::eColorAttachmentWrite;
+    barrierPresent.dstStageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+    barrierPresent.dstAccessMask = vk::AccessFlagBits2::eNone;
+    barrierPresent.oldLayout = vk::ImageLayout::eAttachmentOptimal;
+    barrierPresent.newLayout = vk::ImageLayout::ePresentSrcKHR;
+    barrierPresent.image = mSwapchainImages[imageIdx];
+    barrierPresent.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    barrierPresent.subresourceRange.levelCount = 1;
+    barrierPresent.subresourceRange.layerCount = 1;
+
+    vk::DependencyInfo barrierPresentDepInfo{};
+    barrierPresentDepInfo.setImageMemoryBarrierCount(1)
+    .setPImageMemoryBarriers(&barrierPresent);
+    uiDrawCb.pipelineBarrier2(barrierPresentDepInfo);
+
+    uiDrawCb.end();
+    std::vector<vk::PipelineStageFlags> waitStages = {
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,
+    };
+
+    if(gui.renderMode == RenderMode::Rasterizer)
+        waitStages.push_back(vk::PipelineStageFlagBits::eVertexInput);
+
+    std::vector<vk::CommandBuffer> cbs;
+    if(gui.renderMode == RenderMode::Rasterizer)
+    {
+        cbs.push_back(rasterizer.getActiveCb(frameIdx));
+    }
+    cbs.push_back(uiDrawCb);
+
+    std::vector<vk::Semaphore> semaphoreWait;
+    semaphoreWait.resize(1);
+    semaphoreWait[0] = mImageAcquiredSemaphores[frameIdx];
+    if(gui.renderMode == RenderMode::Rasterizer)
+        semaphoreWait.push_back(vkSceneManager.skinningDoneSem);
+
+
+    vk::SubmitInfo submitInfo;
+    submitInfo.setWaitSemaphoreCount(semaphoreWait.size())
+    .setPWaitSemaphores(semaphoreWait.data())
+    .setPWaitDstStageMask(waitStages.data())
+    .setCommandBufferCount(cbs.size())
+    .setPCommandBuffers(cbs.data())
+    .setSignalSemaphoreCount(1)
+    .setPSignalSemaphores(&mRenderCompleteSemaphores[imageIdx]);
+    graphicsQueue.submit(submitInfo, mFences[frameIdx]);
+
+
+    vk::PresentInfoKHR presentInfo{};
+    presentInfo.setWaitSemaphoreCount(1)
+    .setPWaitSemaphores(&mRenderCompleteSemaphores[imageIdx])
+    .setSwapchainCount(1)
+    .setPSwapchains(&mSwapchain)
+    .setPImageIndices(&imageIdx);
+
+    graphicsQueue.presentKHR(presentInfo);
 }

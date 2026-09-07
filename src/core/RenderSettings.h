@@ -11,4 +11,5 @@ struct RenderSettings
     int spp;
     int imageOut;
     int frameIdx;
+    bool playAnimation = false;
 };

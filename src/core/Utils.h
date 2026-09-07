@@ -5,11 +5,19 @@
 #include <glm/glm.hpp>
 
 
-constexpr int RTXimgWidth = 1280; 
-constexpr int RTXimgHeight = 720; 
+constexpr int RTXimgWidth = 1920; 
+constexpr int RTXimgHeight = 1080; 
 
 namespace Utils
 {
+
+    template <typename T>
+    struct linkedList
+    {
+        T* parent = nullptr;
+        T* child = nullptr;
+    };
+
     inline char* ReadFile(const std::string& path)
     {
         std::ifstream file(path);

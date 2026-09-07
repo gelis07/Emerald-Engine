@@ -15,9 +15,15 @@ float RandomFloat(inout uint seed)
     return float(seed) / 4294967295.0;
 }
 
+layout(push_constant) uniform PushConstants
+{
+    mat4 mvp;
+    uint objId;
+} push;
+
 void main()
 {
-    uint seed = uint(gl_PrimitiveID) * 1973u;
+    uint seed = push.objId * 1973u;
 
     vec3 color = vec3(
         RandomFloat(seed),

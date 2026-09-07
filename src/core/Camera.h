@@ -75,5 +75,5 @@ class Camera
 
         float mFov = 45.0f;
         float mNearClip = 0.1f;
-        float mFarClip = 100.0f;
+        float mFarClip = 1000.0f;
 };

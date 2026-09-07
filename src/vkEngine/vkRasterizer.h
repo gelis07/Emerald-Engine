@@ -3,7 +3,7 @@
 #include <array>
 #include "VkEngineApiBinding.h"
 #include <core/RenderSettings.h>
-constexpr uint32_t maxFramesInFlight { 2 };
+constexpr uint32_t maxFramesInFlight { 1 };
 
 
 
@@ -26,12 +26,10 @@ struct RasterizerRenderInfo
 {
     vk::Device device;
     int frameIdx;
-    vk::SwapchainKHR swapchain;
     RenderSettings* rs;
-     std::vector<vk::Image> drawImgs; 
+    std::vector<vk::Image> drawImgs; 
     std::vector<vk::ImageView> drawImgViews;
-    std::vector<vk::Image> swapchainImgs;
-    std::vector<vk::ImageView> swapchainImgViews;
+    vk::Fence* fence;
     vk::Queue queue;
     VmaAllocator alloc;
 };
@@ -41,6 +39,22 @@ struct ShaderData
     glm::mat4 mvp;
 };
 
+struct pushConstantsStruct
+{
+    glm::mat4 mat;
+    uint32_t objId;
+    uint32_t modelId;
+};
+struct boneGPU
+{
+    uint32_t nodeId;
+};
+
+struct nodeDataGPU
+{
+    glm::mat4 transform;
+    uint32_t parentId;
+};
 
 
 class vkRasterizer
@@ -51,8 +65,9 @@ class vkRasterizer
         void Render(RasterizerRenderInfo info);
 
         void UpdateSwapchain(const VmaAllocator& allocator,int width, int height,int imageCount, const vk::Device& device);
-
+        vk::CommandBuffer getActiveCb(uint32_t frameIdx) {return mCommandBuffers[frameIdx];}
         void destroy(vk::Device device, VmaAllocator alloc);
+        vkUtils::vkScene* mVkScene;
     private:
         vk::Format depthFormat{ vk::Format::eUndefined};
         vk::Image mDepthImage;
@@ -60,18 +75,25 @@ class vkRasterizer
         vk::ImageView mDepthImageView;
         glm::vec2 mWindowDim;
         vk::CommandPool mCommandPool;
-        std::vector<vkUtils::vkModel> mVkModels;
+        
+        vk::DescriptorSet descSet;
+        vk::DescriptorSetLayout setLayout;
+        vk::DescriptorPool descPool;
+
         std::array<VkUtilBuffer, maxFramesInFlight> mShaderBuffers;
         std::array<vk::CommandBuffer, maxFramesInFlight> mCommandBuffers;
-        std::array<vk::Fence, maxFramesInFlight> mFences;
-        std::array<vk::Semaphore, maxFramesInFlight> mImageAcquiredSemaphores;
-        std::vector<vk::Semaphore> mRenderCompleteSemaphores;
+
         vk::PipelineLayout pipLayout;
         vk::Pipeline mPip;
 
+
+
+        uint32_t mLastModelSize = 0;
+        VkContext context;
+
+        void InitDescPool(VkContext context);
+        void WriteDynamicDescriptors(VkContext context);
         void CreateDepthImg(const RasterizerInitInfo& info);
         void CreateGraphicsPipeline(const RasterizerInitInfo& info, vk::ShaderModule vertModule, vk::ShaderModule fragModule);
-
-        int lastModelCount;
 };
 

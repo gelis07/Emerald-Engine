@@ -4,11 +4,6 @@
 #include <core/Camera.h>
 #include <core/Model.h>
 #include <vkEngine/vkBackend.h>
-enum HitType
-{
-    SPHERE,
-    TRIANGLE
-};
 
 class Scene
 {

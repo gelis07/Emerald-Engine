@@ -1,0 +1,84 @@
+#version 450
+#extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_scalar_block_layout : enable
+
+const uint UINT_MAX = 0xFFFFFFFFu;
+
+struct BoneInfluence
+{
+    uint boneId;
+    float weight;
+};
+
+struct BoneData
+{
+    mat4 transform;
+};
+
+layout(binding = 0, set = 0) readonly buffer BoneInfluenceBuffer
+{
+    BoneInfluence boneInf[];
+} boneInfluenceBuffer;
+
+layout(binding = 1, set = 0) readonly buffer BoneBuffer
+{
+    BoneData bones[];
+} boneBuffer;
+
+
+struct Vertex {
+    vec3 pos;
+    vec2 uv;
+    vec3 normal;
+    vec3 tangent;
+    vec3 bitangent;
+    uint boneOffset;
+    uint boneCount;
+};
+
+layout(scalar, binding = 2, set = 0) buffer VertexBuffers {
+    Vertex v[];
+} vertexBuffers[];
+
+layout(scalar, binding = 3, set = 0) buffer OriginalVertexBuffers {
+    Vertex v[];
+} originalVertexBuffers[];
+
+layout(push_constant) uniform PushConstants
+{
+    uint meshId;
+    uint vertCount;
+} push;
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+void main()
+{
+    uint vertexId = gl_GlobalInvocationID.x;
+    if(vertexId >= push.vertCount)
+        return;
+
+    uint iBoneCount = vertexBuffers[push.meshId].v[vertexId].boneCount;
+    uint iBoneOffset = vertexBuffers[push.meshId].v[vertexId].boneOffset;
+    vec3 iPos = originalVertexBuffers[push.meshId].v[vertexId].pos;
+    vec3 iNormal = originalVertexBuffers[push.meshId].v[vertexId].normal;
+
+    vec3 boneVertPos = vec3(0.0);
+    vec3 boneVertNormal = vec3(0.0);
+    if(iBoneCount == 0)
+    {
+        boneVertPos = iPos;
+        boneVertNormal = iNormal;
+    }else{
+        for(uint i = iBoneOffset; i < iBoneOffset + iBoneCount; i++)
+        {
+            mat4 transform = boneBuffer.bones[boneInfluenceBuffer.boneInf[i].boneId].transform;
+            float weight = boneInfluenceBuffer.boneInf[i].weight;
+            boneVertPos += vec3(weight * transform * vec4(iPos, 1.0));
+            boneVertNormal += weight * transpose(inverse(mat3(transform))) * iNormal;
+        }
+    }
+
+    vertexBuffers[push.meshId].v[vertexId].pos = boneVertPos;
+    vertexBuffers[push.meshId].v[vertexId].normal = boneVertNormal;
+}

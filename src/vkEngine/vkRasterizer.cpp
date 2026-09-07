@@ -46,30 +46,17 @@ void vkRasterizer::Init(RasterizerInitInfo info)
         mShaderBuffers[i].adress = info.device.getBufferAddress(uBufferAdInfo);
     }
 
-    vk::SemaphoreCreateInfo semaphoreCi;
-    vk::FenceCreateInfo fenceCi;
-    fenceCi.flags = vk::FenceCreateFlagBits::eSignaled;
-
-    for(int i = 0; i < maxFramesInFlight; i++)
-    {
-        mFences[i] = info.device.createFence(fenceCi);
-        mImageAcquiredSemaphores[i] = info.device.createSemaphore(semaphoreCi);
-    }
-    mRenderCompleteSemaphores.resize(info.swapchainImgCount);
-    for(int i = 0; i < info.swapchainImgCount; i++)
-    {
-        mRenderCompleteSemaphores[i] = info.device.createSemaphore(semaphoreCi);
-    }
-
-
     vk::CommandPoolCreateInfo commandPoolCi;
     commandPoolCi.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
     commandPoolCi.queueFamilyIndex = info.queueFamily;
     mCommandPool = info.device.createCommandPool(commandPoolCi);
 
-        vkUtils::vkScene vkscene = vkUtils::LoadScene(info.device, info.allocator, mCommandPool, info.queue,info.rs->scene);
-        mVkModels = vkscene.vkModels;
-    lastModelCount = info.rs->scene.models.size();
+    context.alloc = info.allocator;
+    context.commandPool = mCommandPool;
+    context.device = info.device;
+    context.physicalDevice = info.physicalDevice;
+    context.queue = info.queue;
+    context.queueFamily = info.queueFamily;
 
     vk::CommandBufferAllocateInfo cbAllocInfo;
     cbAllocInfo.commandPool = mCommandPool;
@@ -90,7 +77,9 @@ void vkRasterizer::Init(RasterizerInitInfo info)
     fragShaderModuleCi.pCode = reinterpret_cast<const uint32_t*>(fragShaderCode.data());
     fragShaderModuleCi.codeSize = fragShaderCode.size();
     vk::ShaderModule fragShaderModule = info.device.createShaderModule(fragShaderModuleCi);
-
+    InitDescPool(context);
+    WriteDynamicDescriptors(context);
+    mLastModelSize = info.rs->scene.models.size();
     CreateGraphicsPipeline(info, vertShaderModule, fragShaderModule);
 }
 
@@ -101,18 +90,27 @@ if(a != vk::Result::eSuccess) \
 
 void vkRasterizer::Render(RasterizerRenderInfo info)
 {
-    check(info.device.waitForFences(1, &mFences[info.frameIdx], vk::True, UINT64_MAX));
-    check(info.device.resetFences(1, &mFences[info.frameIdx]));
 
-    uint32_t imageIdx = info.device.acquireNextImageKHR(info.swapchain, UINT64_MAX, mImageAcquiredSemaphores[info.frameIdx]).value;
+    if(info.rs->scene.models.size() != mLastModelSize)
+    {
+        WriteDynamicDescriptors(context);
+        mLastModelSize = info.rs->scene.models.size();
+    }
 
-    // if(info.rs->scene.models.size() != lastModelCount)
+    // if(mVkScene->boneTransforms.size != 0)
     // {
-    //     vkUtils::vkScene vkscene = vkUtils::LoadScene(info.device, info.alloc, mCommandPool, info.queue,info.rs->scene);
-    //     mVkModels = vkscene.vkModels;
-    //     lastModelCount = info.rs->scene.models.size();
+    //     std::vector<vkUtils::vkBone> bones;
+    //     vkUtils::evaluateBoneTransforms(info.rs->scene, bones);
+    //     if(bones.empty())
+    //         bones.push_back({glm::mat4(1.0f)});
+        
+    //     mVkScene->bones = bones;
+    //     std::memcpy(mVkScene->boneTransforms.allocInfo.pMappedData, bones.data(), mVkScene->boneTransforms.size);
+    //     // vkUtils::UpdateVertices(info.rs->scene, *mVkScene);
     // }
 
+    info.device.waitForFences(1, info.fence, vk::True, UINT64_MAX);
+    info.device.resetFences(1, info.fence);
     auto cb = mCommandBuffers[info.frameIdx];
     cb.reset();
 
@@ -186,114 +184,49 @@ void vkRasterizer::Render(RasterizerRenderInfo info)
     cb.setScissor(0, scissor);
 
     cb.bindPipeline(vk::PipelineBindPoint::eGraphics, mPip);
-    for(int i = 0; i < mVkModels.size(); i++)
+    cb.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,pipLayout,0, 1, &descSet, 0, nullptr);
+    for(int i = 0; i < mVkScene->vkMeshes.size(); i++)
     {
         ShaderData shaderData;
-        shaderData.mvp = info.rs->scene.camera.GetProjection() * info.rs->scene.camera.GetView() * info.rs->scene.models[i].model;
+        shaderData.mvp = info.rs->scene.camera.GetProjection() * info.rs->scene.camera.GetView() 
+        * *mVkScene->vkModels[mVkScene->vkMeshes[i].modelIdx].modelMat * ((*mVkScene->vkModels[mVkScene->vkMeshes[i].modelIdx].nodeData)[mVkScene->vkMeshes[i].nodeIdx].transform);
 
         vk::DeviceSize vOffset{0};
-        cb.bindVertexBuffers(0, 1, &mVkModels[i].buffer, &vOffset);
-        cb.bindIndexBuffer(mVkModels[i].buffer, mVkModels[i].vBufSize, vk::IndexType::eUint32);
+        cb.bindVertexBuffers(0, 1, &mVkScene->vkMeshes[i].buffer, &vOffset);
+        cb.bindIndexBuffer(mVkScene->vkMeshes[i].buffer, mVkScene->vkMeshes[i].vBufSize, vk::IndexType::eUint32);
+        pushConstantsStruct constants;
+        constants.mat = shaderData.mvp;
+        constants.objId = i;
+        constants.modelId = mVkScene->vkMeshes[i].modelIdx;
 
-        cb.pushConstants(pipLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4), glm::value_ptr(shaderData.mvp));
+        cb.pushConstants(pipLayout, vk::ShaderStageFlagBits::eAllGraphics, 0, sizeof(constants), &constants);
 
-        cb.drawIndexed(mVkModels[i].indexCount, 1, 0, 0, 0);
+        cb.drawIndexed(mVkScene->vkMeshes[i].indexCount, 1, 0, 0, 0);
     }
     cb.endRendering();
-
-    std::array<vk::ImageMemoryBarrier2, 2> midBarriers;
-    midBarriers[0].setSrcStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput)
-    .setSrcAccessMask(vk::AccessFlagBits2::eNone)
-    .setDstStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput)
-    .setDstAccessMask(vk::AccessFlagBits2::eColorAttachmentRead | vk::AccessFlagBits2::eColorAttachmentWrite)
-    .setOldLayout(vk::ImageLayout::eUndefined)
-    .setNewLayout(vk::ImageLayout::eAttachmentOptimal)
-    .setImage(info.swapchainImgs[imageIdx]);
-    midBarriers[0].subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-    midBarriers[0].subresourceRange.levelCount = 1;
-    midBarriers[0].subresourceRange.layerCount = 1;
-
-    midBarriers[1].setSrcStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput)
+    
+    vk::ImageMemoryBarrier2 midBarrier;
+    midBarrier.setSrcStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput)
     .setSrcAccessMask(vk::AccessFlagBits2::eColorAttachmentWrite)
     .setDstStageMask(vk::PipelineStageFlagBits2::eFragmentShader)
     .setDstAccessMask(vk::AccessFlagBits2::eShaderSampledRead)
     .setOldLayout(vk::ImageLayout::eColorAttachmentOptimal)
     .setNewLayout(vk::ImageLayout::eReadOnlyOptimal)
     .setImage(info.drawImgs[info.frameIdx]);
-    midBarriers[1].subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-    midBarriers[1].subresourceRange.levelCount = 1;
-    midBarriers[1].subresourceRange.layerCount = 1;
-
-
+    midBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    midBarrier.subresourceRange.levelCount = 1;
+    midBarrier.subresourceRange.layerCount = 1;
     vk::DependencyInfo midBarriersDepInfo{};
-    midBarriersDepInfo.setImageMemoryBarrierCount(2)
-    .setPImageMemoryBarriers(midBarriers.data());
-
+    midBarriersDepInfo.setImageMemoryBarrierCount(1)
+    .setPImageMemoryBarriers(&midBarrier);
 
     cb.pipelineBarrier2(midBarriersDepInfo);
 
-    colorAttachmentInfo.setLoadOp(vk::AttachmentLoadOp::eLoad);
-    colorAttachmentInfo.setImageView(info.swapchainImgViews[imageIdx]);
-    renderingInfo.pDepthAttachment = nullptr;
-    renderingInfo.renderArea.extent.width = static_cast<uint32_t>(mWindowDim.x);
-    renderingInfo.renderArea.extent.height = static_cast<uint32_t>(mWindowDim.y);
-    cb.beginRendering(renderingInfo);
-    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), static_cast<VkCommandBuffer>(cb));
-    cb.endRendering();
-
-    vk::ImageMemoryBarrier2 barrierPresent{};
-    barrierPresent.srcStageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
-    barrierPresent.srcAccessMask = vk::AccessFlagBits2::eColorAttachmentWrite;
-    barrierPresent.dstStageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
-    barrierPresent.dstAccessMask = vk::AccessFlagBits2::eNone;
-    barrierPresent.oldLayout = vk::ImageLayout::eAttachmentOptimal;
-    barrierPresent.newLayout = vk::ImageLayout::ePresentSrcKHR;
-    barrierPresent.image = info.swapchainImgs[imageIdx];
-    barrierPresent.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-    barrierPresent.subresourceRange.levelCount = 1;
-    barrierPresent.subresourceRange.layerCount = 1;
-
-    vk::DependencyInfo barrierPresentDepInfo{};
-    barrierPresentDepInfo.setImageMemoryBarrierCount(1)
-    .setPImageMemoryBarriers(&barrierPresent);
-    cb.pipelineBarrier2(barrierPresentDepInfo);
-
     cb.end();
-
-    vk::PipelineStageFlags waitStages = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-
-    vk::SubmitInfo submitInfo;
-    submitInfo.setWaitSemaphoreCount(1)
-    .setPWaitSemaphores(&mImageAcquiredSemaphores[info.frameIdx])
-    .setPWaitDstStageMask(&waitStages)
-    .setCommandBufferCount(1)
-    .setPCommandBuffers(&cb)
-    .setSignalSemaphoreCount(1)
-    .setPSignalSemaphores(&mRenderCompleteSemaphores[imageIdx]);
-    info.queue.submit(submitInfo, mFences[info.frameIdx]);
-
-    vk::PresentInfoKHR presentInfo{};
-    presentInfo.setWaitSemaphoreCount(1)
-    .setPWaitSemaphores(&mRenderCompleteSemaphores[imageIdx])
-    .setSwapchainCount(1)
-    .setPSwapchains(&info.swapchain)
-    .setPImageIndices(&imageIdx);
-
-    check(info.queue.presentKHR(presentInfo));
 }
 
 void vkRasterizer::UpdateSwapchain(const VmaAllocator& allocator,int width, int height,int imageCount, const vk::Device& device)
 {
-    for (int i = 0; i < imageCount; i++)
-    {
-        device.destroySemaphore(mRenderCompleteSemaphores[i]);
-    }
-    mRenderCompleteSemaphores.resize(imageCount);
-    for(int i = 0; i < imageCount; i++)
-    {
-        mRenderCompleteSemaphores[i] = device.createSemaphore({});
-    }
-
     device.destroyImage(mDepthImage);
     device.destroyImageView(mDepthImageView);
 
@@ -338,12 +271,12 @@ void vkRasterizer::UpdateSwapchain(const VmaAllocator& allocator,int width, int 
 
 void vkRasterizer::CreateDepthImg(const RasterizerInitInfo& info)
 {
-vk::ImageCreateInfo depthImageCI;
+    vk::ImageCreateInfo depthImageCI;
     depthImageCI.extent.depth = 1;
     depthImageCI.imageType = vk::ImageType::e2D;
     depthImageCI.format = depthFormat;
-    depthImageCI.extent.width = static_cast<uint32_t>(info.wWidth);
-    depthImageCI.extent.height = static_cast<uint32_t>(info.wHeight);
+    depthImageCI.extent.width = static_cast<uint32_t>(info.rs->ImgWidth);
+    depthImageCI.extent.height = static_cast<uint32_t>(info.rs->ImgHeight);
     depthImageCI.mipLevels = 1;
     depthImageCI.arrayLayers = 1;
     depthImageCI.samples = vk::SampleCountFlagBits::e1;
@@ -378,12 +311,12 @@ vk::ImageCreateInfo depthImageCI;
 void vkRasterizer::CreateGraphicsPipeline(const RasterizerInitInfo& info, vk::ShaderModule vertModule, vk::ShaderModule fragModule)
 {
     vk::PushConstantRange pushConstantRange;
-    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
-    pushConstantRange.size = sizeof(glm::mat4);
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eAllGraphics;
+    pushConstantRange.size = sizeof(pushConstantsStruct);
 
     vk::PipelineLayoutCreateInfo pipelineLayoutCi;
-    pipelineLayoutCi.setLayoutCount = 0;
-    pipelineLayoutCi.pSetLayouts = nullptr;
+    pipelineLayoutCi.setLayoutCount = 1;
+    pipelineLayoutCi.pSetLayouts = &setLayout;
     pipelineLayoutCi.pushConstantRangeCount = 1;
     pipelineLayoutCi.pPushConstantRanges = &pushConstantRange;
 
@@ -395,7 +328,7 @@ void vkRasterizer::CreateGraphicsPipeline(const RasterizerInitInfo& info, vk::Sh
     .setInputRate(vk::VertexInputRate::eVertex);
 
     std::vector<vk::VertexInputAttributeDescription> vertexAttributes;
-    vertexAttributes.resize(3);
+    vertexAttributes.resize(7);
     vertexAttributes[0].setLocation(0)
     .setBinding(0)
     .setFormat(vk::Format::eR32G32B32Sfloat);
@@ -407,6 +340,22 @@ void vkRasterizer::CreateGraphicsPipeline(const RasterizerInitInfo& info, vk::Sh
     .setBinding(0)
     .setFormat(vk::Format::eR32G32B32Sfloat)
     .setOffset(offsetof(Vertex, normals));
+    vertexAttributes[3].setLocation(3)
+    .setBinding(0)
+    .setFormat(vk::Format::eR32G32B32Sfloat)
+    .setOffset(offsetof(Vertex, tangent));
+    vertexAttributes[4].setLocation(4)
+    .setBinding(0)
+    .setFormat(vk::Format::eR32G32B32Sfloat)
+    .setOffset(offsetof(Vertex, bitangent));
+    vertexAttributes[5].setLocation(5)
+    .setBinding(0)
+    .setFormat(vk::Format::eR32Uint)
+    .setOffset(offsetof(Vertex, boneOffset));
+    vertexAttributes[6].setLocation(6)
+    .setBinding(0)
+    .setFormat(vk::Format::eR32Uint)
+    .setOffset(offsetof(Vertex, boneCount));
 
     vk::PipelineVertexInputStateCreateInfo vertexInputState;
     vertexInputState.setVertexBindingDescriptionCount(1)
@@ -487,21 +436,90 @@ void vkRasterizer::destroy(vk::Device device, VmaAllocator alloc)
         vmaDestroyBuffer(alloc, static_cast<VkBuffer>(mShaderBuffers[i].buffer), mShaderBuffers[i].allocation);
     }
     device.freeCommandBuffers(mCommandPool, mCommandBuffers.size(), mCommandBuffers.data());
-    for(int i = 0; i < mFences.size(); i++)
-    {
-        device.destroyFence(mFences[i]);
-    }
-    for(int i = 0; i < mImageAcquiredSemaphores.size(); i++)
-    {
-        device.destroySemaphore(mImageAcquiredSemaphores[i]);
-    }
-    for(int i = 0; i < mRenderCompleteSemaphores.size(); i++)
-    {
-        device.destroySemaphore(mRenderCompleteSemaphores[i]);
-    }
-    for(int i = 0; i < mVkModels.size(); i++)
-    {
-        vmaDestroyBuffer(alloc, static_cast<VkBuffer>(mVkModels[i].buffer), mVkModels[i].bufferAllocation);
-    }
+
     device.destroyCommandPool(mCommandPool);
+}
+
+
+void vkRasterizer::InitDescPool(VkContext context)
+{
+    std::vector<vk::DescriptorSetLayoutBinding> bindings;
+    bindings.resize(2);
+    bindings[0].setBinding(0)
+    .setDescriptorType(vk::DescriptorType::eStorageBuffer)
+    .setDescriptorCount(1)
+    .setStageFlags(vk::ShaderStageFlagBits::eVertex);
+    bindings[1].setBinding(1)
+    .setDescriptorType(vk::DescriptorType::eStorageBuffer)
+    .setDescriptorCount(1)
+    .setStageFlags(vk::ShaderStageFlagBits::eVertex);
+
+    std::vector<vk::DescriptorBindingFlags> bindingFlags = 
+    {
+        {},
+        {}
+    };
+
+    vk::DescriptorSetLayoutBindingFlagsCreateInfo flagsCreateInfo{};
+    flagsCreateInfo.setBindingFlags(bindingFlags);
+
+    vk::DescriptorSetLayoutCreateInfo layoutCi;
+    layoutCi.setBindingCount(bindings.size())
+    .setPNext(&flagsCreateInfo)
+    .setPBindings(bindings.data());
+
+    setLayout = context.device.createDescriptorSetLayout(layoutCi);
+        std::vector<vk::DescriptorPoolSize> poolSizes = 
+    {
+        {
+            vk::DescriptorType::eStorageBuffer,
+            2
+        }
+    };
+
+
+    vk::DescriptorPoolCreateInfo descPoolCi;
+    descPoolCi.setMaxSets(1)
+    .setPoolSizeCount(static_cast<uint32_t>(poolSizes.size()))
+    .setPPoolSizes(poolSizes.data())
+    .setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
+
+    descPool = context.device.createDescriptorPool(descPoolCi);
+    
+    vk::DescriptorSetAllocateInfo allocInfo;
+    allocInfo.setDescriptorPool(descPool)
+    .setDescriptorSetCount(1)
+    .setPSetLayouts(&setLayout);
+
+    descSet = context.device.allocateDescriptorSets(allocInfo).front();
+}
+
+void vkRasterizer::WriteDynamicDescriptors(VkContext context)
+{
+    vk::DescriptorBufferInfo bonesBufferInfo;
+    bonesBufferInfo.setBuffer(mVkScene->boneTransforms.buffer)
+    .setOffset(0)
+    .setRange(mVkScene->boneTransforms.size);
+
+    vk::DescriptorBufferInfo bonesInfluenceBufferInfo;
+    bonesInfluenceBufferInfo.setBuffer(mVkScene->boneInfluenceBuffer.buffer)
+    .setOffset(0)
+    .setRange(mVkScene->boneInfluenceBuffer.size);
+
+    std::vector<vk::WriteDescriptorSet> descWrites;
+    descWrites.resize(2);
+    descWrites[0].setDstSet(descSet)
+    .setDstBinding(0)
+    .setDstArrayElement(0)
+    .setDescriptorCount(1)
+    .setDescriptorType(vk::DescriptorType::eStorageBuffer)
+    .setPBufferInfo(&bonesInfluenceBufferInfo);
+    descWrites[1].setDstSet(descSet)
+    .setDstBinding(1)
+    .setDstArrayElement(0)
+    .setDescriptorCount(1)
+    .setDescriptorType(vk::DescriptorType::eStorageBuffer)
+    .setPBufferInfo(&bonesBufferInfo);
+
+    context.device.updateDescriptorSets(static_cast<uint32_t>(descWrites.size()), descWrites.data(), 0, nullptr);
 }

@@ -28,8 +28,14 @@ add_executable(Raytracer
 src/main.cpp
 src/app/AssimpLoader.cpp
 src/vkEngine/vkRasterizer.cpp
-src/vkEngine/vkRaytracer.cpp
+src/vkEngine/VkSceneManager.cpp
+src/vkEngine/vkRaytracer/vkRaytracer.cpp
+src/vkEngine/vkRaytracer/LightSampling.cpp
+src/vkEngine/vkRaytracer/ASManager.cpp
+src/vkEngine/vkRaytracer/RtPipeline.cpp
 src/vkEngine/vkBackend.cpp
+src/vkEngine/VkEngineApiBinding.cpp
+src/vkEngine/Animator.cpp
 src/app/GUI.cpp
 src/app/CameraControl.cpp
 src/core/Model.cpp
@@ -41,6 +47,7 @@ vendor/imgui-new/backends/imgui_impl_vulkan.cpp
 vendor/imgui-new/imgui_tables.cpp
 vendor/imgui-new/misc/cpp/imgui_stdlib.cpp
 vendor/imgui-new/imgui_widgets.cpp
+vendor/ImGuizmo/src/ImGuizmo.cpp
 src/app/vkApp.cpp
 )
 

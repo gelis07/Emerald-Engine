@@ -7,6 +7,8 @@
 
 struct LoadSceneInfo
 {
+    uint32_t prevTextCount;
+
     vk::Device device;
     VmaAllocator alloc;
     vk::CommandPool cPool;
@@ -20,9 +22,15 @@ class AssimpLoader
         ModelConstructData LoadModel(const std::string& path, const LoadSceneInfo& info);
     private:
         void processNode(aiNode* node, const aiScene* scene, ModelConstructData& data);
-        void processMesh(aiMesh *mesh, const aiScene *scene, ModelConstructData& data);
+        void processMesh(aiMesh *mesh, aiNode* node, const aiScene *scene, ModelConstructData& data);
         void loadMaterials(const aiScene* scene, ModelConstructData& data, const LoadSceneInfo& info);
+        glm::mat4 AiToGlm(const aiMatrix4x4& m);
+        glm::mat4 getGlobalTransform(const aiNode* node);
 
+        void addNodeToVec(const aiNode* node, std::vector<NodeData>& nodeData);
+        uint32_t findNodeId(const std::string& name, const std::vector<NodeData>& nodeData);
+
+        std::vector<NodeData> createNodeDataVec(const aiScene *scene);
         Assimp::Importer importer;
         std::vector<TextureVk> texturesLoaded;
 };

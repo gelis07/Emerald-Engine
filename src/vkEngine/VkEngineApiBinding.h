@@ -6,84 +6,59 @@
 
 namespace vkUtils
 {
-    struct vkModel
+    struct vkBone
+    {
+        glm::mat4 transform;
+    };
+
+    struct VkModel
+    {
+        const std::vector<NodeData>* nodeData;
+        glm::mat4* modelMat; 
+    };
+
+    struct VkMesh
     {
         vk::Buffer buffer;
         vk::DeviceSize vBufSize, iBufSize, indexCount, vertCount;
         VmaAllocationInfo bufferAllocInfo{};
         VmaAllocation bufferAllocation{};
-        uint32_t matIdx;
 
-        Model* model;
+        VkUtilBuffer OriginalVertBuffer;
+        
+        uint32_t meshIdx; // In certain structures a mesh is indipendent of the model.
+        uint32_t localMeshIdx;
+        uint32_t nodeIdx;
+        uint32_t modelIdx;
+        uint32_t* matIdx;
     };
-
+    struct finalNodeData
+    {
+        glm::mat4 transform;
+        glm::mat3 normalMatrix;
+    };
 
     struct vkScene
     {
-        std::vector<vkModel> vkModels;
+        std::vector<VkModel> vkModels;
+        std::vector<VkMesh> vkMeshes;
         std::vector<TextureVk> vkTextures;
+        std::vector<BoneInfluece> boneInfluenceVec;
+        std::vector<vkBone> bones;
+
+        VkUtilBuffer boneTransforms;
+        VkUtilBuffer boneInfluenceBuffer;
     };
 
+    [[nodiscard]]vkScene LoadScene(VkContext context, vk::CommandPool cPool, Scene& scene);
 
-    [[nodiscard]]inline static vkScene LoadScene(const vk::Device& device, const VmaAllocator& alloc, vk::CommandPool cPool, 
-       vk::Queue queue ,Scene& scene)
-    {
-        vkScene vkscene;
+    void LoadTextures(Scene& scene, vkScene& vkscene);
+    glm::mat4 NodeHierarchyTransform(uint32_t nodeId, const std::vector<NodeData>& nodeData);
+    void evaluateBoneTransforms(Scene& scene, std::vector<vkBone>& bones);
+    void UpdateVertices(Scene& scene, vkScene& vkscene);
 
-        std::vector<vkModel> vkModels;
-        std::vector<TextureVk> vkTextures;
-        const std::vector<Model>& models = scene.models;
 
-        for(int i = 0; i < scene.textures.size(); i++)
-        {
-            vkTextures.push_back(scene.textures[i]);
-        }
-
-        for(int i = 0; i < models.size(); i++)
-        {
-            const Model& model = models[i];
-            for(const Mesh& mesh : model.mMeshes)
-            {
-                vkModel vkModel;
-
-                std::vector<Vertex> vertices;
-                std::vector<int> indices;
-                uint32_t vertCount = mesh.vertices.size();
-                uint32_t indexCount = mesh.indices.size();
-
-                vertices.insert(vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
-                indices.insert(indices.end(), mesh.indices.begin(), mesh.indices.end());
-
-                
-                vkModel.vertCount = vertCount;
-                vkModel.indexCount = indexCount;
-                vkModel.vBufSize = sizeof(Vertex) * vertCount;
-                vkModel.iBufSize = sizeof(int) * indexCount;
-                vkModel.model = &scene.models[i];
-                
-                vk::BufferCreateInfo bufferCi;
-                bufferCi.size = vkModel.vBufSize + vkModel.iBufSize;
-                bufferCi.usage = vk::BufferUsageFlagBits::eVertexBuffer 
-                | vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress
-                | vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | vk::BufferUsageFlagBits::eStorageBuffer;
-                
-                VmaAllocationCreateInfo vBufferAllocCi{
-                    .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
-                    .usage = VMA_MEMORY_USAGE_AUTO
-                };
-                vmaCreateBuffer(alloc, reinterpret_cast<VkBufferCreateInfo*>(&bufferCi), &vBufferAllocCi,
-                reinterpret_cast<VkBuffer*>(&vkModel.buffer), &vkModel.bufferAllocation, &vkModel.bufferAllocInfo);
-                
-                memcpy(vkModel.bufferAllocInfo.pMappedData, vertices.data(), vkModel.vBufSize);
-                memcpy(((char*)vkModel.bufferAllocInfo.pMappedData) + vkModel.vBufSize, indices.data(), vkModel.iBufSize);
-                
-                vkModel.matIdx = mesh.matIndex;
-                
-                vkModels.push_back(vkModel);
-            }
-        }
-        vkscene.vkTextures = vkTextures;
-        vkscene.vkModels = vkModels;
-        return vkscene;
-    }
+    void loadMeshes(VkContext context, uint32_t modelIdx
+    ,uint32_t prevMeshSize, std::vector<Mesh>& meshes, std::vector<VkMesh>& vkMeshes, uint32_t& lastBoneInfCount
+    ,std::vector<BoneInfluece>& boneInfluenceVec, std::vector<vkBone>& bones);
 }

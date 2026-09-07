@@ -11,6 +11,16 @@ struct TextureVk
 };
 
 
+struct VkContext
+{
+    vk::Device device;
+    VmaAllocator alloc;
+    vk::Queue queue;
+    uint32_t queueFamily;
+    vk::PhysicalDevice physicalDevice;
+    vk::CommandPool commandPool;
+};
+
 struct VkImageCreateData
 {
     vk::CommandPool commandPool;
@@ -29,6 +39,7 @@ struct VkUtilBuffer
     VmaAllocationInfo allocInfo;
     VmaAllocation allocation;
     vk::DeviceAddress adress;
+    uint32_t size;
 };
 
 
