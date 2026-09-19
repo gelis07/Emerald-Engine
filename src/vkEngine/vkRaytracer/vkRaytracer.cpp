@@ -2,6 +2,7 @@
 #include "fmt/base.h"
 #include "fmt/format.h"
 #include <core/Utils.h>
+#include <filesystem>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stbi_write.h>
 #include <core/Utils.h>
@@ -29,21 +30,7 @@ void vkRaytracer::Init(RaytracerInitInfo info)
     .setAddressModeW(vk::SamplerAddressMode::eClampToEdge);
 
     texturSampler = info.device.createSampler(samplerCi);
-    VkImageCreateData skyboxCreateData;
-    skyboxCreateData.allocator = info.alloc;
-    skyboxCreateData.device = info.device;
-    skyboxCreateData.commandPool = mCommandPool;
-    skyboxCreateData.format = vk::Format::eR32G32B32A32Sfloat;
-    skyboxCreateData.queue = mComputeQueue;
-    skyboxCreateData.sizePerByte = 4;
-    int width, height, channels;
-    stbi_set_flip_vertically_on_load(false);
-    float* skyboxData = stbi_loadf("sky.hdr", &width, &height, &channels, 4);
-
-
-
-    skybox = vkUtils::LoadTexture(width, height, channels, (unsigned char*)skyboxData, skyboxCreateData);
-
+    
     mContext.alloc = info.alloc;
     mContext.commandPool = mCommandPool;
     mContext.device = info.device;
@@ -51,10 +38,30 @@ void vkRaytracer::Init(RaytracerInitInfo info)
     mContext.queue = info.computeQueue;
     mContext.queueFamily = info.queueFamily;
 
+    if (std::filesystem::exists("sky.hdr"))
+    {
+        VkImageCreateData skyboxCreateData;
+        skyboxCreateData.allocator = info.alloc;
+        skyboxCreateData.device = info.device;
+        skyboxCreateData.commandPool = mCommandPool;
+        skyboxCreateData.format = vk::Format::eR32G32B32A32Sfloat;
+        skyboxCreateData.queue = mComputeQueue;
+        skyboxCreateData.sizePerByte = 4;
+        int width, height, channels;
+        stbi_set_flip_vertically_on_load(false);
+        float* skyboxData = stbi_loadf("sky.hdr", &width, &height, &channels, 4);
+    
+    
+    
+        skybox = vkUtils::LoadTexture(width, height, channels, (unsigned char*)skyboxData, skyboxCreateData);
+        lightSampler.setUpSkyboxLightSampler(mContext, skyboxData, width * height, width, height);
+        stbi_image_free(skyboxData);
+        hasSkybox = true;
+    }else
+    {
+        hasSkybox = false;
+    }
 
-    lightSampler.setUpSkyboxLightSampler(mContext, skyboxData, width * height, width, height);
-    stbi_image_free(skyboxData);
-    hasSkybox = false;
 
     asManager.Init(mContext, dynamicDispatchLoader);
     asManager.CreateSceneAS(*mVkScene);
@@ -185,7 +192,6 @@ void vkRaytracer::Run(RaytracerRenderInfo info)
     fillSceneBuffers(info.rs->scene);
 
     CreateRayTracingCB(info.device, ASGPUBuildInfo, frameIdx == 0);
-    hasSkybox = false;
 
 
     CameraShaderData csd;
