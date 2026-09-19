@@ -10,10 +10,10 @@
 
 
 
-ModelConstructData AssimpLoader::LoadModel(const std::string& path, const LoadSceneInfo& info)
+ModelConstructData AssimpLoader::LoadModel(const std::string& path, const LoadSceneInfo& info, bool loadingFromEngScene)
 {
     texturesLoaded.clear();
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
+    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_FlipUVs);
 
     ModelConstructData data;
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
@@ -23,8 +23,7 @@ ModelConstructData AssimpLoader::LoadModel(const std::string& path, const LoadSc
     }
 
 
-
-    loadMaterials(scene, data, info);
+    loadMaterials(scene, data, info, path, loadingFromEngScene);
 
     data.nodeData = createNodeDataVec(scene);
 
@@ -34,189 +33,100 @@ ModelConstructData AssimpLoader::LoadModel(const std::string& path, const LoadSc
 }
 
 
-void AssimpLoader::loadMaterials(const aiScene* scene, ModelConstructData& data, const LoadSceneInfo& info)
+void AssimpLoader::LoadTextureType(aiTextureType textureType, TextureVk& out
+, const aiScene* scene,const aiMaterial* material, const LoadSceneInfo& info, ModelConstructData& data
+, Material& engineMat, uint32_t& updateIdx, std::string path)
+{
+    for (int i = 0; i < material->GetTextureCount(textureType); i++)
+    {
+        aiString str;
+        material->GetTexture(textureType, i, &str);
+        const aiTexture* embTexture = scene->GetEmbeddedTexture(str.C_Str());
+        if(embTexture != nullptr)
+        {
+            int width, height, channels;
+            unsigned char* texData = stbi_load_from_memory(
+                reinterpret_cast<unsigned char*>(embTexture->pcData),
+                embTexture->mWidth,
+                &width,
+                &height,
+                &channels,
+                4 // force RGBA
+            );
+            VkImageCreateData imgCreateData;
+            imgCreateData.allocator = info.alloc;
+            imgCreateData.commandPool = info.cPool;
+            imgCreateData.device = info.device;
+            imgCreateData.queue = info.queue;
+
+            out = vkUtils::LoadTexture(width, height, channels, texData, imgCreateData);
+            out.path = str.C_Str();
+            data.textureData.push_back(out);
+            updateIdx = info.prevTextCount + data.textureData.size() - 1;
+            stbi_image_free(texData);
+            continue;
+        }
+        bool skip = false;
+        for (int j = 0; j < texturesLoaded.size(); j++) 
+        {
+            if(std::strcmp(texturesLoaded[j].path.data(), str.C_Str()) == 0)
+            {
+                out = texturesLoaded[j];
+                skip = true;
+                break;
+            }
+        }
+        if(!skip)
+        {
+            int width, height, channels;
+
+            if(!Utils::ExistsFile(path + str.C_Str()))
+            {
+                fmt::println("file at {} doesn't exist!", path + str.C_Str());
+                continue;
+            }
+            fmt::println("file at {}", path + str.C_Str());
+
+
+            unsigned char* texData = stbi_load((path + str.C_Str()).c_str(), &width, &height, &channels, 4);
+            VkImageCreateData imgCreateData;
+            imgCreateData.allocator = info.alloc;
+            imgCreateData.commandPool = info.cPool;
+            imgCreateData.device = info.device;
+            imgCreateData.queue = info.queue;
+            out = vkUtils::LoadTexture(width, height, channels, texData, imgCreateData);
+            out.path = str.C_Str();
+            texturesLoaded.push_back(out);
+            stbi_image_free(texData);
+        }
+
+        updateIdx = info.prevTextCount + data.textureData.size() - 1;
+        data.textureData.push_back(out);
+    }
+}
+
+void AssimpLoader::loadMaterials(const aiScene* scene, ModelConstructData& data, const LoadSceneInfo& info, std::string path, bool loadFromEngScene)
 {
     for(int mat = 0; mat < scene->mNumMaterials; mat++)
     {
-        Material engineMat;
         TextureVk newTextureAlbedo;
         TextureVk newTextureRoughness;
         TextureVk newTextureMetalness;
         aiMaterial *material = scene->mMaterials[mat];
-
+        
+        Material engineMat;
         engineMat.albedoTexture = -1;
 
-        for (int i = 0; i < material->GetTextureCount(aiTextureType_DIFFUSE); i++)
-        {
-            aiString str;
-            material->GetTexture(aiTextureType_DIFFUSE, i, &str);
-            const aiTexture* embTexture = scene->GetEmbeddedTexture(str.C_Str());
-            if(embTexture != nullptr)
-            {
-                int width, height, channels;
-                unsigned char* texData = stbi_load_from_memory(
-                    reinterpret_cast<unsigned char*>(embTexture->pcData),
-                    embTexture->mWidth,
-                    &width,
-                    &height,
-                    &channels,
-                    4 // force RGBA
-                );
-                VkImageCreateData imgCreateData;
-                imgCreateData.allocator = info.alloc;
-                imgCreateData.commandPool = info.cPool;
-                imgCreateData.device = info.device;
-                imgCreateData.queue = info.queue;
+        LoadTextureType(aiTextureType_DIFFUSE, newTextureAlbedo, scene, material, info, data, engineMat, engineMat.albedoTexture, path);
+        LoadTextureType(aiTextureType_DIFFUSE_ROUGHNESS, newTextureRoughness, scene, material, info, data, engineMat, engineMat.roughnessTexture, path);
 
-                newTextureAlbedo = vkUtils::LoadTexture(width, height, channels, texData, imgCreateData);
-                data.textureData.push_back(newTextureAlbedo);
-                engineMat.albedoTexture = info.prevTextCount + data.textureData.size() - 1;
+        LoadTextureType(aiTextureType_METALNESS, newTextureAlbedo, scene, material, info, data, engineMat, engineMat.metallicnesTexture, path);
 
-                stbi_image_free(texData);
-                continue;
-            }
-            bool skip = false;
-            for (int j = 0; j < texturesLoaded.size(); j++) 
-            {
-                if(std::strcmp(texturesLoaded[j].path.data(), str.C_Str()) == 0)
-                {
-                    newTextureAlbedo = texturesLoaded[j];
-                    skip = true;
-                    break;
-                }
-            }
-            if(!skip)
-            {
-                int width, height, channels;
-                unsigned char* texData = stbi_load(str.C_Str(), &width, &height, &channels, 4);
-                VkImageCreateData imgCreateData;
-                imgCreateData.allocator = info.alloc;
-                imgCreateData.commandPool = info.cPool;
-                imgCreateData.device = info.device;
-                imgCreateData.queue = info.queue;
-                newTextureAlbedo = vkUtils::LoadTexture(width, height, channels, texData, imgCreateData);
-                texturesLoaded.push_back(newTextureAlbedo);
-                stbi_image_free(texData);
-            }
-            
-            data.textureData.push_back(newTextureAlbedo);
-            engineMat.albedoTexture = info.prevTextCount + data.textureData.size() - 1;
+        LoadTextureType(aiTextureType_NORMALS, newTextureAlbedo, scene, material, info, data, engineMat, engineMat.normalTexture, path);
 
-        }
-        for (int i = 0; i < material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS); i++)
-        {
-            aiString str;
-            material->GetTexture(aiTextureType_DIFFUSE, i, &str);
-            const aiTexture* embTexture = scene->GetEmbeddedTexture(str.C_Str());
-            if(embTexture != nullptr)
-            {
-                int width, height, channels;
-                unsigned char* texData = stbi_load_from_memory(
-                    reinterpret_cast<unsigned char*>(embTexture->pcData),
-                    embTexture->mWidth,
-                    &width,
-                    &height,
-                    &channels,
-                    4 // force RGBA
-                );
-                VkImageCreateData imgCreateData;
-                imgCreateData.allocator = info.alloc;
-                imgCreateData.commandPool = info.cPool;
-                imgCreateData.device = info.device;
-                imgCreateData.queue = info.queue;
-                imgCreateData.format = vk::Format::eR8G8B8A8Unorm;
-                newTextureRoughness = vkUtils::LoadTexture(width, height, channels, texData, imgCreateData);
-                data.textureData.push_back(newTextureRoughness);
-                engineMat.albedoTexture = info.prevTextCount + data.textureData.size() - 1;
-
-                stbi_image_free(texData);
-                continue;
-            }
-            bool skip = false;
-            for (int j = 0; j < texturesLoaded.size(); j++) 
-            {
-                if(std::strcmp(texturesLoaded[j].path.data(), str.C_Str()) == 0)
-                {
-                    newTextureRoughness = texturesLoaded[j];
-                    skip = true;
-                    break;
-                }
-            }
-            if(!skip)
-            {
-                int width, height, channels;
-                unsigned char* texData = stbi_load(str.C_Str(), &width, &height, &channels, 4);
-                VkImageCreateData imgCreateData;
-                imgCreateData.allocator = info.alloc;
-                imgCreateData.commandPool = info.cPool;
-                imgCreateData.device = info.device;
-                imgCreateData.queue = info.queue;
-                imgCreateData.format = vk::Format::eR8G8B8A8Unorm;
-                newTextureRoughness = vkUtils::LoadTexture(width, height, channels, texData, imgCreateData);
-                texturesLoaded.push_back(newTextureRoughness);
-                stbi_image_free(texData);
-            }
-            
-            data.textureData.push_back(newTextureRoughness);
-            engineMat.roughnessTexture = info.prevTextCount + data.textureData.size() - 1;
-        }
-        for (int i = 0; i < material->GetTextureCount(aiTextureType_METALNESS); i++)
-        {
-            aiString str;
-            material->GetTexture(aiTextureType_DIFFUSE, i, &str);
-            const aiTexture* embTexture = scene->GetEmbeddedTexture(str.C_Str());
-            if(embTexture != nullptr)
-            {
-                int width, height, channels;
-                unsigned char* texData = stbi_load_from_memory(
-                    reinterpret_cast<unsigned char*>(embTexture->pcData),
-                    embTexture->mWidth,
-                    &width,
-                    &height,
-                    &channels,
-                    4 // force RGBA
-                );
-                VkImageCreateData imgCreateData;
-                imgCreateData.allocator = info.alloc;
-                imgCreateData.commandPool = info.cPool;
-                imgCreateData.device = info.device;
-                imgCreateData.queue = info.queue;
-                imgCreateData.format = vk::Format::eR8G8B8A8Unorm;
-                newTextureMetalness = vkUtils::LoadTexture(width, height, channels, texData, imgCreateData);
-                data.textureData.push_back(newTextureMetalness);
-                engineMat.albedoTexture = info.prevTextCount + data.textureData.size() - 1;
-
-                stbi_image_free(texData);
-                continue;
-            }
-            bool skip = false;
-            for (int j = 0; j < texturesLoaded.size(); j++) 
-            {
-                if(std::strcmp(texturesLoaded[j].path.data(), str.C_Str()) == 0)
-                {
-                    newTextureMetalness = texturesLoaded[j];
-                    skip = true;
-                    break;
-                }
-            }
-            if(!skip)
-            {
-                int width, height, channels;
-                unsigned char* texData = stbi_load(str.C_Str(), &width, &height, &channels, 4);
-                VkImageCreateData imgCreateData;
-                imgCreateData.allocator = info.alloc;
-                imgCreateData.commandPool = info.cPool;
-                imgCreateData.device = info.device;
-                imgCreateData.queue = info.queue;
-                imgCreateData.format = vk::Format::eR8G8B8A8Unorm;
-                newTextureMetalness = vkUtils::LoadTexture(width, height, channels, texData, imgCreateData);
-                texturesLoaded.push_back(newTextureMetalness);
-                stbi_image_free(texData);
-            }
-            
-            data.textureData.push_back(newTextureMetalness);
-            engineMat.metallicnesTexture = info.prevTextCount + data.textureData.size() - 1;
-        }
+        if(loadFromEngScene)
+            continue;
+        
         aiColor3D albedo;
         aiColor3D emmColor;
         float metalness;
@@ -230,6 +140,7 @@ void AssimpLoader::loadMaterials(const aiScene* scene, ModelConstructData& data,
         engineMat.albedo = glm::vec3(albedo.r, albedo.g, albedo.b);
         engineMat.metalness = metalness;
         engineMat.roughness = roughness;
+        engineMat.name = material->GetName().C_Str();
         // engineMat.emmColor = glm::vec3(emmColor.r, emmColor.g, emmColor.b) * brightness;
         
         data.materials.push_back(engineMat);

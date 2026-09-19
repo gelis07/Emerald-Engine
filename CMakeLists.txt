@@ -35,7 +35,7 @@ src/vkEngine/vkRaytracer/ASManager.cpp
 src/vkEngine/vkRaytracer/RtPipeline.cpp
 src/vkEngine/vkBackend.cpp
 src/vkEngine/VkEngineApiBinding.cpp
-src/vkEngine/Animator.cpp
+src/core/Animator.cpp
 src/app/GUI.cpp
 src/app/CameraControl.cpp
 src/core/Model.cpp
@@ -49,6 +49,13 @@ vendor/imgui-new/misc/cpp/imgui_stdlib.cpp
 vendor/imgui-new/imgui_widgets.cpp
 vendor/ImGuizmo/src/ImGuizmo.cpp
 src/app/vkApp.cpp
+vendor/tinyfiledialogs.c
+vendor/fpng.cpp
+)
+
+target_compile_options(Raytracer PRIVATE
+    -msse4.1
+    -mpclmul
 )
 
 target_link_libraries(Raytracer PRIVATE libglfw3.a)

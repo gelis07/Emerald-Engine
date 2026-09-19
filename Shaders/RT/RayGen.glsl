@@ -1,7 +1,7 @@
 #version 460
 #extension GL_EXT_ray_tracing : require
 
-const int MAX_BOUNCES = 5;
+const int MAX_BOUNCES = 12;
 const int MAX_SAMPLES = 1;
 
 struct Ray
@@ -39,10 +39,12 @@ layout(binding = 2, std140) uniform Camera {
     int frameIdx;
     mat4 invProj;
     mat4 invView;
-    
+
     float skyboxProb;
     float totalSkyboxPower;
     bool skybox;
+
+    float intervalLength;
 } cam;
 layout(binding = 5, rgba8) uniform image2D sumImage;
 
@@ -120,8 +122,18 @@ void main()
         for(int bounce = 0; bounce < MAX_BOUNCES; bounce++)
         {
             payload.bounce = bounce;
+            bool rr = false;
+            if(bounce >= 3)
+            {
+                float p = max(payload.colorInfo.r, max(payload.colorInfo.g, payload.colorInfo.b));
+                p = clamp(p, 0.05, 0.95);
+                rr = RandomFloat(payload.sampleIdx) > p;
+                if(rr)
+                    payload.colorInfo /= p;
+            } 
+
             traceRayEXT(accStruct, gl_RayFlagsOpaqueEXT, 0xFF, 0, 0, 0, payload.newRay.pos, 0.001f, payload.newRay.dir, MAX_RAY_COLLISION_DISTANCE, 0);
-            if (all(lessThan(abs(payload.newRay.dir), vec3(0.0001))))
+            if (all(lessThan(abs(payload.newRay.dir), vec3(0.0001))) || rr)
             {
                 break;
             }
@@ -133,7 +145,5 @@ void main()
 
 
     vec3 outputColor = colorToStore / ((cam.frameIdx + 1)* MAX_SAMPLES);
-    // imageStore(sumImage, pixelCoord, vec4(finalColor, 1.0));
     imageStore(sumImage, pixelCoord, vec4(pow(outputColor, vec3(1.0/2.2)), 1.0));
-    // imageStore(sumImage, pixelCoord, vec4(finalColor / (MAX_SAMPLES), 1.0));
 }

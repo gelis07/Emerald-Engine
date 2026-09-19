@@ -33,7 +33,7 @@ class LightSampler
     public:
         void setUpSceneLightPbs(VkContext context,Scene* scene, const vkUtils::vkScene& vkScene);
         void deleteScene(VkContext context);
-        void setUpSkyboxLightSampler(VkContext context, float* pixels, uint32_t count);
+        void setUpSkyboxLightSampler(VkContext context, float* pixels, uint32_t count, uint32_t width, uint32_t height);
 
         VkUtilBuffer WalkersAliasLights; 
         VkUtilBuffer LightProbs;
@@ -44,8 +44,9 @@ class LightSampler
         float skyboxPower = 0.0f;
         float sceneLightsPower = 0.0f;
         float mTotalPower = 0.0f;   
+        float intervalLength = 0.0;
     private:
-        std::vector<WalkersAlias> createAliasVector(const std::vector<float>& pdf);
+        std::vector<WalkersAlias> createAliasVector(const std::vector<float>& pdf, float total, float axisLength);
         void createBuffer(VkContext context, uint32_t size, uint32_t* data, VkUtilBuffer* buffer);
         bool hasSkybox = false;
         std::vector<vkMeshLightProp> mMeshLighProps;

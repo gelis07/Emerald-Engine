@@ -42,8 +42,8 @@ struct ShaderData
 struct pushConstantsStruct
 {
     glm::mat4 mat;
-    uint32_t objId;
-    uint32_t modelId;
+    glm::vec3 albedo;
+    uint32_t textId;
 };
 struct boneGPU
 {
@@ -76,6 +76,7 @@ class vkRasterizer
         glm::vec2 mWindowDim;
         vk::CommandPool mCommandPool;
         
+        vk::Sampler texturSampler;
         vk::DescriptorSet descSet;
         vk::DescriptorSetLayout setLayout;
         vk::DescriptorPool descPool;

@@ -8,7 +8,6 @@
 struct LoadSceneInfo
 {
     uint32_t prevTextCount;
-
     vk::Device device;
     VmaAllocator alloc;
     vk::CommandPool cPool;
@@ -19,11 +18,14 @@ struct LoadSceneInfo
 class AssimpLoader
 {
     public:
-        ModelConstructData LoadModel(const std::string& path, const LoadSceneInfo& info);
+        ModelConstructData LoadModel(const std::string& path, const LoadSceneInfo& info, bool loadingFromEngScene = false);
     private:
+        void LoadTextureType(aiTextureType textureType, TextureVk& out
+        , const aiScene* scene,const aiMaterial* material, const LoadSceneInfo& info, ModelConstructData& data
+        , Material& engineMat, uint32_t& updateIdx, std::string path);
         void processNode(aiNode* node, const aiScene* scene, ModelConstructData& data);
         void processMesh(aiMesh *mesh, aiNode* node, const aiScene *scene, ModelConstructData& data);
-        void loadMaterials(const aiScene* scene, ModelConstructData& data, const LoadSceneInfo& info);
+        void loadMaterials(const aiScene* scene, ModelConstructData& data, const LoadSceneInfo& info, std::string path, bool loadFromEngScene);
         glm::mat4 AiToGlm(const aiMatrix4x4& m);
         glm::mat4 getGlobalTransform(const aiNode* node);
 

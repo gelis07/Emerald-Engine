@@ -18,6 +18,23 @@ namespace Utils
         T* child = nullptr;
     };
 
+    inline std::string checkExtensionOfFile(const std::string& path)
+    {
+        std::string extension = "";
+        for(int i = path.size() - 1; i >= 0; i--)
+        {
+            if(path[i] == '.')
+                break;
+
+            extension = path[i] + extension;
+        }
+        return extension;
+    }
+    inline bool ExistsFile(const std::string& path)
+    {
+        return std::ifstream(path.c_str()).good();
+    }
+
     inline char* ReadFile(const std::string& path)
     {
         std::ifstream file(path);

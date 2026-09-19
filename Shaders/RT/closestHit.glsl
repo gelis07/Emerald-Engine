@@ -58,7 +58,6 @@ struct Material
     float metalness;
     float idr;
     float transmittance;
-    float subsurface;
 
 
     uint albedoMap;
@@ -78,6 +77,7 @@ layout(binding = 2, std140) uniform Camera {
     float skyboxProb;
     float totalSkyboxPower;
     bool skybox;
+    float intervalLength;
 } cam;
 
 
@@ -166,7 +166,7 @@ uint PCGHash(uint seed) {
 float RandomFloat(inout uint seed)
 {
     seed = PCGHash(seed);
-    return float(seed) / 4294967295.0;
+    return (float(seed) + 0.5) / 4294967296.0;
 }
 
 vec3 RandomVec3(inout uint seed)
@@ -189,13 +189,14 @@ vec3 RandomOnHemisphere(inout uint seed, vec3 normal)
     }
 }
 
-float GGXNDF(vec3 n, vec3 wm, float a)
+float GGXNDF(vec3 n, vec3 h, float alpha)
 {
-    float costheta2 = dot(n,wm);
-    costheta2 *= costheta2;
-    float tantheta2 = -1.0 + 1.0 / costheta2;
-    float denom = pi * costheta2 * costheta2 * pow((a*a + tantheta2), 2.0);
-    return a*a / denom; 
+    float NoH = max(dot(n, h), 0.0);
+
+    float alpha2 = alpha * alpha;
+    float denom = NoH * NoH * (alpha2 - 1.0) + 1.0;
+
+    return alpha2 / (pi * denom * denom);
 }
 vec3 Fresnel(vec3 wi, vec3 wm, vec3 f0)
 {
@@ -208,6 +209,78 @@ float lambda(vec3 w, vec3 n, float a)
     float tantheta2 = -1.0 + 1.0 / costheta2;
     return 0.5 * (sqrt(1.0 + a*a*tantheta2) - 1.0);
 }
+
+vec3 CosineSampling(inout uint seed, vec3 n)
+{
+    float u = RandomFloat(seed);
+    float v = RandomFloat(seed);
+
+    float phi = 2.0 * pi * u;
+    float sinTheta = sqrt(v);
+    float cosTheta = sqrt(1 - v);
+
+    float x = sinTheta * cos(phi);
+    float y = sinTheta * sin(phi);
+    float z = cosTheta;
+
+    vec3 axis[3];
+    axis[2] = normalize(n);
+    vec3 an = (abs(axis[2].x) > 0.9) ? vec3(0.0, 1.0, 0.0) : vec3(1, 0, 0);
+    axis[1] = normalize(cross(axis[2], an));
+    axis[0] = cross(axis[2], axis[1]);
+
+    return axis[0] * x + axis[1] * y + axis[2] * z; 
+}
+
+float CosineSamplingPdf(vec3 n, vec3 w)
+{
+    return abs(dot(n, w)) / pi;
+}
+
+vec3 RandomWmVNDF(inout uint seed, vec3 wo, vec3 N, float a)
+{
+    vec3 z = vec3(0,0,1);
+
+    vec3 an = (abs(N.x) > 0.9) ? vec3(0.0, 1.0, 0.0) : vec3(1, 0, 0);
+    vec3 B = normalize(cross(N, an));
+    vec3 T = cross(N, B);
+
+    mat3 localToWorld = mat3(T,B,N);
+    mat3 worldToLocal = transpose(localToWorld);
+
+    vec3 view = worldToLocal * wo;
+
+    float u1 = RandomFloat(seed);
+    float u2 = RandomFloat(seed);
+
+    mat3 A = mat3(0.0);
+    A[0][0] = a;
+    A[1][1] = a;
+    A[2][2] = 1;
+
+    vec3 Vh = A * view;
+    Vh = normalize(Vh);
+
+    
+    vec3 T1 = (Vh.z < 0.99999) ? normalize(cross(z, Vh))
+                                    : z;
+    vec3 T2 = cross(Vh, T1);
+
+    float r = sqrt(u1);
+    float phi = 2.0 * pi * u2;
+    float t1 = r * cos(phi);
+    float t2 = r * sin(phi);
+    float s = (1.0 + Vh.z) * 0.5;
+    t2 = (1.0 - s) * sqrt(1.0 - t1*t1) + s * t2;
+
+    float uh = sqrt(max(0.0,1 - t1*t1 - t2*t2));
+
+    vec3 Nh = t1 * T1 + t2 * T2 + uh*Vh;
+
+    vec3 wm = normalize(A * Nh);
+    return localToWorld * wm;
+}
+
 vec3 RandomWm(inout uint seed, vec3 w, float a)
 {
     float r1 = RandomFloat(seed);
@@ -229,12 +302,24 @@ vec3 RandomWm(inout uint seed, vec3 w, float a)
     return axis[0] * x + axis[1] * y + axis[2] * z; 
 }
 
+float G1(vec3 w, vec3 n, float a)
+{
+    return ( 1.0 / (1.0 + lambda(w, n, a)));
+}
+// float TorSpPdf(vec3 wo, vec3 wm, vec3 n, float a)
+// {
+//     float cosThetaM = max(dot(n, wm), 0.0001);
+//     float cosWoWm = max(dot(wo, wm), 0.0001);
+
+//     return GGXNDF(n, wm, a) * (cosThetaM) / (4.0 * cosWoWm);
+// }
 float TorSpPdf(vec3 wo, vec3 wm, vec3 n, float a)
 {
-    float cosThetaM = max(dot(n, wm), 0.0001);
-    float cosWoWm = max(dot(wo, wm), 0.0001);
+    float nDotWm = max(dot(wm, n), 0.001);
+    float cosWoWm = max(dot(wo, wm), 0.001);
+    float vndf = (G1(wo, n ,a) / nDotWm) * GGXNDF(n, wm, a);
 
-    return GGXNDF(n, wm, a) * (cosThetaM) / (4.0 * cosWoWm);
+    return max(vndf / (4.0 * cosWoWm), 0.001);
 }
 
 float areaPdfToSAng(float areaProb, vec3 lightDir, vec3 lightNormal, float dist)
@@ -242,10 +327,6 @@ float areaPdfToSAng(float areaProb, vec3 lightDir, vec3 lightNormal, float dist)
     return areaProb * dist * dist / max(abs(dot(lightNormal, lightDir)), 0.0001);
 }
 
-float G1(vec3 w, vec3 n, float a)
-{
-    return ( 1.0 / (1.0 + lambda(w, n, a)));
-}
 
 
 float G(vec3 wo, vec3 wi, vec3 n, float a)
@@ -391,7 +472,8 @@ triInfo pickRandomPointOnTri(triPick tri, inout uint seed)
 
 
 vec3 bsdfEvaluation(vec3 f0, vec3 wm, vec3 wo, vec3 wi
-, vec3 n, float a, float metalness, vec3 albedo, float subsurface)
+, vec3 n, float a, float metalness, vec3 albedo, float transmittance
+, float eta)
 {
     float nDotWm = max(dot(wm,n), 0.0001);
     float nDotWo = max(dot(wo,n), 0.0001);
@@ -400,10 +482,33 @@ vec3 bsdfEvaluation(vec3 f0, vec3 wm, vec3 wo, vec3 wi
     vec3 fBase = (albedo/ pi);
     vec3 fDiffuse = fBase;
 
-    vec3 F = Fresnel(wi, wm, f0);
-    vec3 specularBrdf = GGXNDF(n, wm, a) * F * G(wo, wi, n, a) / (4.0 * nDotWi*nDotWo);
 
-    vec3 bsdf = (1.0 - metalness) * fDiffuse + metalness * specularBrdf;
+    vec3 F = Fresnel(wi, wm, f0);
+    vec3 specularBrdf = vec3(0.0);
+    specularBrdf = GGXNDF(n, wm, a) * F * G(wo, wi, n, a) / (4.0 * nDotWi*nDotWo);
+    vec3 btdf = vec3(0.0);
+    eta = 1.0 / eta;
+    if(dot(wi, wm) < 0.0)
+    {
+        float h = dot(-wi, wm) + dot(wo, wm) / eta;
+        if (abs(h) > 1e-5)
+        {
+            btdf = GGXNDF(n, wm, a)
+                * (vec3(1.0) - Fresnel(-wi, wm, f0))
+                * G(wo, -wi, n, a)
+                * abs(dot(-wi, wm))
+                * abs(dot(wo, wm));
+
+            btdf /= h * h *
+                    abs(dot(-wi, n) * dot(wo, n));
+        }
+    }
+    
+
+    vec3 bsdf = (1.0 - transmittance) * (1.0 - metalness) * fDiffuse 
+    + (1.0 - transmittance * (1.0 - metalness)) *specularBrdf
+    + (1.0 - metalness) * transmittance * btdf;
+
     return bsdf;
 }
 
@@ -412,8 +517,8 @@ vec3 bsdfEvaluation(vec3 f0, vec3 wm, vec3 wo, vec3 wi
 struct samplingSkyboxInfo 
 {
     vec3 dir;
-    ivec2 uvs;
-    float phi;
+    vec2 uvs;
+    float theta;
 };
 
 //Importance sampling the skybox.
@@ -423,12 +528,12 @@ samplingSkyboxInfo ImpSampleSkybox(inout uint seed)
     float R = RandomFloat(seed);
     float x = R * size.x * size.y;
     uint i = uint(x); 
-    float rem = x - i;
+    R *= cam.intervalLength;
 
     uint pixelIdx;
     if(walkersAliasSkybox.bucket[i].aliasIdx != UINT_MAX)
     {
-        pixelIdx = (rem < walkersAliasSkybox.bucket[nonuniformEXT(i)].prob) 
+        pixelIdx = (R < walkersAliasSkybox.bucket[nonuniformEXT(i)].prob) 
         ? walkersAliasSkybox.bucket[nonuniformEXT(i)].startIdx 
         : walkersAliasSkybox.bucket[nonuniformEXT(i)].aliasIdx;
     }else
@@ -437,19 +542,24 @@ samplingSkyboxInfo ImpSampleSkybox(inout uint seed)
     }
 
 
-    uint u = uint(floor(pixelIdx / size.x));
-    uint v = pixelIdx - u * size.x;
+    uint u = pixelIdx % size.x;
+    uint v = pixelIdx / size.x;
 
-    float theta = 2.0 * pi * u - pi;
-    float phi = pi*v - pi*0.5;
+    float uf = (float(u)) / float(size.x);
+    float vf = (float(v)) / float(size.y);
+
+
+    float theta = pi * vf;
+    float phi = 2 * pi * uf - pi;
 
     samplingSkyboxInfo info;
-    info.dir.x = cos(phi) * cos(theta);
-    info.dir.y = sin(phi);
-    info.dir.z = cos(phi) * sin(theta);
+
+    info.dir.x = cos(phi) * sin(theta);
+    info.dir.y = cos(theta);
+    info.dir.z = sin(phi) * sin(theta);
     info.dir = normalize(info.dir);
-    info.uvs = ivec2(u,v);
-    info.phi = phi;
+    info.uvs = vec2(uf,vf);
+    info.theta = theta;
     return info;
 }
 
@@ -457,26 +567,55 @@ samplingSkyboxInfo ImpSampleSkybox(inout uint seed)
 
 
 vec3 NEEFromSkybox(inout uint seed, vec3 rayPos, float metalness, vec3 f0
-, vec3 n, float a, vec3 throughput, vec3 wo, vec3 albedo, float subsurface)
+, vec3 n, float a, vec3 throughput, vec3 wo, vec3 albedo, float transmittance, float eta)
 {
     rayQueryEXT shadowRayQuery;
     samplingSkyboxInfo skyboxInfo = ImpSampleSkybox(seed);
     vec3 wi = skyboxInfo.dir;
+
+
+    float nDotWi = dot(wi, n);
+    if(nDotWi <= 0.0)
+        return vec3(0.0);
+
     vec3 wm = normalize(wi+wo);
     uint flags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
-    rayQueryInitializeEXT(shadowRayQuery, accStruct, flags, 0xFF, rayPos, 0.001, wi, 1e24);
+    rayQueryInitializeEXT(shadowRayQuery, accStruct, flags, 0xFF, rayPos, 0.001, skyboxInfo.dir, 1e24);
     while(rayQueryProceedEXT(shadowRayQuery)) {}
     if(rayQueryGetIntersectionTypeEXT(shadowRayQuery, true) == gl_RayQueryCommittedIntersectionNoneEXT)
     {
-        ivec2 size = textureSize(skybox, 0);
-        vec3 skyColor = texture(skybox, vec2(skyboxInfo.uvs.x, skyboxInfo.uvs.y)).rgb;
-        float pixelProb = skyColor.x / cam.totalSkyboxPower;
-        float probToWi = cam.skyboxProb * pixelProb * size.x * size.y / (2.0 * pi * pi * cos(skyboxInfo.phi));
-        float brdfPdf = TorSpPdf(wo, wm, n, a);
-        float nDotWi = max(dot(wi, n), 0.0001);
-        vec3 bsdf = bsdfEvaluation(f0, wm, wo, wi, n, a, metalness, albedo, subsurface);
+        float glassWeight = (1.0 - metalness) * transmittance;
+        float diffuseWeight = (1.0 - metalness) * (1.0 - transmittance);
+        float metalWeight = (1.0 - transmittance * (1.0 - metalness));
 
-        vec3 directLight = skyColor * bsdf * nDotWi * throughput / (probToWi + brdfPdf);
+        float btdfPdf = 0.0;
+        if(dot(wi, wm) <= 0.0)
+        {
+            btdfPdf = GGXNDF(n, wm, a) * abs(dot(n,wm)) * abs(dot(-wi, wm));
+            btdfPdf /= pow( dot(-wi, wm) + dot(wo, wm) * eta, 2);
+        }
+
+        float diffusePdf = CosineSamplingPdf(n, wi);
+        float brdfPdf = TorSpPdf(wo, wm, n, a);
+
+        float bsdfPdf =
+        diffuseWeight * diffusePdf
+        + metalWeight * brdfPdf
+        + btdfPdf * glassWeight;
+
+        // float bsdfPdf = brdfPdf;
+        ivec2 size = textureSize(skybox, 0);
+        vec3 skyColor = texture(skybox, skyboxInfo.uvs).rgb;
+
+        float pixelProb = skyColor.r / cam.totalSkyboxPower;
+
+        float probToWi = cam.skyboxProb *  pixelProb * size.x*size.y / (2.0 * pi * pi * max(sin(skyboxInfo.theta), 0.001));
+
+        vec3 bsdf = bsdfEvaluation(f0, wm, wo, wi, n, a, metalness, albedo, transmittance, eta);
+
+        vec3 directLight = vec3(0.0);
+        if(abs(probToWi + bsdfPdf) > 0.001)
+            directLight = skyColor * bsdf * nDotWi * throughput / (max(probToWi, 0.001) + bsdfPdf);
 
         return directLight;
     }
@@ -486,7 +625,7 @@ vec3 NEEFromSkybox(inout uint seed, vec3 rayPos, float metalness, vec3 f0
 
 
 vec3 NEEFromSceneLight(inout uint seed, vec3 rayPos, float metalness, vec3 f0
-, vec3 n, float a, vec3 throughput, vec3 wo, vec3 albedo, float subsurface)
+, vec3 n, float a, vec3 throughput, vec3 wo, vec3 albedo, float transmittance, float eta)
 {
     rayQueryEXT shadowRayQuery;
 
@@ -515,11 +654,28 @@ vec3 NEEFromSceneLight(inout uint seed, vec3 rayPos, float metalness, vec3 f0
         //It hit a light.
         if(dot(wi, n) > 0.0 && dot(lightTriInfo.normal, lightDir) > 0.0)
         {
-            float lightPdf = areaPdfToSAng((1.0 - cam.skyboxProb) * lightTri.modelProb * lightTri.triProb * 1.0/lightTriInfo.area, lightDir, lightTriInfo.normal, lightDist);
+            float glassWeight = (1.0 - metalness) * transmittance;
+            float diffuseWeight = (1.0 - metalness) * (1.0 - transmittance);
+            float metalWeight = (1.0 - transmittance * (1.0 - metalness));
+
+            float btdfPdf = GGXNDF(n, wm, a) * abs(dot(n,wm)) * abs(dot(-wi, wm));
+            btdfPdf /= pow( dot(-wi, wm) + dot(wo, wm) * eta, 2);
+
+
+            float diffusePdf = CosineSamplingPdf(n, wi);
             float brdfPdf = TorSpPdf(wo, wm, n, a);
+
+            float bsdfPdf =
+            diffuseWeight * diffusePdf
+            + metalWeight   * brdfPdf
+            + glassWeight   * btdfPdf;
+
+            float lightPdf = areaPdfToSAng((1.0 - cam.skyboxProb) * lightTri.modelProb * lightTri.triProb * 1.0/lightTriInfo.area, lightDir, lightTriInfo.normal, lightDist);
             float nDotWi = max(dot(wi, n), 0.0001);
-            vec3 bsdf = bsdfEvaluation(f0, wm, wo, wi, n, a, metalness, albedo, subsurface);
-            vec3 directLight = shadowHitMat.emmColor * bsdf * nDotWi * throughput / (lightPdf + brdfPdf);
+            vec3 bsdf = bsdfEvaluation(f0, wm, wo, wi, n, a, metalness, albedo, transmittance, eta);
+            vec3 directLight = vec3(0.0);
+            if(abs(lightPdf + bsdfPdf) > 0.001)
+                directLight = shadowHitMat.emmColor * bsdf * nDotWi * throughput / (lightPdf + bsdfPdf);
 
             return directLight;
         }
@@ -528,9 +684,47 @@ vec3 NEEFromSceneLight(inout uint seed, vec3 rayPos, float metalness, vec3 f0
 }
 
 
+void BRDFSample(Material mat, uint modelIdx, vec3 wo, vec3 n, float t)
+{
+    //BRDF sampler hit the light
+    if(payload.bounce == 0)
+    {
+        payload.sampleInfo += payload.colorInfo * mat.emmColor;
+    }
+    else
+    {
+        uint lightIdx = -1;
+        for(int i = 0; i < cam.lightCount; i++)
+        {
+            if(modelIdx == lights.meshLights[i].modelIdx)
+            {
+                lightIdx = i;
+                break;
+            }
+        }
+        if(lightIdx == -1)
+            return;
+            
+        float modelProb = lights.meshLights[nonuniformEXT(lightIdx)].prob;
+
+        trianglePos triPos = getTriangleFromIdx(modelIdx, gl_PrimitiveID);
+        float area = calcTriArea(triPos);
+        triPickingData triProb = triangleProbs[nonuniformEXT(lightIdx)].triPickerData[nonuniformEXT(gl_PrimitiveID)];
+
+        float lightPdf = areaPdfToSAng((1-cam.skyboxProb)*modelProb * triProb.prob * 1.0/area, wo, n, t);
+        float brdfPdf = payload.prevBrdfPdf;
+
+        float misWeight = brdfPdf / (brdfPdf + lightPdf);
+        payload.sampleInfo += payload.colorInfo * mat.emmColor * misWeight;
+    }
+    payload.newRay.dir = vec3(0.0);
+
+}
+
+
 void main()
 {
-    vec3 origin    = payload.newRay.pos;
+    vec3 origin = payload.newRay.pos;
     vec3 direction = payload.newRay.dir;
 
     uint modelIdx = gl_InstanceID; 
@@ -590,6 +784,7 @@ void main()
         );
     
     float a = mat.roughness * mat.roughness;
+    a = max(a, 0.001);
 
     if(mat.roughnessMap != -1)
     {
@@ -602,62 +797,21 @@ void main()
     vec3 n = frontFace ? worldNormal : -worldNormal;
 
 
-    
+    float eta = frontFace ? (1.0 / mat.idr) : mat.idr;
     float t = gl_HitTEXT;
-    payload.newRay.pos = origin + direction * t + n * 0.001;
     vec3 wo = normalize(-direction);
-    vec3 BRDFWm = RandomWm(payload.sampleIdx, n, a);
-    vec3 BRDFWi = -wo + 2.0 * dot(wo, BRDFWm) * BRDFWm;
-
 
     if(any(notEqual(mat.emmColor, vec3(0.0))))
     {
-        //BRDF sampler hit the light
-        if(payload.bounce == 0)
-        {
-            payload.sampleInfo += payload.colorInfo * mat.emmColor;
-        }
-        else
-        {
-            uint lightIdx = -1;
-            for(int i = 0; i < cam.lightCount; i++)
-            {
-                if(modelIdx == lights.meshLights[i].modelIdx)
-                {
-                    lightIdx = i;
-                    break;
-                }
-            }
-            if(lightIdx == -1)
-                return;
-                
-            float modelProb = lights.meshLights[nonuniformEXT(lightIdx)].prob;
-
-            trianglePos triPos = getTriangleFromIdx(modelIdx, gl_PrimitiveID);
-            float area = calcTriArea(triPos);
-            triPickingData triProb = triangleProbs[nonuniformEXT(lightIdx)].triPickerData[nonuniformEXT(gl_PrimitiveID)];
-
-            float lightPdf = areaPdfToSAng((1-cam.skyboxProb)*modelProb * triProb.prob * 1.0/area, wo, worldNormal, t);
-            float brdfPdf = payload.prevBrdfPdf;
-
-            float misWeight = brdfPdf / (brdfPdf + lightPdf);
-            payload.sampleInfo += payload.colorInfo * mat.emmColor * misWeight;
-        }
-        payload.newRay.dir = vec3(0.0);
+        BRDFSample(mat, modelIdx, wo, n, t);
         return;
     }
-
-
-    if (dot(n, BRDFWi) <= 0.0 || dot(wo, BRDFWm) <= 0.0) {
-        payload.newRay.dir = vec3(0.0);
-        return;
-    }
-
     vec3 albedo = mat.albedo;
     if(mat.albedoMap != -1)
     {
         vec2 uvHit = barycentrics.x * texCoord0 + barycentrics.y * texCoord1 + barycentrics.z * texCoord2;
         albedo = textureLod(texImage[nonuniformEXT(mat.albedoMap)], uvHit, 0.0).rgb;
+        // albedo = vec3(1.0, 0.0, 1.0);
     }
     float metalness = mat.metalness;
     if(mat.metalicnessMap != -1)
@@ -665,28 +819,96 @@ void main()
         vec2 uvHit = barycentrics.x * texCoord0 + barycentrics.y * texCoord1 + barycentrics.z * texCoord2;
         metalness = textureLod(texImage[nonuniformEXT(mat.metalicnessMap)], uvHit, 0.0).r;
     }
-
-
     vec3 f0 = mix(vec3(0.04), albedo, metalness);
+
+    vec3 BRDFWi;
+    vec3 BRDFWm = RandomWmVNDF(payload.sampleIdx, wo, n, a);
+
     
+    float glassWeight = (1.0 - metalness) * mat.transmittance;
+    float diffuseWeight = (1.0 - metalness) * (1.0 - mat.transmittance);
+    float metalWeight = (1.0 - mat.transmittance * (1.0 - metalness));
+
+
+    float total = glassWeight + diffuseWeight + metalWeight;
+    glassWeight /= total;
+    diffuseWeight /= total;
+    metalWeight /= total;
+    float chooseWeight = RandomFloat(payload.sampleIdx);
+    float nDotWi;
+
+
+    if(chooseWeight < glassWeight)
+    {
+        payload.newRay.pos = origin + direction * t - n * 0.001;
+        float c = dot(wo, BRDFWm); 
+        if(c <= 0.0)
+        {
+            return;
+        }
+        float k = 1.0 - (eta * eta) * (1.0 - c * c);
+        if(k < 0.0)
+        {
+            return;
+        }
+
+        BRDFWi = normalize(-eta * wo + (eta * c - sqrt(k)) * BRDFWm);
+        nDotWi = abs(dot(-BRDFWi, n));
+    }else if(chooseWeight < glassWeight + diffuseWeight)
+    {
+        payload.newRay.pos = origin + direction * t + n * 0.001;
+        BRDFWi = CosineSampling(payload.sampleIdx, n);
+        BRDFWm = normalize(wo+BRDFWi);
+        if (dot(n, BRDFWi) <= 0.0 || dot(wo, BRDFWm) <= 0.0) {
+            payload.newRay.dir = vec3(0.0);
+            return;
+        }
+        nDotWi = max(dot(BRDFWi, n), 0.0001);
+    }else
+    {
+        payload.newRay.pos = origin + direction * t + n * 0.001;
+        BRDFWi = normalize(-wo + 2.0 * dot(wo, BRDFWm) * BRDFWm);
+        if (dot(BRDFWm, BRDFWi) <= 0.0 || dot(wo, BRDFWm) <= 0.0) {
+            payload.newRay.dir = vec3(0.0);
+            return;
+        }
+        nDotWi = max(dot(BRDFWi, n), 0.0001);
+    }
+
+    float btdfPdf = 0.0;
+    if(dot(BRDFWi, BRDFWm) <= 0.0)
+    {
+        btdfPdf = GGXNDF(n, BRDFWm, a) * abs(dot(n,BRDFWm)) * abs(dot(-BRDFWi, BRDFWm));
+        btdfPdf /= pow( dot(-BRDFWi, BRDFWm) + dot(wo, BRDFWm) * eta, 2);
+    }
+    float diffusePdf = CosineSamplingPdf(n, BRDFWi);
+    float brdfPdf = TorSpPdf(wo, BRDFWm, n, a);
+
+    float bsdfPdf =
+    diffuseWeight * diffusePdf
+    + metalWeight * brdfPdf
+    + btdfPdf * glassWeight;
+
     float chooseSampler = 1;
-    if(false)
+    if(cam.skybox)
         chooseSampler = RandomFloat(payload.sampleIdx);
 
     if(chooseSampler < cam.skyboxProb)
     {
-        payload.sampleInfo += NEEFromSkybox(payload.sampleIdx, payload.newRay.pos, metalness, f0, n, a, payload.colorInfo, wo, albedo, mat.subsurface);
+        payload.sampleInfo += NEEFromSkybox(payload.sampleIdx, payload.newRay.pos, metalness, f0, n, a, payload.colorInfo, wo, albedo, mat.transmittance, 1.0 / eta);
     }else
     {   
         if(cam.lightCount != 0)
-            payload.sampleInfo += NEEFromSceneLight(payload.sampleIdx, payload.newRay.pos, metalness, f0, n, a, payload.colorInfo, wo, albedo, mat.subsurface);
+            payload.sampleInfo += NEEFromSceneLight(payload.sampleIdx, payload.newRay.pos, metalness, f0, n, a, payload.colorInfo, wo, albedo, mat.transmittance, 1.0 / eta);
     }
 
+
+
+    vec3 bsdf = bsdfEvaluation(f0, BRDFWm, wo, BRDFWi, n, a, metalness, albedo, mat.transmittance, eta);
+    if(abs(bsdfPdf) > 0.001)
+        payload.colorInfo *= bsdf * nDotWi / bsdfPdf;
+
+    payload.prevBrdfPdf = bsdfPdf;
     payload.newRay.dir = BRDFWi;
-    payload.prevBrdfPdf = TorSpPdf(wo, BRDFWm, n, a);
-    float nDotWi = max(dot(BRDFWi, n), 0.0001);
 
-    vec3 bsdf = bsdfEvaluation(f0, BRDFWm, wo, BRDFWi, n, a, metalness, albedo, mat.subsurface);
-
-    payload.colorInfo *= bsdf * nDotWi / payload.prevBrdfPdf;
 }

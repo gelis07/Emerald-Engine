@@ -11,5 +11,7 @@ struct RenderSettings
     int spp;
     int imageOut;
     int frameIdx;
+
+    uint32_t animFrame = 0;
     bool playAnimation = false;
 };

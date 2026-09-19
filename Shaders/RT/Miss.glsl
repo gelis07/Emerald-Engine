@@ -43,22 +43,25 @@ layout(binding = 2, std140) uniform Camera {
     float skyboxProb;
     float totalSkyboxPower;
     bool skybox;
+
+    float intervalLength;
 } cam;
 
 void main()
 {
     vec3 dir = payload.newRay.dir;
 
-    float theta = atan(dir.z, dir.x);
-    float phi =  asin(dir.y);
+    float theta = acos(dir.y);
+    float phi = atan(dir.z, dir.x);
 
-    float u = (theta + pi) / (2.0 * pi);
-    float v = (phi + pi * 0.5) / pi;
+    float u = phi / (2.0 * pi) + 0.5;
+    float v = theta / pi;
 
     vec3 sky = texture(skybox, vec2(u,v)).rgb;
 
     payload.newRay.dir = vec3(0.0,0.0,0.0);
-    if(!false)
+
+    if(!cam.skybox)
         return;
 
     if(payload.bounce == 0)
@@ -70,8 +73,10 @@ void main()
         ivec2 size = textureSize(skybox, 0);
         float pixelProb = sky.x / cam.totalSkyboxPower;
         float brdfPdf = payload.prevBrdfPdf;
-        float probToWi = cam.skyboxProb * pixelProb * size.x * size.y / (2.0 * pi * pi * cos(phi));
-        payload.sampleInfo += payload.colorInfo * sky * brdfPdf / (brdfPdf + probToWi);
+        float probToWi = cam.skyboxProb * pixelProb * size.x * size.y / (2.0 * pi * pi * max(sin(theta), 0.001));
+        // payload.sampleInfo += payload.colorInfo * sky * 0.5;
+        if(abs(probToWi + brdfPdf) > 0.001)
+            payload.sampleInfo += payload.colorInfo * sky * brdfPdf / (probToWi + brdfPdf);
     }
 
 }

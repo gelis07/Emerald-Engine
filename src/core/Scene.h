@@ -23,6 +23,7 @@ class Scene
             models.reserve(20);
             Material mat;
             mat.albedo = glm::vec3(1.0f);
+            mat.name = "Default";
             materials.push_back(mat);
         }
 };

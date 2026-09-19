@@ -1,4 +1,5 @@
 #include "LightSampling.h"
+#include "fmt/base.h"
 #include <queue>
 
 struct MeshLightGPU
@@ -52,7 +53,7 @@ void LightSampler::setUpSceneLightPbs(VkContext context,Scene* scene, const vkUt
             pdf.push_back(meshLightProp.trianglesData[i].prob);
         }
 
-        std::vector<WalkersAlias> walkersAliasTriangles = createAliasVector(pdf);
+        std::vector<WalkersAlias> walkersAliasTriangles = createAliasVector(pdf, 1.0, 1.0);
 
         VkUtilBuffer triangleWalkersAliasBuffer;
         createBuffer(context, sizeof(WalkersAlias) * walkersAliasTriangles.size(), (uint32_t*)walkersAliasTriangles.data()
@@ -83,7 +84,7 @@ void LightSampler::setUpSceneLightPbs(VkContext context,Scene* scene, const vkUt
         meshLights.push_back(meshLight);
     }
 
-    std::vector<WalkersAlias> meshesWalkersAlias = createAliasVector(pdf);
+    std::vector<WalkersAlias> meshesWalkersAlias = createAliasVector(pdf, 1.0, 1.0);
     createBuffer(context, sizeof(WalkersAlias) * meshesWalkersAlias.size(), (uint32_t*)meshesWalkersAlias.data()
     , &WalkersAliasLights);
 
@@ -94,51 +95,74 @@ void LightSampler::setUpSceneLightPbs(VkContext context,Scene* scene, const vkUt
 }
 
 //the float pdf indices should correspond to an actual vector of the stuff you need.
-std::vector<WalkersAlias> LightSampler::createAliasVector(const std::vector<float>& pdf)
+std::vector<WalkersAlias>
+LightSampler::createAliasVector(const std::vector<float>& pdf, float total, float axisLength)
 {
-    std::queue<placeInVector> lessThatAvg;
-    std::queue<placeInVector> greaterThatAvg;
-    std::vector<WalkersAlias> final;
-    const uint32_t n = pdf.size();
-    for (uint32_t i = 0; i < n; i++)
+    const uint32_t n = static_cast<uint32_t>(pdf.size());
+
+    std::vector<WalkersAlias> table(n);
+
+    std::vector<float> scaled(n);
+
+    std::queue<uint32_t> small;
+    std::queue<uint32_t> large;
+
+    float intervalSize = axisLength / n;
+
+    for (uint32_t i = 0; i < n; ++i)
     {
-        if(std::abs(pdf[i] - 1.0f/n) < 0.0001)
-        {
-            final.push_back({1.0f/n, i, UINT32_MAX});
-        }
-        else if(pdf[i] < 1.0f/n)
-        {
-            lessThatAvg.push({pdf[i], i});
-        }else if(pdf[i] > 1.0f/n)
-        {
-            greaterThatAvg.push({pdf[i], i});
-        }
+        scaled[i] = pdf[i] * axisLength / total;
+
+        table[i].startIdx = i;
+        table[i].aliasIdx = UINT32_MAX;
+        table[i].prob = intervalSize;
+
+        if (scaled[i] < intervalSize)
+            small.push(i);
+        else
+            large.push(i);
     }
 
-    while(!lessThatAvg.empty())
+    while (!small.empty() && !large.empty())
     {
-        float underProb = lessThatAvg.front().prob;
-        float& overProb = greaterThatAvg.front().prob;
-        overProb -= 1.0/n - underProb;
+        uint32_t s = small.front();
+        small.pop();
 
-        final.push_back({underProb * n, lessThatAvg.front().idx, greaterThatAvg.front().idx});
-        lessThatAvg.pop();
+        uint32_t l = large.front();
+        large.pop();
 
-        if(std::abs(overProb - 1.0f/n) < 0.0001f)
-        {
-            final.push_back({1.0f/n, greaterThatAvg.front().idx, UINT32_MAX});
-            greaterThatAvg.pop();
-        }
-        else if(overProb < 1.0f/n)
-        {
-            lessThatAvg.push({overProb, greaterThatAvg.front().idx});
-            greaterThatAvg.pop();
-        }
+        table[s].prob = scaled[s];
+        table[s].aliasIdx = l;
+
+        scaled[l] -= (intervalSize - scaled[s]);
+
+        if (scaled[l] < intervalSize)
+            small.push(l);
+        else
+            large.push(l);
     }
 
-    return final;
+    // Anything left is exactly full.
+    while (!large.empty())
+    {
+        uint32_t i = large.front();
+        large.pop();
+
+        table[i].prob = intervalSize;
+        table[i].aliasIdx = UINT32_MAX;
+    }
+
+    while (!small.empty())
+    {
+        uint32_t i = small.front();
+        small.pop();
+
+        table[i].prob = intervalSize;
+        table[i].aliasIdx = UINT32_MAX;
+    }
+
+    return table;
 }
-
 void LightSampler::createBuffer(VkContext context, uint32_t size, uint32_t* data, VkUtilBuffer* buffer)
 {
     vk::BufferCreateInfo bufferCi;
@@ -183,24 +207,59 @@ void LightSampler::deleteScene(VkContext context)
 
 }
 
-
-void LightSampler::setUpSkyboxLightSampler(VkContext context, float* pixels, uint32_t count)
+const float pi = 3.14159265359;
+const float axisLength = 10000.0;
+void LightSampler::setUpSkyboxLightSampler(VkContext context, float* pixels, uint32_t count, uint32_t width, uint32_t height)
 {
     float totalPower = 0.0f;
     std::vector<float> pdf;
     pdf.resize(count);
+
     for(int i = 0; i < count; i++)
     {
-        pdf[i] = pixels[i*4];
+        pdf[i] = pixels[i * 4];
         totalPower += pixels[i*4];
     }
+    uint32_t idx = 0;
+    float maxProb = 0.0f;
+    float maxPower;
+
     for(int i = 0; i < count; i++)
     {
-        pdf[i] /= totalPower;
+        float test = pdf[i];
+        // pdf[i] /= totalPower;
+        if(pdf[i] > maxProb)
+        {
+            maxPower = test;
+            maxProb = pdf[i];
+            idx = i;
+        }
     }
+
+    fmt::println("max power: {}", maxPower);
+
+    uint32_t u = idx % width;
+    uint32_t v = idx / width;
+
+    fmt::println("uvs: {}, {}", u, v);
+    
+    float uf = (float(u)) / float(width);
+    float vf = (float(v)) / float(height);
+    fmt::println("uvsf: {}, {}", uf, vf);
+
+    float theta = pi * vf;
+    float phi = 2 * pi * uf - pi;
+    fmt::println("spherical {}, {}", theta, phi);
+    glm::vec3 dir;
+    dir.x = cos(phi) * sin(theta);
+    dir.y = cos(theta);
+    dir.z = sin(phi) * sin(theta);
+    fmt::println("direction {}, {}, {}", dir.x, dir.y, dir.z);
+
     mTotalPower += totalPower;
     skyboxPower = totalPower;
-    std::vector<WalkersAlias> skybox = createAliasVector(pdf);
+    intervalLength = axisLength / pdf.size();
+    std::vector<WalkersAlias> skybox = createAliasVector(pdf, totalPower, axisLength);
     createBuffer(context, sizeof(WalkersAlias) * skybox.size(), (uint32_t*)skybox.data()
     , &SkyboxWalkersAlias);
     hasSkybox = true;

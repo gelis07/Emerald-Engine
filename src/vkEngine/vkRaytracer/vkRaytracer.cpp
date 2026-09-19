@@ -5,7 +5,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stbi_write.h>
 #include <core/Utils.h>
-#include <format>
+#include <chrono>
+#include <fpng.h>
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 void vkRaytracer::Init(RaytracerInitInfo info)
@@ -13,6 +14,12 @@ void vkRaytracer::Init(RaytracerInitInfo info)
     dynamicDispatchLoader = vk::detail::DispatchLoaderDynamic(info.instance, vkGetInstanceProcAddr, info.device);
     mComputeQueue = info.computeQueue;
 
+    
+    vk::CommandPoolCreateInfo commandPoolCi;
+    commandPoolCi.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+    commandPoolCi.setQueueFamilyIndex(info.queueFamily);
+    mCommandPool = info.device.createCommandPool(commandPoolCi);
+    
     vk::SamplerCreateInfo samplerCi;
     samplerCi.setMagFilter(vk::Filter::eLinear)
     .setMinFilter(vk::Filter::eLinear)
@@ -20,11 +27,6 @@ void vkRaytracer::Init(RaytracerInitInfo info)
     .setAddressModeU(vk::SamplerAddressMode::eClampToEdge)
     .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
     .setAddressModeW(vk::SamplerAddressMode::eClampToEdge);
-
-    vk::CommandPoolCreateInfo commandPoolCi;
-    commandPoolCi.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-    commandPoolCi.setQueueFamilyIndex(info.queueFamily);
-    mCommandPool = info.device.createCommandPool(commandPoolCi);
 
     texturSampler = info.device.createSampler(samplerCi);
     VkImageCreateData skyboxCreateData;
@@ -35,8 +37,10 @@ void vkRaytracer::Init(RaytracerInitInfo info)
     skyboxCreateData.queue = mComputeQueue;
     skyboxCreateData.sizePerByte = 4;
     int width, height, channels;
-    stbi_set_flip_vertically_on_load(true);
-    float* skyboxData = stbi_loadf("skyblue.hdr", &width, &height, &channels, 4);
+    stbi_set_flip_vertically_on_load(false);
+    float* skyboxData = stbi_loadf("sky.hdr", &width, &height, &channels, 4);
+
+
 
     skybox = vkUtils::LoadTexture(width, height, channels, (unsigned char*)skyboxData, skyboxCreateData);
 
@@ -48,7 +52,7 @@ void vkRaytracer::Init(RaytracerInitInfo info)
     mContext.queueFamily = info.queueFamily;
 
 
-    lightSampler.setUpSkyboxLightSampler(mContext, skyboxData, width * height);
+    lightSampler.setUpSkyboxLightSampler(mContext, skyboxData, width * height, width, height);
     stbi_image_free(skyboxData);
     hasSkybox = false;
 
@@ -157,16 +161,12 @@ void vkRaytracer::Run(RaytracerRenderInfo info)
     if(prevAnimState != info.rs->playAnimation)
     {
         resetFrameIdx();
-        anim.animationFrame = 0;
+        anim->animationFrame = 0;
         prevAnimState = info.rs->playAnimation;
     }
     if(info.rs->playAnimation)
     {
         playAnim(info);
-    }
-    if(anim.animationFrame == 72)
-    {
-        info.rs->playAnimation = false;
     }
 
     if(info.rs->scene.models.size() != mLastModelSize || info.rs->ReloadScene)
@@ -195,9 +195,12 @@ void vkRaytracer::Run(RaytracerRenderInfo info)
     csd.frameIdx = frameIdxForRender;
     csd.lightCount = lightSampler.lightCount;
     csd.totalSkyboxPower = lightSampler.skyboxPower;
-    // csd.skyboxProb = lightSampler.skyboxPower / lightSampler.mTotalPower;
-    csd.skyboxProb = 0.0f;
-    csd.skybox = hasSkybox;
+    csd.skybox = info.rs->EnvLight;
+    if(csd.skybox)
+        csd.skyboxProb = lightSampler.skyboxPower / lightSampler.mTotalPower;
+    else
+        csd.skyboxProb = 0.0f;
+    csd.intervalLength = lightSampler.intervalLength;
 
     std::memcpy(shaderDataAllocInfo.pMappedData, &csd, sizeof(CameraShaderData));
     info.device.resetFences(fence);
@@ -226,9 +229,6 @@ void vkRaytracer::UpdateModels(const vk::Device& device, const VmaAllocator& all
 
     vkUtils::LoadTextures(scene, *mVkScene);
 
-    //!mVkScene is handled by the vk scene manager.
-    // mVkScene.vkModels.clear();
-    // mVkScene = vkUtils::LoadScene(mContext, mCommandPool, scene);
 
     lightSampler.deleteScene(mContext);
 
@@ -358,7 +358,6 @@ void vkRaytracer::ExportToPng(VmaAllocator alloc, vk::Device device, const std::
     vmaCreateBuffer(alloc, reinterpret_cast<VkBufferCreateInfo*>(&dstBufferCi), &dstBufferAllocCi, reinterpret_cast<VkBuffer*>(&dstBuffer),
     &dstBufferAlloc, &dstBufferAllocInfo);
 
-
     vkUtils::ExecuteSingleTimeCb(device, mCommandPool, mComputeQueue, [&](const vk::CommandBuffer& singleTimeCb)
     {
         vk::ImageMemoryBarrier2 bImgToDst;
@@ -397,9 +396,23 @@ void vkRaytracer::ExportToPng(VmaAllocator alloc, vk::Device device, const std::
 
     });
 
-    stbi_flip_vertically_on_write(true);
-
-    stbi_write_png(filename.c_str(), width, height, bytesPerPixel, dstBufferAllocInfo.pMappedData, width * bytesPerPixel);
+    std::vector<uint8_t> flipped(width * height * 4);
+    
+    for (uint32_t y = 0; y < height; y++)
+    {
+        memcpy(
+            flipped.data() + y * width * 4,
+            reinterpret_cast<const uint8_t*>(dstBufferAllocInfo.pMappedData) + (height - 1 - y) * width * 4,
+            width * 4
+        );
+    }
+    bool ok = fpng::fpng_encode_image_to_file(
+        filename.c_str(),
+        flipped.data(),
+        width,
+        height,
+        bytesPerPixel
+    );
 }
 
 
@@ -824,17 +837,27 @@ void vkRaytracer::resetFrameIdx()
 
 void vkRaytracer::playAnim(RaytracerRenderInfo info)
 {
-    bool reset = frameIdxForRender * MAX_SAMPLES_SHADER >= anim.renderFramesPerAnimFrame;
-    anim.run(frameIdxForRender);
 
-    if(reset)
+    if(anim->animationFrame / anim->timeStep >= 5.0f)
+    {
+        info.rs->playAnimation = false;
+        return;
+    }
+
+    if(frameIdxForRender > anim->renderFramesPerAnimFrame)
+    {
+        resetFrameIdx();
+        anim->animationFrame++;
         exportAnimFrame(info);
+    }
+
+    anim->run(frameIdxForRender, info.rs->scene);
 }
 
 void vkRaytracer::exportAnimFrame(RaytracerRenderInfo info)
 {
-    resetFrameIdx();
-    std::string filename = "animation/frame" + fmt::format("{:03d}", anim.animationFrame) + ".png";
+    stbi_write_png_compression_level = 0;
+    std::string filename = "animation/frame" + fmt::format("{:03d}", anim->animationFrame) + ".png";
     ExportToPng(info.alloc, info.device, filename);
 }
 
@@ -912,7 +935,7 @@ void vkRaytracer::fillSceneBuffers(const Scene& scene)
         materialGPU.emmColor = scene.materials[i].emmColor;
         materialGPU.metalness = scene.materials[i].metalness;
         materialGPU.idr = scene.materials[i].idr;
-        materialGPU.subsurface = scene.materials[i].subsurface;
+        
         materialGPU.transmittance = scene.materials[i].transmittance;
         materialData.push_back(materialGPU);
     }

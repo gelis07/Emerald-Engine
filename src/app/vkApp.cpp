@@ -59,6 +59,7 @@ void vkApp::Init()
     //Create a default scene.
     Model cube;
     ModelConstructData data;
+    cube.name = "Default Cube";
     Mesh mesh;
     mesh.vertices = CubeVertices;
     mesh.indices = CubeIndices;
@@ -122,6 +123,8 @@ void vkApp::Init()
     raytracerInitInfo.queueFamily = queueFamilyCompute;
 
     raytracer.Init(raytracerInitInfo);
+
+    raytracer.anim = &gui.animator;
     mLastWindowWidth = wWidth;
     mLastWindowHeight = wHeight;
 
@@ -172,6 +175,8 @@ void vkApp::Init()
     cbAllocInfo.commandPool = mCommandPool;
     cbAllocInfo.commandBufferCount = maxFramesInFlight;
     uiDrawCbs = mDevice.allocateCommandBuffers(cbAllocInfo);
+
+    gui.Callbacks();
 }
 
 
@@ -730,7 +735,7 @@ void vkApp::CreateSwapchain()
     swapchainCi.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
     swapchainCi.preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
     swapchainCi.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
-    swapchainCi.presentMode = vk::PresentModeKHR::eFifo;
+    swapchainCi.presentMode = vk::PresentModeKHR::eImmediate;
 
     mSwapchain = mDevice.createSwapchainKHR(swapchainCi);
 
@@ -882,8 +887,8 @@ void vkApp::drawUi(uint32_t width, uint32_t height)
         vk::PipelineStageFlagBits::eColorAttachmentOutput,
     };
 
-    if(gui.renderMode == RenderMode::Rasterizer)
-        waitStages.push_back(vk::PipelineStageFlagBits::eVertexInput);
+    // if(gui.renderMode == RenderMode::Rasterizer)
+    //     waitStages.push_back(vk::PipelineStageFlagBits::eVertexInput);
 
     std::vector<vk::CommandBuffer> cbs;
     if(gui.renderMode == RenderMode::Rasterizer)
@@ -895,8 +900,8 @@ void vkApp::drawUi(uint32_t width, uint32_t height)
     std::vector<vk::Semaphore> semaphoreWait;
     semaphoreWait.resize(1);
     semaphoreWait[0] = mImageAcquiredSemaphores[frameIdx];
-    if(gui.renderMode == RenderMode::Rasterizer)
-        semaphoreWait.push_back(vkSceneManager.skinningDoneSem);
+    // if(gui.renderMode == RenderMode::Rasterizer)
+    //     semaphoreWait.push_back(vkSceneManager.skinningDoneSem);
 
 
     vk::SubmitInfo submitInfo;

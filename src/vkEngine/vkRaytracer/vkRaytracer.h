@@ -5,7 +5,7 @@
 #include "ASManager.h"
 #include "LightSampling.h"
 #include "RtPipeline.h"
-#include <vkEngine/Animator.h>
+#include <core/Animator.h>
 #include <vkEngine/VkSceneManager.h>
 
 
@@ -36,13 +36,15 @@ struct CameraShaderData
 {
     alignas(16) glm::vec3 pos;
     uint32_t lightCount;
-    int frameIdx;
+    int32_t frameIdx;
+
     alignas(16) glm::mat4 invProj;
     alignas(16) glm::mat4 invView;
 
     float skyboxProb;
     float totalSkyboxPower;
-    bool skybox;
+    uint32_t skybox;
+    float intervalLength;
 };
 struct MeshDataGPU
 {
@@ -59,7 +61,6 @@ struct MaterialShaderData
     float metalness;
     float idr;
     float transmittance;
-    float subsurface;
 
     uint32_t albedoMap = UINT32_MAX;
     uint32_t roughnessMap = UINT32_MAX;
@@ -89,6 +90,7 @@ class vkRaytracer
         
         vkUtils::vkScene* mVkScene;
         void resetFrameIdx();
+        Animator* anim;
     private:
         vk::detail::DispatchLoaderDynamic dynamicDispatchLoader;
 
@@ -96,7 +98,6 @@ class vkRaytracer
         ASManager asManager;
         RtPip rtPip;
         LightSampler lightSampler;
-        Animator anim;
         bool hasSkybox = false;
 
         vk::Fence fence;

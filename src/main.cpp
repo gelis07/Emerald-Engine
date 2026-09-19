@@ -2,6 +2,7 @@
 
 int main()
 {
+
     vkApp app{};
     app.Init();
     app.Update();

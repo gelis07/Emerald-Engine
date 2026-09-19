@@ -17,6 +17,21 @@ void Model::Load(const ModelConstructData& data)
     {
         type = CUSTOM;
         fileSource = data.path;
+        bool foundDot = false;
+        for(int i = data.path.size() - 1; i >= 0; i--)
+        {
+            if(data.path[i] == '.')
+            {
+                foundDot = true;
+                continue;
+            }
+            
+            if(data.path[i] == '/' || data.path[i] == '\\')
+                break;
+
+            if(foundDot)
+                name = data.path[i] + name;
+        }
     }
 }
 

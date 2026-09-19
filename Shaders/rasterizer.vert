@@ -14,49 +14,19 @@ layout (location = 4) in vec3 iBitangent;
 layout (location = 5) in uint iBoneOffset;
 layout (location = 6) in uint iBoneCount;
 
-const uint UINT_MAX = 0xFFFFFFFFu;
+layout (location = 0) out vec2 uv;
 
-struct BoneInfluence
-{
-    uint boneId;
-    float weight;
-};
-
-struct BoneData
-{
-    mat4 transform;
-};
-
-layout(binding = 0, set = 0) readonly buffer BoneInfluenceBuffer
-{
-    BoneInfluence boneInf[];
-} boneInfluenceBuffer;
-
-layout(binding = 1, set = 0) readonly buffer BoneBuffer
-{
-    BoneData bones[];
-} boneBuffer;
 
 layout(push_constant) uniform PushConstants
 {
     mat4 mvp;
-    uint objId;
-    uint modelId;
+    vec3 albedo;
+    uint textId;
 } push;
 
 
 void main()
 {
-    vec3 boneVertPos = vec3(iPos);
-    // if(iBoneCount == 0)
-    // {
-    //     boneVertPos = iPos;
-    // }else{
-    //     for(uint i = iBoneOffset; i < iBoneOffset + iBoneCount; i++)
-    //     {
-    //         boneVertPos += vec3(boneInfluenceBuffer.boneInf[i].weight * boneBuffer.bones[boneInfluenceBuffer.boneInf[i].boneId].transform * vec4(iPos, 1.0));
-    //     }
-    // }
-
-    gl_Position = push.mvp * vec4(boneVertPos, 1.0);
+    uv = iTexCoords;
+    gl_Position = push.mvp * vec4(iPos, 1.0);
 }

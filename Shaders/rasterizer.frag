@@ -1,34 +1,28 @@
 #version 430 core
+#extension GL_EXT_nonuniform_qualifier : enable
 
 layout(location = 0) out vec4 oColor;
-
-
-uint PCGHash(uint seed) {
-    uint state = seed * 747796405u + 2891336453u;
-    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
-    return (word >> 22u) ^ word;
-}
-
-float RandomFloat(inout uint seed)
-{
-    seed = PCGHash(seed);
-    return float(seed) / 4294967295.0;
-}
+layout(location = 0) in vec2 uv;
+const uint UINT_MAX = 0xFFFFFFFFu;
 
 layout(push_constant) uniform PushConstants
 {
     mat4 mvp;
-    uint objId;
+    vec3 albedo;
+    uint textId;
 } push;
+
+layout(binding = 0, set = 0) uniform sampler2D texImage[];
+
 
 void main()
 {
-    uint seed = push.objId * 1973u;
 
-    vec3 color = vec3(
-        RandomFloat(seed),
-        RandomFloat(seed),
-        RandomFloat(seed)
-    );
+    vec3 color = push.albedo;
+    if(push.textId != UINT_MAX)
+    {
+        color = textureLod(texImage[push.textId], uv, 0.0).rgb;
+    }
+
     oColor = vec4(color, 1.0);
 }     

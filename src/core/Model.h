@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vkEngine/vkBackend.h>
 #include <unordered_map>
+
 enum ModelType
 {
     CUBE,
@@ -32,7 +33,6 @@ struct Material
     float metalness = 1.0;
     float idr = 1.0f;
     float transmittance = 0.0f;
-    float subsurface = 0.0f;
     glm::vec3 albedo;
     glm::vec3 emmColor = glm::vec3(0,0,0);
 
@@ -51,12 +51,23 @@ struct TextureData
     int width, height, channels;
     std::string path;
 };
+
+
+struct transformAnimation
+{
+  float sTime;
+  float lTime;
+  uint32_t nodeId;
+  uint32_t modelId;
+};
 struct NodeData
 {
     glm::mat4 transform;
     uint32_t parentId = -1;
     std::string parentName;
     std::string name;
+    std::vector<transformAnimation> transAnims;
+
 };
 struct Bone
 {
@@ -91,6 +102,7 @@ struct ModelConstructData
 class Model
 {
     public:
+      std::string name;
         void Load(const ModelConstructData& data);
 
         glm::mat4 GetModelInverse();

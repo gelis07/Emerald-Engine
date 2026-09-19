@@ -88,6 +88,10 @@ void VkSceneManager::SkinMeshes(Scene& scene, uint32_t renderMode)
     cb.bindDescriptorSets(vk::PipelineBindPoint::eCompute, compPipLayout, 0, descSet, nullptr);
     for(int i = 0; i < vkScene.vkMeshes.size(); i++)
     {
+
+        if(scene.models[vkScene.vkMeshes[i].modelIdx].meshes[vkScene.vkMeshes[i].localMeshIdx].bones.empty())
+            continue;
+        
         pushConstants pc;
         pc.modelId = i;
         pc.vertCount = vkScene.vkMeshes[i].vertCount;

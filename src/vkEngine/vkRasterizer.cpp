@@ -77,10 +77,23 @@ void vkRasterizer::Init(RasterizerInitInfo info)
     fragShaderModuleCi.pCode = reinterpret_cast<const uint32_t*>(fragShaderCode.data());
     fragShaderModuleCi.codeSize = fragShaderCode.size();
     vk::ShaderModule fragShaderModule = info.device.createShaderModule(fragShaderModuleCi);
+
+    vk::SamplerCreateInfo samplerCi;
+    samplerCi.setMagFilter(vk::Filter::eLinear)
+    .setMinFilter(vk::Filter::eLinear)
+    .setMipmapMode(vk::SamplerMipmapMode::eLinear)
+    .setAddressModeU(vk::SamplerAddressMode::eClampToEdge)
+    .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
+    .setAddressModeW(vk::SamplerAddressMode::eClampToEdge);
+
+    texturSampler = info.device.createSampler(samplerCi);
+
     InitDescPool(context);
     WriteDynamicDescriptors(context);
     mLastModelSize = info.rs->scene.models.size();
     CreateGraphicsPipeline(info, vertShaderModule, fragShaderModule);
+
+
 }
 
 
@@ -196,8 +209,8 @@ void vkRasterizer::Render(RasterizerRenderInfo info)
         cb.bindIndexBuffer(mVkScene->vkMeshes[i].buffer, mVkScene->vkMeshes[i].vBufSize, vk::IndexType::eUint32);
         pushConstantsStruct constants;
         constants.mat = shaderData.mvp;
-        constants.objId = i;
-        constants.modelId = mVkScene->vkMeshes[i].modelIdx;
+        constants.albedo = info.rs->scene.materials[*mVkScene->vkMeshes[i].matIdx].albedo;
+        constants.textId = info.rs->scene.materials[*mVkScene->vkMeshes[i].matIdx].albedoTexture;
 
         cb.pushConstants(pipLayout, vk::ShaderStageFlagBits::eAllGraphics, 0, sizeof(constants), &constants);
 
@@ -443,21 +456,16 @@ void vkRasterizer::destroy(vk::Device device, VmaAllocator alloc)
 
 void vkRasterizer::InitDescPool(VkContext context)
 {
+    
     std::vector<vk::DescriptorSetLayoutBinding> bindings;
-    bindings.resize(2);
+    bindings.resize(1);
     bindings[0].setBinding(0)
-    .setDescriptorType(vk::DescriptorType::eStorageBuffer)
-    .setDescriptorCount(1)
-    .setStageFlags(vk::ShaderStageFlagBits::eVertex);
-    bindings[1].setBinding(1)
-    .setDescriptorType(vk::DescriptorType::eStorageBuffer)
-    .setDescriptorCount(1)
-    .setStageFlags(vk::ShaderStageFlagBits::eVertex);
-
+    .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+    .setDescriptorCount(100)
+    .setStageFlags(vk::ShaderStageFlagBits::eFragment);
     std::vector<vk::DescriptorBindingFlags> bindingFlags = 
     {
-        {},
-        {}
+        vk::DescriptorBindingFlagBits::ePartiallyBound
     };
 
     vk::DescriptorSetLayoutBindingFlagsCreateInfo flagsCreateInfo{};
@@ -472,8 +480,8 @@ void vkRasterizer::InitDescPool(VkContext context)
         std::vector<vk::DescriptorPoolSize> poolSizes = 
     {
         {
-            vk::DescriptorType::eStorageBuffer,
-            2
+            vk::DescriptorType::eCombinedImageSampler,
+            100
         }
     };
 
@@ -496,30 +504,29 @@ void vkRasterizer::InitDescPool(VkContext context)
 
 void vkRasterizer::WriteDynamicDescriptors(VkContext context)
 {
-    vk::DescriptorBufferInfo bonesBufferInfo;
-    bonesBufferInfo.setBuffer(mVkScene->boneTransforms.buffer)
-    .setOffset(0)
-    .setRange(mVkScene->boneTransforms.size);
+    std::vector<vk::DescriptorImageInfo> textureInfos(mVkScene->vkTextures.size());
+    for(int i = 0; i < mVkScene->vkTextures.size(); i++)
+    {
+        vk::DescriptorImageInfo textureImageInfo;
+        textureImageInfo.setSampler(texturSampler)
+        .setImageView(mVkScene->vkTextures[i].view)
+        .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
 
-    vk::DescriptorBufferInfo bonesInfluenceBufferInfo;
-    bonesInfluenceBufferInfo.setBuffer(mVkScene->boneInfluenceBuffer.buffer)
-    .setOffset(0)
-    .setRange(mVkScene->boneInfluenceBuffer.size);
+        textureInfos[i] = textureImageInfo;
+    }
 
     std::vector<vk::WriteDescriptorSet> descWrites;
-    descWrites.resize(2);
-    descWrites[0].setDstSet(descSet)
-    .setDstBinding(0)
-    .setDstArrayElement(0)
-    .setDescriptorCount(1)
-    .setDescriptorType(vk::DescriptorType::eStorageBuffer)
-    .setPBufferInfo(&bonesInfluenceBufferInfo);
-    descWrites[1].setDstSet(descSet)
-    .setDstBinding(1)
-    .setDstArrayElement(0)
-    .setDescriptorCount(1)
-    .setDescriptorType(vk::DescriptorType::eStorageBuffer)
-    .setPBufferInfo(&bonesBufferInfo);
+    if(!textureInfos.empty())
+    {
+        vk::WriteDescriptorSet textureDescWrite;
+        textureDescWrite.setDstSet(descSet)
+        .setDstBinding(0)
+        .setDescriptorCount(textureInfos.size())
+        .setDstArrayElement(0)
+        .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+        .setPImageInfo(textureInfos.data());
+        descWrites.push_back(textureDescWrite);
+    }
 
     context.device.updateDescriptorSets(static_cast<uint32_t>(descWrites.size()), descWrites.data(), 0, nullptr);
 }
