@@ -155,7 +155,7 @@ void vkRaytracer::Init(RaytracerInitInfo info)
 
 void vkRaytracer::Run(RaytracerRenderInfo info)
 {
-    info.device.waitForFences(1, &fence, true, UINT64_MAX);
+    info.device.waitForFences(1,&fence, true, UINT64_MAX);
 
     info.device.waitIdle();
     if(prevAnimState != info.rs->playAnimation)

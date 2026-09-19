@@ -361,6 +361,5 @@ void ASManager::CreateSceneAS(const vkUtils::vkScene& scene)
     {
         bottomAccStructures.push_back(CreateBLAS(scene.vkMeshes[i]));
     }
-
     topAccStructure = creatTLAS(scene);
 }

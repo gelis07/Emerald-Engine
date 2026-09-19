@@ -21,9 +21,9 @@ class VkSceneManager
         void deleteScene();
         vkUtils::vkScene* GetScenePointer() { return &vkScene; }; 
         vk::Semaphore skinningDoneSem;
+        vk::Fence fence;
     private:
 
-        vk::Fence fence;
         vk::CommandBuffer cb;
 
         vk::DescriptorSet descSet;

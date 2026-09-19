@@ -144,6 +144,8 @@ void VkSceneManager::updateScene(Scene& scene)
 
 void VkSceneManager::deleteSceneModels()
 {
+    context.device.waitForFences(fence, vk::True, UINT64_MAX);
+
     for(int i = 0; i < vkScene.vkMeshes.size(); i++)
     {
         vmaDestroyBuffer(context.alloc, vkScene.vkMeshes[i].buffer, vkScene.vkMeshes[i].bufferAllocation);

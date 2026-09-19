@@ -887,8 +887,8 @@ void vkApp::drawUi(uint32_t width, uint32_t height)
         vk::PipelineStageFlagBits::eColorAttachmentOutput,
     };
 
-    // if(gui.renderMode == RenderMode::Rasterizer)
-    //     waitStages.push_back(vk::PipelineStageFlagBits::eVertexInput);
+    if(gui.renderMode == RenderMode::Rasterizer)
+        waitStages.push_back(vk::PipelineStageFlagBits::eVertexInput);
 
     std::vector<vk::CommandBuffer> cbs;
     if(gui.renderMode == RenderMode::Rasterizer)
@@ -900,8 +900,8 @@ void vkApp::drawUi(uint32_t width, uint32_t height)
     std::vector<vk::Semaphore> semaphoreWait;
     semaphoreWait.resize(1);
     semaphoreWait[0] = mImageAcquiredSemaphores[frameIdx];
-    // if(gui.renderMode == RenderMode::Rasterizer)
-    //     semaphoreWait.push_back(vkSceneManager.skinningDoneSem);
+    if(gui.renderMode == RenderMode::Rasterizer)
+        semaphoreWait.push_back(vkSceneManager.skinningDoneSem);
 
 
     vk::SubmitInfo submitInfo;
