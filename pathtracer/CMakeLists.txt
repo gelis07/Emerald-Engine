@@ -13,7 +13,6 @@ set(SHADER_OUTPUT
     ${CMAKE_BINARY_DIR}/shaders/shader.rchit.spv
 )
 find_package(Vulkan REQUIRED)
-
 message(STATUS "GLSLC = ${Vulkan_GLSLC_EXECUTABLE}")
 
 add_custom_command(

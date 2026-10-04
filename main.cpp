@@ -27,7 +27,6 @@ int main()
     0.1f,
     1000.0f);
 
-    
     scene.camera.invProj = glm::inverse(projection);
     scene.camera.pos = glm::vec3(0.0f, 0.0f, -5.0f);
     
@@ -42,7 +41,7 @@ int main()
     pathtracer.Run(context);
     auto end = std::chrono::high_resolution_clock::now();
     double duration = std::chrono::duration_cast<std::chrono::milliseconds>((end - start)).count();
-    CORE_PRINT("took: {}s", duration);
+    CORE_PRINT("took: {}ms", duration);
 
 
     ExportToPng(context, 
