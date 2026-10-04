@@ -75,7 +75,7 @@ inline void ExportToPng(core::context context
     }
     bool ok = fpng::fpng_encode_image_to_file(
         filename.c_str(),
-        dstBufferAllocInfo.pMappedData,
+        flipped.data(),
         width,
         height,
         bytesPerPixel

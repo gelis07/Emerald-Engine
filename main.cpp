@@ -45,7 +45,7 @@ int main()
     auto start = std::chrono::high_resolution_clock::now();
     pathtracer.Run(context);
     auto end = std::chrono::high_resolution_clock::now();
-    double duration = std::chrono::duration_cast<std::chrono::milliseconds>((end - start)).count();
+    double duration = std::chrono::duration<double, std::milli>((end - start)).count();
     CORE_PRINT("took: {}ms", duration);
 
 
