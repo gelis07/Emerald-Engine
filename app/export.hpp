@@ -63,16 +63,16 @@ inline void ExportToPng(core::context context
 
     });
 
-    // std::vector<uint8_t> flipped(width * height * 4);
+    std::vector<uint8_t> flipped(width * height * 4);
     
-    // for (uint32_t y = 0; y < height; y++)
-    // {
-    //     memcpy(
-    //         flipped.data() + y * width * 4,
-    //         reinterpret_cast<const uint8_t*>(dstBufferAllocInfo.pMappedData) + (height - 1 - y) * width * 4,
-    //         width * 4
-    //     );
-    // }
+    for (uint32_t y = 0; y < height; y++)
+    {
+        memcpy(
+            flipped.data() + y * width * 4,
+            reinterpret_cast<const uint8_t*>(dstBufferAllocInfo.pMappedData) + (height - 1 - y) * width * 4,
+            width * 4
+        );
+    }
     bool ok = fpng::fpng_encode_image_to_file(
         filename.c_str(),
         dstBufferAllocInfo.pMappedData,

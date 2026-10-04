@@ -1,6 +1,7 @@
 #include <pathtracer.hpp>
-#include "app/defaultMeshes.hpp"
 #include "app/export.hpp"
+#include <gtc/matrix_transform.hpp>
+#include "app/externInput.hpp"
 #include <chrono>
 int main()
 {
@@ -10,10 +11,14 @@ int main()
     core::context context(device, alloc, instance);
 
     engine::Scene scene;
+
+    loader::loaderOutput bunny = loader::assimpLoader::loadModel("bunny.obj");
+
     engine::Model model;
-    model.InitBuffer(context, CubeVertices, CubeIndices);
+    model.InitBuffer(context, bunny.vertices, bunny.indices);
     model.transform = glm::mat4(1.0f);
-    model.transform = glm::translate(model.transform, glm::vec3(0, -2, 0));
+    model.transform = glm::translate(model.transform, glm::vec3(0, 0, 0));
+    model.transform = glm::scale(model.transform, glm::vec3(10.0f));
     scene.models.push_back(model);
 
     

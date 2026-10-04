@@ -20,6 +20,7 @@ include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
 add_executable(${PROJECT_NAME} 
 main.cpp
 vendor/fpng.cpp
+app/externInput.cpp
 )
 target_compile_options(${PROJECT_NAME} PRIVATE -march=native)
 
