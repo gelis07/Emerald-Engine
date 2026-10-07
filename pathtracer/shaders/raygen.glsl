@@ -5,11 +5,13 @@
 
 const uint MAX_BOUNCES = 4;
 
-layout(binding = 0, rgba8) uniform image2D renderTarget;
+layout(binding = 0, rgba32f) uniform image2D renderTarget;
+layout(binding = 8, rgba8) uniform image2D sumImage;
 layout(binding = 1) uniform accelerationStructureEXT accStruct;
 
 layout(binding = 2, std140) uniform Camera {
     vec3 pos;
+    uint frameIdx;
     mat4 invProj;
     mat4 invView;
 } cam;
@@ -31,8 +33,15 @@ void main()
 
     payload.seed =
     uint(pixelCoord.x) * 1973u +
-    uint(pixelCoord.y) * 9277u;
+    uint(pixelCoord.y) * 9277u +
+    cam.frameIdx  * 26699u + 1u;
+    vec4 prev = vec4(0.0);
+    if(cam.frameIdx != 0)
+        prev = imageLoad(renderTarget, pixelCoord);
+    else
+        imageStore(renderTarget, pixelCoord, vec4(0.0));
 
+    
     payload.rayPos = cam.pos;
     payload.rayDir = rayDir.xyz;
     for(int bounce = 0; bounce < MAX_BOUNCES; bounce++)
@@ -43,7 +52,9 @@ void main()
 
         traceRayEXT(accStruct, gl_RayFlagsOpaqueEXT, 0xFF, 0, 0, 0, payload.rayPos, 0.001f, payload.rayDir, MAX_RAY_COLLISION_DISTANCE, 0);
     }
+    vec3 colorToStore = prev.xyz + payload.color;
+    imageStore(renderTarget, pixelCoord, vec4(colorToStore, 1.0));
 
-
-    imageStore(renderTarget, pixelCoord, vec4(payload.color, 1.0));
+    vec3 outputColor = colorToStore / ((cam.frameIdx + 1));
+    imageStore(sumImage, pixelCoord, vec4(outputColor, 1.0));
 }

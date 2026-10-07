@@ -15,7 +15,7 @@ namespace engine
     struct GPUCamera
     {
         glm::vec3 pos;
-        uint32_t pad;
+        uint32_t frameIdx;
         glm::mat4 invProj;
         glm::mat4 invView;
     };

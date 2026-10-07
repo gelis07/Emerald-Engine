@@ -4,7 +4,7 @@
 namespace engine
 {
     void Resources::Init(core::context context, Scene scene
-    , vk::ImageView renderTargetView, vk::AccelerationStructureKHR accel)
+    , vk::ImageView renderTargetView, vk::ImageView sumImageView,vk::AccelerationStructureKHR accel)
     {
         vk::BufferCreateInfo sdCi;
         sdCi.setUsage(vk::BufferUsageFlagBits::eUniformBuffer)
@@ -28,13 +28,13 @@ namespace engine
         setUpMeshesBuffer(context, scene);
         
         setUpDescriptors(context);
-        writeDescriptors(context, scene, renderTargetView, accel);
+        writeDescriptors(context, scene, renderTargetView,sumImageView,accel);
     }
 
     void Resources::setUpDescriptors(core::context context)
     {
         std::vector<vk::DescriptorSetLayoutBinding> bindings;
-        bindings.resize(8);
+        bindings.resize(9);
         bindings[0].setBinding(0)
         .setDescriptorType(vk::DescriptorType::eStorageImage)
         .setDescriptorCount(1)
@@ -67,6 +67,10 @@ namespace engine
         .setDescriptorCount(214)
         .setDescriptorType(vk::DescriptorType::eStorageBuffer)
         .setStageFlags(vk::ShaderStageFlagBits::eClosestHitKHR);
+        bindings[8].setBinding(8)
+        .setDescriptorCount(1)
+        .setDescriptorType(vk::DescriptorType::eStorageImage)
+        .setStageFlags(vk::ShaderStageFlagBits::eRaygenKHR);
 
         std::vector<vk::DescriptorBindingFlags> bindingFlags = {
         {},
@@ -77,6 +81,7 @@ namespace engine
         vk::DescriptorBindingFlagBits::ePartiallyBound,
         vk::DescriptorBindingFlagBits::ePartiallyBound,
         vk::DescriptorBindingFlagBits::ePartiallyBound,
+        {}
         };
 
         vk::DescriptorSetLayoutBindingFlagsCreateInfo flagsCreateInfo{};
@@ -132,10 +137,14 @@ namespace engine
     }
 
     void Resources::writeDescriptors(core::context context, Scene scene
-    , vk::ImageView renderTargetView, vk::AccelerationStructureKHR accel)
+    , vk::ImageView renderTargetView, vk::ImageView sumImageView, vk::AccelerationStructureKHR accel)
     {
         vk::DescriptorImageInfo renderTargetImageInfo;
         renderTargetImageInfo.setImageView(renderTargetView)
+        .setImageLayout(vk::ImageLayout::eGeneral);
+
+        vk::DescriptorImageInfo sumImageInfo;
+        sumImageInfo.setImageView(sumImageView)
         .setImageLayout(vk::ImageLayout::eGeneral);
 
         vk::WriteDescriptorSetAccelerationStructureKHR accelWrite;
@@ -186,7 +195,7 @@ namespace engine
         }
 
         std::vector<vk::WriteDescriptorSet> descWrites;
-        descWrites.resize(8);
+        descWrites.resize(9);
         descWrites[0].setDescriptorCount(1)
         .setDescriptorType(vk::DescriptorType::eStorageImage)
         .setImageInfo(renderTargetImageInfo)
@@ -233,6 +242,12 @@ namespace engine
         .setDescriptorType(vk::DescriptorType::eStorageBuffer)
         .setPBufferInfo(vertexBuffersInfos.data())
         .setDstBinding(4)
+        .setDstArrayElement(0)
+        .setDstSet(mDescSet);
+        descWrites[8].setDescriptorCount(1)
+        .setDescriptorType(vk::DescriptorType::eStorageImage)
+        .setImageInfo(sumImageInfo)
+        .setDstBinding(8)
         .setDstArrayElement(0)
         .setDstSet(mDescSet);
 

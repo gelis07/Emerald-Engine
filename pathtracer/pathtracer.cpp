@@ -1,4 +1,5 @@
 #include "pathtracer.hpp"
+#include <chrono>
 
 
 namespace engine
@@ -33,24 +34,41 @@ namespace engine
             }
         }
         createRenderTarget(context);
+        createSumImage(context);
 
         mTlas.Init(context, mCommandPool, blasRef);
-        mResources.Init(context, scene, mRenderTargetView, mTlas.getTlas().accel);
+        mResources.Init(context, scene, mRenderTargetView, mSumImageView, mTlas.getTlas().accel);
         mPip.Init(context, mResources.getSetLayout());
 
         createCommandBuffer(context);
     }
 
-    void Pathtracer::Run(core::context context)
+    void Pathtracer::Run(core::context context, const Scene& scene)
     {
-        vk::SubmitInfo subInfo;
-        subInfo.setCommandBufferCount(1)
-        .setPCommandBuffers(&mCb);
+        for(uint32_t sample = 0; sample < mSettings.samples; sample++)
+        {
+            auto start = std::chrono::high_resolution_clock::now();
+            GPUCamera camera = scene.camera;
+            camera.frameIdx = frameIdx;
+            
+            std::memcpy(mResources.getCameraUniformBuffer().allocInfo.pMappedData,
+            &camera, sizeof(GPUCamera));
+            
+            vk::SubmitInfo subInfo;
+            subInfo.setCommandBufferCount(1)
+            .setPCommandBuffers(&mCb);
+            
+            context.device.getQueue().submit(subInfo, fence);
+            
+            vk::Result result = context.device.getDevice().waitForFences(1, &fence, true, UINT64_MAX);
+            context.device.getDevice().resetFences(fence);
 
-        context.device.getQueue().submit(subInfo, fence);
-
-        vk::Result result = context.device.getDevice().waitForFences(1, &fence, true, UINT64_MAX);
-        context.device.getDevice().resetFences(fence);
+            auto end = std::chrono::high_resolution_clock::now();
+            double duration = std::chrono::duration<double, std::milli>((end - start)).count();
+            CORE_PRINT("frame: {}, took: {}ms",frameIdx, duration);
+    
+            frameIdx++;
+        }
     }
 
     void Pathtracer::createCommandBuffer(core::context context)
@@ -76,9 +94,9 @@ namespace engine
 
         mCb.pipelineBarrier2(dependencyInfo);
 
-        vk::ImageMemoryBarrier2 barriers;
+        std::array<vk::ImageMemoryBarrier2, 2> barriers;
 
-        barriers.setSrcAccessMask(vk::AccessFlagBits2::eNoneKHR)
+        barriers[0].setSrcAccessMask(vk::AccessFlagBits2::eNoneKHR)
         .setDstAccessMask(vk::AccessFlagBits2::eShaderWrite)
         .setSrcStageMask(vk::PipelineStageFlagBits2::eRayTracingShaderKHR)
         .setDstStageMask(vk::PipelineStageFlagBits2::eRayTracingShaderKHR)
@@ -90,11 +108,23 @@ namespace engine
         .setLevelCount(1)
         .setBaseArrayLayer(0)
         .setLayerCount(1);
+        barriers[1].setSrcAccessMask(vk::AccessFlagBits2::eNoneKHR)
+        .setDstAccessMask(vk::AccessFlagBits2::eShaderWrite)
+        .setSrcStageMask(vk::PipelineStageFlagBits2::eRayTracingShaderKHR)
+        .setDstStageMask(vk::PipelineStageFlagBits2::eRayTracingShaderKHR)
+        .setOldLayout(vk::ImageLayout::eUndefined)
+        .setNewLayout(vk::ImageLayout::eGeneral)
+        .setImage(mSumImage)
+        .subresourceRange.setAspectMask(vk::ImageAspectFlagBits::eColor)
+        .setBaseMipLevel(0)
+        .setLevelCount(1)
+        .setBaseArrayLayer(0)
+        .setLayerCount(1);
 
 
         vk::DependencyInfo depInfo;
-        depInfo.setPImageMemoryBarriers(&barriers)
-        .setImageMemoryBarrierCount(1);
+        depInfo.setPImageMemoryBarriers(barriers.data())
+        .setImageMemoryBarrierCount(barriers.size());
         mCb.pipelineBarrier2(depInfo);
 
         mCb.bindPipeline(vk::PipelineBindPoint::eRayTracingKHR,mPip.getPip());
@@ -116,13 +146,13 @@ namespace engine
         //Creating render target.
         vk::ImageCreateInfo rendTargCi;
         rendTargCi.setImageType(vk::ImageType::e2D)
-        .setFormat(vk::Format::eR8G8B8A8Unorm)
+        .setFormat(vk::Format::eR32G32B32A32Sfloat)
         .extent.setWidth(mSettings.ImageWidth).setHeight(mSettings.ImageHeight).setDepth(1);
         rendTargCi.setMipLevels(1)
         .setArrayLayers(1)
         .setSamples(vk::SampleCountFlagBits::e1)
         .setTiling(vk::ImageTiling::eOptimal)
-        .setUsage(vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage)
+        .setUsage(vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage)
         .setInitialLayout(vk::ImageLayout::eUndefined);
         
         VmaAllocation imgAlloc{};
@@ -139,7 +169,7 @@ namespace engine
         vk::ImageViewCreateInfo rendTargImageViewCi;
         rendTargImageViewCi.setImage(mRenderTarget)
         .setViewType(vk::ImageViewType::e2D)
-        .setFormat(vk::Format::eR8G8B8A8Unorm)
+        .setFormat(vk::Format::eR32G32B32A32Sfloat)
         .components.r = vk::ComponentSwizzle::eR;
         rendTargImageViewCi.components.g = vk::ComponentSwizzle::eG;
         rendTargImageViewCi.components.b = vk::ComponentSwizzle::eB;
@@ -151,5 +181,47 @@ namespace engine
         .setLevelCount(1);
         
         mRenderTargetView = context.device.getDevice().createImageView(rendTargImageViewCi);
+    }
+
+    void Pathtracer::createSumImage(core::context context)
+    {
+        //Creating sum image.
+        vk::ImageCreateInfo sumImgCi;
+        sumImgCi.setImageType(vk::ImageType::e2D)
+        .setFormat(vk::Format::eR8G8B8A8Unorm)
+        .extent.setWidth(mSettings.ImageWidth).setHeight(mSettings.ImageHeight).setDepth(1);
+        sumImgCi.setMipLevels(1)
+        .setArrayLayers(1)
+        .setSamples(vk::SampleCountFlagBits::e1)
+        .setTiling(vk::ImageTiling::eOptimal)
+        .setUsage(vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eStorage)
+        .setInitialLayout(vk::ImageLayout::eUndefined);
+        
+        VmaAllocation imgAlloc{};
+        VmaAllocationCreateInfo imgAllocInfo{};
+        imgAllocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+        imgAllocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        
+        vmaCreateImage(context.alloc.getAlloc(),
+        reinterpret_cast<VkImageCreateInfo*>(&sumImgCi),
+        &imgAllocInfo,
+        reinterpret_cast<VkImage*>(&mSumImage),
+        &imgAlloc, nullptr);
+        
+        vk::ImageViewCreateInfo sumImageViewCi;
+        sumImageViewCi.setImage(mSumImage)
+        .setViewType(vk::ImageViewType::e2D)
+        .setFormat(vk::Format::eR8G8B8A8Unorm)
+        .components.r = vk::ComponentSwizzle::eR;
+        sumImageViewCi.components.g = vk::ComponentSwizzle::eG;
+        sumImageViewCi.components.b = vk::ComponentSwizzle::eB;
+        sumImageViewCi.components.a = vk::ComponentSwizzle::eA;
+        sumImageViewCi.subresourceRange.setAspectMask(vk::ImageAspectFlagBits::eColor)
+        .setBaseArrayLayer(0)
+        .setBaseMipLevel(0)
+        .setLayerCount(1)
+        .setLevelCount(1);
+        
+        mSumImageView = context.device.getDevice().createImageView(sumImageViewCi);
     }
 }

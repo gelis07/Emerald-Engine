@@ -52,8 +52,7 @@ vec3 bsdfEvaluation(vec3 f0, vec3 wm, vec3 wo, vec3 wi
     vec3 specularBrdf = vec3(0.0);
     specularBrdf = GGXNDF(n, wm, a) * F * G(wo, wi, n, a) / (4.0 * nDotWi*nDotWo);
     
-    // vec3 bsdf = (1.0 - metalness) * fDiffuse + specularBrdf;
-    vec3 bsdf = specularBrdf;
+    vec3 bsdf = (1.0 - metalness) * fDiffuse + specularBrdf;
 
     return bsdf;
 }

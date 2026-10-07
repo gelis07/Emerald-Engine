@@ -79,26 +79,44 @@ void main()
     + vertexBuffer[nonuniformEXT(meshId)].v[i2].normals * barrycentric.z;
 
     vec3 worldNormal = normalize(
-        inverse(transpose(mat3(gl_WorldToObjectEXT))) * VNormal
+        transpose(mat3(gl_WorldToObjectEXT)) * VNormal
     );
 
     bool frontFace = dot(payload.rayDir, worldNormal) < 0.0;
     vec3 n = frontFace ? worldNormal : -worldNormal;
     Mesh mesh = meshBuffer.meshes[nonuniformEXT(meshId)];
-    // Model model = modelBuffer.models[mesh.modelId];
     Material mat = materialBuffer.materials[nonuniformEXT(mesh.matId)];
 
     //Roughness like in the Disney model.
     float a = max(mat.roughness * mat.roughness, 0.001);
 
     vec3 wo = normalize(-payload.rayDir);
-    vec3 wm = VNDFSampling(payload.seed, wo, n, a);
-    vec3 wi = reflect(-wo, wm);
+    vec3 wm;
+    vec3 wi;
     vec3 f0 = mat.albedo;
 
+    float chooseSampler = RandomFloat(payload.seed);
+    float diffuseWeight = (1.0 - mat.metalness);
+    float specularWeight = mat.metalness;
+    float total = diffuseWeight + specularWeight;
+    diffuseWeight /= total;
+    specularWeight /= total;
+
+    if(chooseSampler < diffuseWeight)
+    {
+        wi = CosineSampling(payload.seed, n);
+        wm = normalize(wo+wi);
+    }else
+    {
+        wm = VNDFSampling(payload.seed, wo, n, a);
+        wi = reflect(-wo, wm);
+    }
+    float pdf=
+    diffuseWeight * CosineSamplingPdf(n, wi)+
+    specularWeight + BRDFSamplingPdf(wo, wm,n,a);
+
     vec3 bsdf = bsdfEvaluation(f0, wm, wo, wi, n, a, mat.metalness, mat.albedo);
-    float NdotWi = max(dot(n, wi), 0.0);
-    float pdf = max(BRDFSamplingPdf(wo, wm, n, a), EPSILON);
+    float NdotWi = dot(n, wi);
 
     payload.throughput *= bsdf * NdotWi / pdf;
     payload.rayPos = payload.rayPos + payload.rayDir * t + n * EPSILON; 

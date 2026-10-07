@@ -37,6 +37,7 @@ int main()
     engine::RenderSettings settings;
     settings.ImageHeight = 1080;
     settings.ImageWidth = 1920;
+    settings.samples = 100;
 
     glm::mat4 projection = glm::perspectiveFov(glm::radians(45.0f), 
     (float)settings.ImageWidth, 
@@ -48,14 +49,14 @@ int main()
     pathtracer.Init(context, scene, settings);
 
     auto start = std::chrono::high_resolution_clock::now();
-    pathtracer.Run(context);
+    pathtracer.Run(context, scene);
     auto end = std::chrono::high_resolution_clock::now();
     double duration = std::chrono::duration<double, std::milli>((end - start)).count();
-    CORE_PRINT("took: {}ms", duration);
+    CORE_PRINT("finished all samples, took: {}ms", duration);
 
 
     ExportToPng(context, 
-    pathtracer.getRenderTarget(),
+    pathtracer.getSumImage(),
     pathtracer.getCommandPool(),
     "render.png",
     settings.ImageWidth,

@@ -8,14 +8,15 @@ namespace engine
     {
         public:
         void Init(core::context context, Scene scene
-        , vk::ImageView renderTargetView, vk::AccelerationStructureKHR accel);
+        , vk::ImageView renderTargetView,vk::ImageView sumImageView, vk::AccelerationStructureKHR accel);
 
+        core::buffer getCameraUniformBuffer() const { return cameraUniformBuffer;}
         vk::DescriptorSetLayout getSetLayout() const {return mSetLayout;}
         vk::DescriptorSet getDescSet() const {return mDescSet;}
         private:
         void setUpDescriptors(core::context context);
         void writeDescriptors(core::context context, Scene scene
-            , vk::ImageView renderTargetView, vk::AccelerationStructureKHR accel);
+        , vk::ImageView renderTargetView,vk::ImageView sumImageView, vk::AccelerationStructureKHR accel);
         
         
         void createSceneBuffer(core::context context, core::buffer& buffer, unsigned char* data, uint32_t size);
