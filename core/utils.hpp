@@ -7,6 +7,7 @@
 #include <functional> 
 #include <glm.hpp>
 #include <cstdlib>
+#include "ext/matrix_transform.hpp"
 
 #ifdef FMT
 
@@ -141,6 +142,11 @@ namespace core
         }
         return t;
     }
+
+    inline bool fileExists(const std::string& path) {
+        std::ifstream f(path.c_str());
+        return f.good();
+    }
     inline VkTransformMatrixKHR GlmToVk(const glm::mat4& matrix)
     {
         VkTransformMatrixKHR vkMatrix;
@@ -160,5 +166,13 @@ namespace core
         vkMatrix.matrix[2][3] = matrix[3][2];
 
         return vkMatrix;
+    }
+
+    inline glm::mat4 rotateWithEulerAngles(glm::mat4 transform, glm::vec3 eulerAngles)
+    {
+        transform = glm::rotate(transform, eulerAngles.x, glm::vec3(1,0, 0));
+        transform = glm::rotate(transform, eulerAngles.y, glm::vec3(0,1, 0));
+        transform = glm::rotate(transform, eulerAngles.z, glm::vec3(0,0, 1));
+        return transform;
     }
 };

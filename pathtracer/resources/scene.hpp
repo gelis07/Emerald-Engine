@@ -1,7 +1,16 @@
 #pragma once
 #include "model.hpp"
+#include <gtc/matrix_transform.hpp>
+
 namespace engine
 {
+
+    inline static glm::mat4 CalcInvViewFromDirection(glm::vec3 pos, glm::vec3 dir)
+    {
+        glm::mat4 view(1.0f);
+        view = glm::lookAt(pos, pos + dir, glm::vec3(0, 1, 0));
+        return glm::inverse(view);
+    }
 
     struct GPUCamera
     {

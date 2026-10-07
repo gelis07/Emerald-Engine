@@ -3,9 +3,12 @@ project(Editor)
 
 #set your own path.
 set(assimp_DIR "C:/sdk/assimp/INSTALL/lib/cmake/assimp-5.4")
-
+set(nlohmann_json_DIR "C:/sdk/nlhjson/install/share/cmake/nlohmann_json")
 
 find_package(assimp CONFIG REQUIRED)
+find_package(nlohmann_json 3.12.0 REQUIRED)
+
+
 
 if(assimp_FOUND)
 message(STATUS "assimp found.")
@@ -20,10 +23,11 @@ include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor)
 add_executable(${PROJECT_NAME} 
 main.cpp
 vendor/fpng.cpp
-app/externInput.cpp
+app/extern/loadModelFiles.cpp
+app/extern/loadSceneFiles.cpp
 )
 target_compile_options(${PROJECT_NAME} PRIVATE -march=native)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE Engine assimp::assimp)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE Engine assimp::assimp nlohmann_json::nlohmann_json)
 add_subdirectory(pathtracer)
 add_subdirectory(core)

@@ -34,6 +34,7 @@ namespace engine
         Resources mResources;
         Pipeline mPip;
         TLAS mTlas;
+
         vk::Image mRenderTarget;
         vk::ImageView mRenderTargetView;
     };
