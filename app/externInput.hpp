@@ -8,7 +8,7 @@ namespace loader
 {
     struct loaderOutput
     {
-        std::vector<engine::Vertex> vertices;
+        std::vector<engine::GPUVertex> vertices;
         std::vector<uint32_t> indices;
     };
 

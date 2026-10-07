@@ -1,6 +1,8 @@
 #version 460
 #extension GL_EXT_ray_tracing : require
 
+#include "payload.glsl"
+
 layout(binding = 0, rgba8) uniform image2D renderTarget;
 layout(binding = 1) uniform accelerationStructureEXT accStruct;
 
@@ -10,7 +12,7 @@ layout(binding = 2, std140) uniform Camera {
     mat4 invView;
 } cam;
 
-layout(location = 0) rayPayloadEXT vec3 color;
+layout(location = 0) rayPayloadEXT Payload payload;
 const float MAX_RAY_COLLISION_DISTANCE = 10000.0f;
 void main()
 {
@@ -21,7 +23,11 @@ void main()
 
     vec4 target = cam.invProj * vec4(d.x, d.y, 1.0, 1.0);
     vec4 rayDir = cam.invView * vec4(normalize(target.xyz / target.w), 0.0);
+
+    payload.throughput = vec3(1.0);
+    payload.color = vec3(0.0);
+
     traceRayEXT(accStruct, gl_RayFlagsOpaqueEXT, 0xFF, 0, 0, 0, cam.pos, 0.001f, rayDir.xyz, MAX_RAY_COLLISION_DISTANCE, 0);
 
-    imageStore(renderTarget, pixelCoord, vec4(color, 1.0));
+    imageStore(renderTarget, pixelCoord, vec4(payload.color, 1.0));
 }

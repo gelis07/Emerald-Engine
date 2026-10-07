@@ -5,6 +5,10 @@ set(SHADER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/raygen.glsl
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/miss.glsl
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/closestHit.glsl
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/payload.glsl
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/samplers.glsl
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/random.glsl
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/materials.glsl
 )
 
 set(SHADER_OUTPUT

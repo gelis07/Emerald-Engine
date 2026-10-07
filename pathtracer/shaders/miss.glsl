@@ -2,11 +2,11 @@
 #extension GL_EXT_ray_tracing : require
 
 
-
-layout(location = 0) rayPayloadInEXT vec3 color;
+#include "payload.glsl"
+layout(location = 0) rayPayloadInEXT Payload payload;
 
 
 void main()
 {
-    color = vec3(0.0, 1.0, 0.0);
+    payload.color = payload.throughput * vec3(0.45, 0.61, 1.0);
 }

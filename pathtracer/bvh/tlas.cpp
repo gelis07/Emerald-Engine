@@ -74,7 +74,7 @@ namespace engine
             deviceAddInfo.setAccelerationStructure(bottomAccel[i].accel);
 
             accelerationStructureInstances[i].transform = core::GlmToVk(bottomAccel[i].transform);
-            accelerationStructureInstances[i].setInstanceCustomIndex(0)
+            accelerationStructureInstances[i].setInstanceCustomIndex(i)
             .setMask(0xFF)
             .setInstanceShaderBindingTableRecordOffset(0)
             .accelerationStructureReference = context.device.getDevice().getAccelerationStructureAddressKHR(deviceAddInfo,

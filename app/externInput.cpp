@@ -7,7 +7,7 @@ namespace loader
     {
         for(unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
-            engine::Vertex vertex;
+            engine::GPUVertex vertex;
             vertex.position.x = mesh->mVertices[i].x;
             vertex.position.y = mesh->mVertices[i].y;
             vertex.position.z = mesh->mVertices[i].z;
@@ -24,15 +24,6 @@ namespace loader
             vertex.normals.x = mesh->mNormals[i].x;
             vertex.normals.y = mesh->mNormals[i].y;
             vertex.normals.z = mesh->mNormals[i].z;
-
-            vertex.tangent.x = mesh->mTangents[i].x;
-            vertex.tangent.y = mesh->mTangents[i].y;
-            vertex.tangent.z = mesh->mTangents[i].z;
-
-            vertex.bitangent.x = mesh->mBitangents[i].x;
-            vertex.bitangent.y = mesh->mBitangents[i].y;
-            vertex.bitangent.z = mesh->mBitangents[i].z;
-            
             data.vertices.push_back(vertex);
         }
         for(unsigned int i = 0; i < mesh->mNumFaces; i++)

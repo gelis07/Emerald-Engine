@@ -19,13 +19,18 @@ namespace engine
         blasRef.resize(scene.models.size());
         for(uint32_t i = 0; i < scene.models.size(); i++)
         {
-            BLAS blas;
-            blas.Init(context, mCommandPool, scene.models[i].getBuffer().buffer, 
-            sizeof(Vertex), scene.models[i].getIndexCount(), scene.models[i].getVertexCount());
-            mBlases[i] = blas;
+            const Model& model = scene.models[i]; 
+            for(uint32_t j = 0; j < model.meshes.size(); j++)
+            {
+                const Mesh& mesh = model.meshes[j];
+                BLAS blas;
+                blas.Init(context, mCommandPool, mesh.getBuffer().buffer, 
+                sizeof(GPUVertex), mesh.getIndexCount(), mesh.getVertexCount());
+                mBlases[i] = blas;
 
-            blasRef[i].transform = scene.models[i].transform;
-            blasRef[i].accel = mBlases[i].getBlas().accel;
+                blasRef[i].transform = model.transform * mesh.transform;
+                blasRef[i].accel = mBlases[i].getBlas().accel;
+            }
         }
         createRenderTarget(context);
 

@@ -2,11 +2,11 @@
 
 namespace engine
 {
-    void Model::InitBuffer(core::context context,const std::vector<Vertex> vertices, const std::vector<uint32_t> indices)
+    void Mesh::InitBuffer(core::context context,const std::vector<GPUVertex> vertices, const std::vector<uint32_t> indices)
     {
         vCount = vertices.size();
         iCount = indices.size();
-        vSize = sizeof(Vertex) * vCount;
+        vSize = sizeof(GPUVertex) * vCount;
         iSize = sizeof(uint32_t) * iCount;
         vk::BufferCreateInfo bufferCi;
         bufferCi.size = vSize + iSize;

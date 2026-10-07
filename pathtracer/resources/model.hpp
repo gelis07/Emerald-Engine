@@ -2,26 +2,13 @@
 #include <buffer.hpp>
 #include <glm.hpp>
 #include <context.hpp>
+#include "GPUData.hpp"
 namespace engine
 {
-    struct Vertex
-    {
-        glm::vec3 position;
-        glm::vec2 texCoords;
-        glm::vec3 normals;
-        glm::vec3 tangent;
-        glm::vec3 bitangent;
-
-        uint32_t boneOffset = 0;
-        uint32_t boneCount = 0;
-    };
-
-
-    class Model
+    class Mesh
     {
         public:
-        void InitBuffer(core::context context, const std::vector<Vertex> vertices, const std::vector<uint32_t> indices);
-
+        void InitBuffer(core::context context, const std::vector<GPUVertex> vertices, const std::vector<uint32_t> indices);
         core::buffer getBuffer() const {return vertBuffer;}
 
 
@@ -30,8 +17,8 @@ namespace engine
 
         uint32_t getVSize() const {return vSize;};
         uint32_t getISize() const {return iSize;};
-
         glm::mat4 transform;
+        uint32_t matId;
         private:
         core::buffer vertBuffer; //Contains both index and vertex data.
 
@@ -40,5 +27,13 @@ namespace engine
 
         uint32_t vSize;
         uint32_t iSize;
+    };
+
+
+    class Model
+    {
+        public:
+        std::vector<Mesh> meshes;
+        glm::mat4 transform;
     };
 }

@@ -3,6 +3,9 @@
 #include <gtc/matrix_transform.hpp>
 #include "app/externInput.hpp"
 #include <chrono>
+
+
+
 int main()
 {
     core::instance instance({});
@@ -11,15 +14,24 @@ int main()
     core::context context(device, alloc, instance);
 
     engine::Scene scene;
-
     loader::loaderOutput bunny = loader::assimpLoader::loadModel("bunny.obj");
-
+    
+    engine::Material material;
+    material.albedo = glm::vec3(0.0, 1.0, 0.0);
+    material.metalness = 0.0f;
+    material.roughness = 1.0f;
+    
     engine::Model model;
-    model.InitBuffer(context, bunny.vertices, bunny.indices);
+    engine::Mesh mesh;
+    mesh.InitBuffer(context, bunny.vertices, bunny.indices);
+    mesh.transform = glm::mat4(1.0f);
+    mesh.matId = 0;
+    model.meshes.push_back(mesh);
     model.transform = glm::mat4(1.0f);
     model.transform = glm::translate(model.transform, glm::vec3(0, 0, 0));
     model.transform = glm::scale(model.transform, glm::vec3(10.0f));
     scene.models.push_back(model);
+    scene.materials.push_back(material);
 
     
     engine::RenderSettings settings;
