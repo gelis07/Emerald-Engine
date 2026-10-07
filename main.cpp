@@ -17,7 +17,7 @@ int main()
     loader::loaderOutput bunny = loader::assimpLoader::loadModel("bunny.obj");
     
     engine::Material material;
-    material.albedo = glm::vec3(0.0, 1.0, 0.0);
+    material.albedo = glm::vec3(1.0, 0.0, 0.0);
     material.metalness = 0.0f;
     material.roughness = 1.0f;
     

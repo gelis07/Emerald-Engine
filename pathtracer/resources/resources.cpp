@@ -34,7 +34,7 @@ namespace engine
     void Resources::setUpDescriptors(core::context context)
     {
         std::vector<vk::DescriptorSetLayoutBinding> bindings;
-        bindings.resize(6);
+        bindings.resize(8);
         bindings[0].setBinding(0)
         .setDescriptorType(vk::DescriptorType::eStorageImage)
         .setDescriptorCount(1)
@@ -59,11 +59,21 @@ namespace engine
         .setDescriptorCount(214)
         .setDescriptorType(vk::DescriptorType::eStorageBuffer)
         .setStageFlags(vk::ShaderStageFlagBits::eClosestHitKHR);
+        bindings[6].setBinding(3)
+        .setDescriptorCount(214)
+        .setDescriptorType(vk::DescriptorType::eStorageBuffer)
+        .setStageFlags(vk::ShaderStageFlagBits::eClosestHitKHR);
+        bindings[7].setBinding(4)
+        .setDescriptorCount(214)
+        .setDescriptorType(vk::DescriptorType::eStorageBuffer)
+        .setStageFlags(vk::ShaderStageFlagBits::eClosestHitKHR);
 
         std::vector<vk::DescriptorBindingFlags> bindingFlags = {
         {},
         {},
         {},
+        vk::DescriptorBindingFlagBits::ePartiallyBound,
+        vk::DescriptorBindingFlagBits::ePartiallyBound,
         vk::DescriptorBindingFlagBits::ePartiallyBound,
         vk::DescriptorBindingFlagBits::ePartiallyBound,
         vk::DescriptorBindingFlagBits::ePartiallyBound,
@@ -152,8 +162,31 @@ namespace engine
         .setOffset(0)
         .setRange(materialsBuffer.size);
 
+
+        std::vector<vk::DescriptorBufferInfo> vertexBuffersInfos;
+        std::vector<vk::DescriptorBufferInfo> indexBuffersInfos;
+        for(int i = 0; i < scene.models.size(); i++)
+        {
+            const Model& model = scene.models[i];
+            for(int j = 0; j < model.meshes.size(); j++)
+            {
+                const Mesh& mesh = model.meshes[j];
+                vk::DescriptorBufferInfo vBuffer;
+                vBuffer.setBuffer(mesh.getBuffer().buffer)
+                .setOffset(0)
+                .setRange(sizeof(GPUVertex) * mesh.getVertexCount());
+                vertexBuffersInfos.push_back(vBuffer);
+
+                vk::DescriptorBufferInfo iBuffer;
+                iBuffer.setBuffer(mesh.getBuffer().buffer)
+                .setOffset(sizeof(GPUVertex) * mesh.getVertexCount())
+                .setRange(sizeof(uint32_t) * mesh.getIndexCount());
+                indexBuffersInfos.push_back(iBuffer);
+            }
+        }
+
         std::vector<vk::WriteDescriptorSet> descWrites;
-        descWrites.resize(6);
+        descWrites.resize(8);
         descWrites[0].setDescriptorCount(1)
         .setDescriptorType(vk::DescriptorType::eStorageImage)
         .setImageInfo(renderTargetImageInfo)
@@ -188,6 +221,18 @@ namespace engine
         .setDescriptorType(vk::DescriptorType::eStorageBuffer)
         .setBufferInfo(materialsBufferInfo)
         .setDstBinding(6)
+        .setDstArrayElement(0)
+        .setDstSet(mDescSet);
+        descWrites[6].setDescriptorCount(indexBuffersInfos.size())
+        .setDescriptorType(vk::DescriptorType::eStorageBuffer)
+        .setPBufferInfo(indexBuffersInfos.data())
+        .setDstBinding(3)
+        .setDstArrayElement(0)
+        .setDstSet(mDescSet);
+        descWrites[7].setDescriptorCount(vertexBuffersInfos.size())
+        .setDescriptorType(vk::DescriptorType::eStorageBuffer)
+        .setPBufferInfo(vertexBuffersInfos.data())
+        .setDstBinding(4)
         .setDstArrayElement(0)
         .setDstSet(mDescSet);
 

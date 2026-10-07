@@ -3,6 +3,8 @@
 
 #include "payload.glsl"
 
+const uint MAX_BOUNCES = 4;
+
 layout(binding = 0, rgba8) uniform image2D renderTarget;
 layout(binding = 1) uniform accelerationStructureEXT accStruct;
 
@@ -27,7 +29,21 @@ void main()
     payload.throughput = vec3(1.0);
     payload.color = vec3(0.0);
 
-    traceRayEXT(accStruct, gl_RayFlagsOpaqueEXT, 0xFF, 0, 0, 0, cam.pos, 0.001f, rayDir.xyz, MAX_RAY_COLLISION_DISTANCE, 0);
+    payload.seed =
+    uint(pixelCoord.x) * 1973u +
+    uint(pixelCoord.y) * 9277u;
+
+    payload.rayPos = cam.pos;
+    payload.rayDir = rayDir.xyz;
+    for(int bounce = 0; bounce < MAX_BOUNCES; bounce++)
+    {
+        //Having rayDir = vec3(0.0) as a termination value.
+        if(payload.rayDir == vec3(0.0))
+            break;
+
+        traceRayEXT(accStruct, gl_RayFlagsOpaqueEXT, 0xFF, 0, 0, 0, payload.rayPos, 0.001f, payload.rayDir, MAX_RAY_COLLISION_DISTANCE, 0);
+    }
+
 
     imageStore(renderTarget, pixelCoord, vec4(payload.color, 1.0));
 }
