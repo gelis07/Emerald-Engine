@@ -37,7 +37,7 @@ int main()
     engine::RenderSettings settings;
     settings.ImageHeight = 1080;
     settings.ImageWidth = 1920;
-    settings.samples = 100;
+    settings.samples = 1000;
 
     glm::mat4 projection = glm::perspectiveFov(glm::radians(45.0f), 
     (float)settings.ImageWidth, 

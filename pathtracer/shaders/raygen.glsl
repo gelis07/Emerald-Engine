@@ -2,6 +2,7 @@
 #extension GL_EXT_ray_tracing : require
 
 #include "payload.glsl"
+#include "random.glsl"
 
 const uint MAX_BOUNCES = 4;
 
@@ -21,7 +22,13 @@ const float MAX_RAY_COLLISION_DISTANCE = 10000.0f;
 void main()
 {
     ivec2 pixelCoord = ivec2(gl_LaunchIDEXT.xy);
-    vec2 pixelCenter = vec2(pixelCoord) + vec2(0.5);
+    payload.seed =
+    uint(pixelCoord.x) * 1973u +
+    uint(pixelCoord.y) * 9277u +
+    cam.frameIdx  * 26699u + 1u;
+
+    vec3 offset = SampleSquare(payload.seed);
+    vec2 pixelCenter = vec2(pixelCoord + offset.xy) + vec2(0.5);
     vec2 inUV = pixelCenter / vec2(gl_LaunchSizeEXT.xy);
     vec2 d = inUV * 2.0 - 1.0;
 
@@ -31,10 +38,8 @@ void main()
     payload.throughput = vec3(1.0);
     payload.color = vec3(0.0);
 
-    payload.seed =
-    uint(pixelCoord.x) * 1973u +
-    uint(pixelCoord.y) * 9277u +
-    cam.frameIdx  * 26699u + 1u;
+
+
     vec4 prev = vec4(0.0);
     if(cam.frameIdx != 0)
         prev = imageLoad(renderTarget, pixelCoord);

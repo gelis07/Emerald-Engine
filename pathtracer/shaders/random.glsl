@@ -29,3 +29,8 @@ vec3 RandomOnHemisphere(inout uint seed, vec3 normal)
         return -vector;
     }
 }
+
+vec3 SampleSquare(inout uint seed)
+{
+    return vec3(RandomFloat(seed) - 0.5,RandomFloat(seed) - 0.5,0.0); 
+}
