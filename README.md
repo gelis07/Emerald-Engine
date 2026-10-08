@@ -3,13 +3,6 @@
 A Vulkan-based path tracer built to learn physically based rendering and Monte Carlo
 integration, following the concepts in *Physically Based Rendering* (pbrt.org).
 
-*(top renders/screenshots here — and don't forget to admire my amazing animation skills)*
-
-![Render1](images/Render1.png)
-![Render2](images/Render2.png)
-![Render3](images/Render3.png)
-![Render4](images/Render4.png)
-
 ## What it does
 
 Emerald Engine uses Vulkan's hardware ray tracing pipeline to compute a light-transport
