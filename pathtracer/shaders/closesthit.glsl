@@ -5,13 +5,14 @@
 
 
 #include "payload.glsl"
+layout(location = 0) rayPayloadInEXT Payload payload;
 #include "materials.glsl"
 #include "samplers.glsl"
 #include "PDFs.glsl"
+#include "integrator.glsl"
 
 const float EPSILON = 0.001;
 
-layout(location = 0) rayPayloadInEXT Payload payload;
 
 struct Vertex
 {
@@ -91,9 +92,17 @@ void main()
     float a = max(mat.roughness * mat.roughness, 0.001);
 
     vec3 wo = normalize(-payload.rayDir);
+
+    if(any(notEqual(mat.emission, vec3(0.0))))
+    {
+        //Hit the light, so evaluate the sample.
+        BRDFIntegrator(mat.emission);
+        payload.rayDir = vec3(0.0);
+        return;
+    }
+
     vec3 wm;
     vec3 wi;
-    vec3 f0 = mat.albedo;
 
     float chooseSampler = RandomFloat(payload.seed);
     float diffuseWeight = 1.0 - mat.metalness;
@@ -114,7 +123,7 @@ void main()
     diffuseWeight * CosineSamplingPdf(n, wi)+
     specularWeight * BRDFSamplingPdf(wo, wm,n,a);
 
-    vec3 bsdf = bsdfEvaluation(f0, wm, wo, wi, n, a, mat.metalness, mat.albedo);
+    vec3 bsdf = bsdfEvaluation(wm, wo, wi, n, a, mat.metalness, mat.albedo);
     float NdotWi = dot(n, wi);
 
     payload.throughput *= bsdf * NdotWi / pdf;

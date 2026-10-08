@@ -37,6 +37,7 @@ namespace loader
             material.albedo = jsonColorToVec3(matJson["albedo"]);
             material.roughness = matJson["Roughness"];
             material.metalness = matJson["Metalicness"];
+            material.emission = jsonColorToVec3(matJson["emission"]);
 
             scene.materials.push_back(material);
         }

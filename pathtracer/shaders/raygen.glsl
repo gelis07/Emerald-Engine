@@ -61,5 +61,5 @@ void main()
     imageStore(renderTarget, pixelCoord, vec4(colorToStore, 1.0));
 
     vec3 outputColor = colorToStore / ((cam.frameIdx + 1));
-    imageStore(sumImage, pixelCoord, vec4(outputColor, 1.0));
+    imageStore(sumImage, pixelCoord, vec4(pow(outputColor, vec3(1.0/2.2)), 1.0));   
 }

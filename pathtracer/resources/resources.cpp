@@ -324,6 +324,7 @@ namespace engine
             gpuMaterial.albedo = material.albedo;
             gpuMaterial.metalness = material.metalness;
             gpuMaterial.roughness = material.roughness;
+            gpuMaterial.emission = material.emission;
             gpuMaterials[i] = gpuMaterial;
         }
 

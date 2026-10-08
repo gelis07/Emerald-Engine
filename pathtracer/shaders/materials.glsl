@@ -6,6 +6,7 @@ struct Material
     vec3 albedo;
     float metalness;
     float roughness;
+    vec3 emission;
 };
 
 float GGXNDF(vec3 n, vec3 h, float alpha)
@@ -37,7 +38,7 @@ float G(vec3 wo, vec3 wi, vec3 n, float a)
 {
     return (1.0 / (1.0 + lambda(wo,n, a) + lambda(wi,n, a)));
 }
-vec3 bsdfEvaluation(vec3 f0, vec3 wm, vec3 wo, vec3 wi
+vec3 bsdfEvaluation(vec3 wm, vec3 wo, vec3 wi
 , vec3 n, float a, float metalness, vec3 albedo)
 {
     float nDotWm = max(dot(wm,n), 0.0001);
@@ -47,7 +48,7 @@ vec3 bsdfEvaluation(vec3 f0, vec3 wm, vec3 wo, vec3 wi
     vec3 fBase = (albedo/ pi);
     vec3 fDiffuse = fBase;
 
-
+    vec3 f0 = mix(vec3(0.04), albedo, metalness);
     vec3 F = Fresnel(wi, wm, f0);
     vec3 specularBrdf = vec3(0.0);
     specularBrdf = GGXNDF(n, wm, a) * F * G(wo, wi, n, a) / (4.0 * nDotWi*nDotWo);

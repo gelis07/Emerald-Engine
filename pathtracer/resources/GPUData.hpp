@@ -28,5 +28,6 @@ namespace engine
         glm::vec3 albedo;
         float metalness;
         float roughness;
+        glm::vec3 emission;
     };
 }

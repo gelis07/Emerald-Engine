@@ -10,6 +10,7 @@ set(SHADER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/random.glsl
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/PDFs.glsl
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/materials.glsl
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/integrator.glsl
 )
 
 set(SHADER_OUTPUT

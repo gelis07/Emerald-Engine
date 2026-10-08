@@ -25,6 +25,7 @@ namespace engine
         float roughness;
         glm::vec3 albedo;
         float metalness;
+        glm::vec3 emission;
     };
 
     struct Scene
