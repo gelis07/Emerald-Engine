@@ -96,12 +96,11 @@ void main()
     vec3 f0 = mat.albedo;
 
     float chooseSampler = RandomFloat(payload.seed);
-    float diffuseWeight = (1.0 - mat.metalness);
-    float specularWeight = mat.metalness;
+    float diffuseWeight = 1.0 - mat.metalness;
+    float specularWeight = 1.0;
     float total = diffuseWeight + specularWeight;
     diffuseWeight /= total;
     specularWeight /= total;
-
     if(chooseSampler < diffuseWeight)
     {
         wi = CosineSampling(payload.seed, n);
@@ -113,7 +112,7 @@ void main()
     }
     float pdf=
     diffuseWeight * CosineSamplingPdf(n, wi)+
-    specularWeight + BRDFSamplingPdf(wo, wm,n,a);
+    specularWeight * BRDFSamplingPdf(wo, wm,n,a);
 
     vec3 bsdf = bsdfEvaluation(f0, wm, wo, wi, n, a, mat.metalness, mat.albedo);
     float NdotWi = dot(n, wi);
