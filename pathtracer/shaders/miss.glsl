@@ -4,6 +4,10 @@
 
 #include "payload.glsl"
 layout(location = 0) rayPayloadInEXT Payload payload;
+#include "materials.glsl"
+#include "samplers.glsl"
+#include "PDFs.glsl"
+layout(binding = 1) uniform accelerationStructureEXT accStruct; 
 #include "integrator.glsl"
 
 

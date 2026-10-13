@@ -8,10 +8,10 @@
 layout(location = 0) rayPayloadInEXT Payload payload;
 #include "materials.glsl"
 #include "samplers.glsl"
-#include "PDFs.glsl"
+layout(binding = 1) uniform accelerationStructureEXT accStruct; 
+#include "PDFS.glsl"
 #include "integrator.glsl"
 
-const float EPSILON = 0.001;
 
 
 struct Vertex
@@ -33,7 +33,6 @@ struct Mesh
     uint matId;
 };
 
-layout(binding = 1) uniform accelerationStructureEXT accStruct; 
 
 layout(scalar, binding = 3, set = 0) buffer IndexBuffer
 {
@@ -96,10 +95,12 @@ void main()
     if(any(notEqual(mat.emission, vec3(0.0))))
     {
         //Hit the light, so evaluate the sample.
-        BRDFIntegrator(mat.emission);
+        payload.color += BRDFIntegrator(wo, n, t*t, mat.emission);
         payload.rayDir = vec3(0.0);
         return;
     }
+    payload.rayPos = payload.rayPos + payload.rayDir * t + n * EPSILON; 
+    payload.color += LightIntegrator(wo,n, a, mat.metalness, mat.albedo);
 
     vec3 wm;
     vec3 wi;
@@ -125,8 +126,8 @@ void main()
 
     vec3 bsdf = bsdfEvaluation(wm, wo, wi, n, a, mat.metalness, mat.albedo);
     float NdotWi = dot(n, wi);
-
+    if (NdotWi <= 0.0) { payload.rayDir = vec3(0.0); return; }
     payload.throughput *= bsdf * NdotWi / pdf;
-    payload.rayPos = payload.rayPos + payload.rayDir * t + n * EPSILON; 
     payload.rayDir = wi;
+    payload.prevBrdfPdf = pdf;
 }

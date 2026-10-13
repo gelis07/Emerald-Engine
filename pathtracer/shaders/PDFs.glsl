@@ -11,3 +11,11 @@ float BRDFSamplingPdf(vec3 wo, vec3 wm, vec3 n, float a)
 
     return max(vndf / (4.0 * cosWoWm), 0.001);
 }
+
+float LightSamplingPdf(vec3 n, vec3 lightDir, float area, float distanceSqr)
+{
+    float nDotLight = dot(n, lightDir);
+    if(nDotLight < 0.0)
+        return 0.0;
+    return distanceSqr / (nDotLight * area);
+}

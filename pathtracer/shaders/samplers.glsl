@@ -65,3 +65,22 @@ vec3 CosineSampling(inout uint seed, vec3 n)
 
     return axis[0] * x + axis[1] * y + axis[2] * z; 
 }
+
+struct lightSample
+{
+    vec3 dir;
+    float distanceSqr;
+};
+
+lightSample lightSampler(inout uint seed, vec3 origin)
+{
+    float x = (2.0*RandomFloat(seed) - 1.0) * 0.23;
+    float y = 2.0;
+    float z = (2.0*RandomFloat(seed) - 1.0) * 0.23;
+
+    lightSample lightsample;
+    vec3 dir = vec3(x,y,z) - origin;
+    lightsample.dir = normalize(dir);
+    lightsample.distanceSqr = dot(dir,dir);
+    return lightsample;
+}
